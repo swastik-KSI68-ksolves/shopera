@@ -1,4 +1,4 @@
-import React, {useRef, useState, useEffect} from 'react';
+import React, {useRef, useState, useEffect, useContext} from 'react';
 import {
   View,
   StyleSheet,
@@ -10,19 +10,28 @@ import {
   Animated,
   Easing,
   Image,
+  Alert,
 } from 'react-native';
 import {head1, head2, button1} from '../../Constants/Common';
 import PrimaryButton from '../../Components/UI/PrimaryButton';
 import Lottie from 'lottie-react-native';
 import {GlobalStyles} from '../../Constants/GlobalStyles';
+import {FlatList} from 'react-native-gesture-handler';
+import LoadingOverlay from '../../Components/UI/LoadingOverlay';
+import {AuthContext} from '../../Store/AuthContext';
+import {userLogin} from '../../Utils/auth';
 
 const Login = ({navigation}) => {
+  const Authctx = useContext(AuthContext);
+  const [isAuthenticating, setisAuthenticating] = useState(false);
   const imageContainer = useRef(new Animated.Value(1.2)).current;
   const [errorMessage, setErrorMessage] = useState('');
+  const [canSendData, setCanSendData] = useState(false);
   const [userData, setuserData] = useState({
     email: '',
     password: '',
   });
+  let response;
 
   useEffect(() => {
     // componentWillMount
@@ -56,11 +65,22 @@ const Login = ({navigation}) => {
     };
   }, []);
 
+  // useEffect(() => {
+  //   signinButtonToggler();
+  // }, [userData]);
+
+  // const signinButtonToggler = () => {
+  //   userData.email.length >= 5 && userData.password.length >= 8
+  //     ? setButtonShow(true)
+  //     : setButtonShow(false);
+  // };
+
   //Email validation function
   const handleEmailValidation = val => {
+    console.log('email');
     let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
-
     if (val.length === 0) {
+      console.log('Hello');
       setErrorMessage('email field is empty');
     } else if (reg.test(val) === false) {
       setErrorMessage('enter valid email address');
@@ -69,17 +89,47 @@ const Login = ({navigation}) => {
     }
   };
 
+  async function sendUserData({email, password}) {
+    setisAuthenticating(true);
+    response = await userLogin(email, password);
+    console.log('res = ', response);
+    if (typeof response != 'object') {
+      Alert.alert(
+        response,
+        'Check your email and password, or try again later',
+      );
+    } else {
+      Authctx.Authenticate(response.idToken);
+    }
+      setisAuthenticating(false);
+  }
+
   const handleUserLogin = () => {
-    handleEmailValidation(userData.email);
     if (userData.email == '' || userData.password == '') {
       setErrorMessage('Fill all fields');
-    } else if (userData.password < 8) {
+      return;
+    } else if (userData.password.length < 8) {
       setErrorMessage('Password is too short');
-    } else if (errorMessage == '') {
-      setErrorMessage('login done');
-      //TODO login user with his credentials
+      return;
+    }
+    handleEmailValidation(userData.email);
+    //TODO:handle user login here
+    const email = userData.email;
+    const password = userData.password;
+    if (canSendData) {
+      sendUserData({email, password});
     }
   };
+
+  useEffect(() => {
+    if (errorMessage == '') {
+      setCanSendData(true);
+    }
+  }, [errorMessage]);
+
+  if (isAuthenticating) {
+    return <LoadingOverlay message="Creating new user" />;
+  }
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior="height">
@@ -110,7 +160,7 @@ const Login = ({navigation}) => {
           value={userData.email}
           autoCorrect={false}
           autoCapitalize="none"
-          placeholderTextColor={GlobalStyles.colors.color3}
+          placeholderTextColor={GlobalStyles.colors.color2}
           onChangeText={value => {
             setuserData({...userData, email: value});
           }}
@@ -124,7 +174,7 @@ const Login = ({navigation}) => {
         <TextInput
           style={styles.input}
           placeholder="Enter your password"
-          placeholderTextColor={GlobalStyles.colors.color3}
+          placeholderTextColor={GlobalStyles.colors.color2}
           secureTextEntry={true}
           autoCorrect={false}
           autoCapitalize="none"
@@ -140,7 +190,7 @@ const Login = ({navigation}) => {
         <Text style={styles.link}>Forgot password?</Text>
       </View>
       <PrimaryButton
-        style={styles.buttonLogin}
+        style={styles.buttonLoginOn}
         onPress={() => {
           handleUserLogin();
         }}>
@@ -153,7 +203,7 @@ const Login = ({navigation}) => {
           Don't have an account?&nbsp;
           <Text
             style={styles.link}
-            onPress={() => navigation.navigate('register')} //navigate to register screen
+            onPress={() => navigation.navigate('Signup')} //navigate to register screen
           >
             Create a new account
           </Text>
@@ -207,10 +257,9 @@ const styles = StyleSheet.create({
 
   input: {
     color: GlobalStyles.colors.color1,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(0,0,0,0.05)',
     borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    padding: 10,
   },
   link: {
     color: GlobalStyles.colors.color01,
@@ -241,7 +290,10 @@ const styles = StyleSheet.create({
   PasswordWeak: {
     color: 'red',
   },
-  buttonLogin: {
+  buttonLoginOn: {
     backgroundColor: '#FE7E80',
+  },
+  buttonLoginOff: {
+    backgroundColor: GlobalStyles.colors.color3,
   },
 });

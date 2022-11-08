@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "809397536901",
+    "project_id": "shopera-5da2e",
+    "storage_bucket": "shopera-5da2e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:809397536901:android:61cd2059eeda83f143c1ec",
+        "android_client_info": {
+          "package_name": "com.shopera"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "809397536901-792dc0iqdjrha59f8kf8rkeaoc0u505i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxLqMIW3ZvLT5SW1aBP0CQnJzvKpkYykg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "809397536901-792dc0iqdjrha59f8kf8rkeaoc0u505i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -2,7 +2,7 @@ import React from 'react';
 import {View, StyleSheet, Pressable} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-export const IconButton = ({style, source, onPress, name, color, size}) => {
+export const IconButton = ({style, onPress, name, color, size}) => {
   return (
     <Pressable
       onPress={onPress}
