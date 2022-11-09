@@ -25,8 +25,11 @@ const Login = ({navigation}) => {
   const Authctx = useContext(AuthContext);
   const [isAuthenticating, setisAuthenticating] = useState(false);
   const imageContainer = useRef(new Animated.Value(1.2)).current;
-  const [errorMessage, setErrorMessage] = useState('');
-  const [canSendData, setCanSendData] = useState(false);
+
+  // for validation
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState(null);
+  const [emailErrorMessage, setEmailErrorMessage] = useState(null);
+
   const [userData, setuserData] = useState({
     email: '',
     password: '',
@@ -77,58 +80,64 @@ const Login = ({navigation}) => {
 
   //Email validation function
   const handleEmailValidation = val => {
-    console.log('email');
     let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
     if (val.length === 0) {
-      console.log('Hello');
-      setErrorMessage('email field is empty');
+      setEmailErrorMessage('email field is empty');
+      return;
     } else if (reg.test(val) === false) {
-      setErrorMessage('enter valid email address');
-    } else if (reg.test(val) === true) {
-      setErrorMessage('');
+      setEmailErrorMessage('enter valid email address');
+      return;
     }
+    if (reg.test(val) === true) {
+      setEmailErrorMessage('');
+      return;
+    }
+    return;
   };
 
   async function sendUserData({email, password}) {
-    setisAuthenticating(true);
     response = await userLogin(email, password);
-    console.log('res = ', response);
     if (typeof response != 'object') {
       Alert.alert(
-        response,
+        response.toLowerCase(),
         'Check your email and password, or try again later',
       );
     } else {
       Authctx.Authenticate(response.idToken);
     }
-      setisAuthenticating(false);
+    setisAuthenticating(false);
   }
 
   const handleUserLogin = () => {
     if (userData.email == '' || userData.password == '') {
-      setErrorMessage('Fill all fields');
-      return;
-    } else if (userData.password.length < 8) {
-      setErrorMessage('Password is too short');
+      if (userData.email == '') setEmailErrorMessage('empty field');
+      if (userData.password == '') setPasswordErrorMessage('empty field');
+      if (userData.email != '') setEmailErrorMessage('');
+      if (userData.password != '') setPasswordErrorMessage('');
       return;
     }
     handleEmailValidation(userData.email);
-    //TODO:handle user login here
+
+    if (userData.password.length < 8) {
+      setPasswordErrorMessage('Password is too short');
+      return;
+    }
+
     const email = userData.email;
     const password = userData.password;
-    if (canSendData) {
+    console.debug('not sending data....');
+    console.debug(userData);
+
+    if (emailErrorMessage == '' && passwordErrorMessage == '') {
+      setisAuthenticating(true);
       sendUserData({email, password});
+      setuserData({...userData, password: ''});
+      return;
     }
   };
 
-  useEffect(() => {
-    if (errorMessage == '') {
-      setCanSendData(true);
-    }
-  }, [errorMessage]);
-
   if (isAuthenticating) {
-    return <LoadingOverlay message="Creating new user" />;
+    return <LoadingOverlay message="Logging in.." />;
   }
 
   return (
@@ -146,16 +155,12 @@ const Login = ({navigation}) => {
       </Animated.View>
 
       <Text style={head1}>Login</Text>
-      {errorMessage ? (
-        <Text style={[head2, {color: 'red'}]}>{errorMessage}</Text>
-      ) : (
-        <Text style={head2}>Sign in to continue</Text>
-      )}
+      <Text style={head2}>Sign in to continue</Text>
 
       <View style={styles.formgroup}>
         <Text style={styles.label}>Email</Text>
         <TextInput
-          style={styles.input}
+          style={!emailErrorMessage ? styles.input : styles.inputError}
           placeholder="Enter your Email"
           value={userData.email}
           autoCorrect={false}
@@ -163,16 +168,20 @@ const Login = ({navigation}) => {
           placeholderTextColor={GlobalStyles.colors.color2}
           onChangeText={value => {
             setuserData({...userData, email: value});
+            setEmailErrorMessage('');
           }}
           onPressIn={() => {
-            setErrorMessage('');
+            setEmailErrorMessage('');
           }} // remove error message on click
         />
+        {!!emailErrorMessage ? (
+          <Text style={styles.errorMessage}>{emailErrorMessage}</Text>
+        ) : null}
       </View>
       <View style={styles.formgroup}>
         <Text style={styles.label}>Password</Text>
         <TextInput
-          style={styles.input}
+          style={!passwordErrorMessage ? styles.input : styles.inputError}
           placeholder="Enter your password"
           placeholderTextColor={GlobalStyles.colors.color2}
           secureTextEntry={true}
@@ -180,11 +189,15 @@ const Login = ({navigation}) => {
           autoCapitalize="none"
           onChangeText={value => {
             setuserData({...userData, password: value});
+            setPasswordErrorMessage('');
           }}
           onPressIn={() => {
-            setErrorMessage('');
+            setPasswordErrorMessage('');
           }} // remove error message on click
         />
+        {!!passwordErrorMessage ? (
+          <Text style={styles.errorMessage}>{passwordErrorMessage}</Text>
+        ) : null}
       </View>
       <View style={styles.fp}>
         <Text style={styles.link}>Forgot password?</Text>
@@ -261,6 +274,14 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 10,
   },
+  inputError: {
+    color: GlobalStyles.colors.color1,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    borderRadius: 20,
+    padding: 10,
+    borderColor: 'red',
+    borderWidth: 1,
+  },
   link: {
     color: GlobalStyles.colors.color01,
     fontSize: 15,
@@ -295,5 +316,10 @@ const styles = StyleSheet.create({
   },
   buttonLoginOff: {
     backgroundColor: GlobalStyles.colors.color3,
+  },
+  errorMessage: {
+    color: 'red',
+    paddingHorizontal: 10,
+    paddingVertical: 3,
   },
 });

@@ -1,6 +1,6 @@
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
 
-function LoadingOverlay({ message }) {
+function LoadingOverlay({message}) {
   return (
     <View style={styles.rootContainer}>
       <Text style={styles.message}>{message}</Text>
@@ -21,5 +21,6 @@ const styles = StyleSheet.create({
   message: {
     fontSize: 16,
     marginBottom: 12,
+    color: 'black',
   },
 });

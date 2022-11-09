@@ -15,6 +15,7 @@ import ImageViewer from '../../Components/UI/ImageViewer';
 import Ratings from '../../Components/UI/Ratings';
 import {IconButton} from '../../Components/UI/IconButton';
 import PrimaryButton from '../../Components/UI/PrimaryButton';
+import {CustomImageSlider} from '../../Exporter/index';
 
 const ProductDescription = ({navigation}) => {
   const route = useRoute();
@@ -55,11 +56,6 @@ const ProductDescription = ({navigation}) => {
       paddingVertical: 10,
       alignItems: 'center',
       justifyContent: 'space-between',
-    },
-    imageContainer: {
-      width: 100,
-      height: 200,
-      backgroundColor: GlobalStyles.colors.Primary1,
     },
     imageStyle: {
       width: '100%',
@@ -142,22 +138,7 @@ const ProductDescription = ({navigation}) => {
   };
   return (
     <View style={styles.container}>
-      <ScrollView horizontal={true} style={styles.scrollViewStyle}>
-        {data.map((e, index) => {
-          return (
-            <Pressable
-              key={index + 1}
-              // style={({pressed}) => (pressed ? styles.pressed : null)}
-              onPress={showImageZoomer(e)}>
-              <View style={[styles.imageContainer, {width: width}]}>
-                <Image style={styles.imageStyle} source={{uri: e}} />
-              </View>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
-
-      {/* TODO   make text go on next line if it grows*/}
+      <CustomImageSlider data={data} width={width} />
       <View style={styles.productDetails}>
         <View style={styles.rateAndTitleContainer}>
           <Text style={styles.titleText}>{Title}</Text>

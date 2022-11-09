@@ -8,6 +8,7 @@ import {
   Animated,
   KeyboardAvoidingView,
   Alert,
+  ScrollView,
 } from 'react-native';
 
 import {head1, head2} from '../../Constants/Common';
@@ -20,11 +21,16 @@ import {userSignup} from '../../Utils/auth';
 
 const SignUp = ({navigation}) => {
   const Authctx = useContext(AuthContext);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [canSendData, setCanSendData] = useState(false);
-  const [passwordValidError, setpasswordValidError] = useState('');
   const imageContainer = useRef(new Animated.Value(1.5)).current;
   const [isAuthenticating, setisAuthenticating] = useState(false);
+
+  // for validation
+  const [nameErrorMessage, setNameErrorMessage] = useState(null);
+  const [emailErrorMessage, setEmailErrorMessage] = useState(null);
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState(null);
+  const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] =
+    useState(null);
+
   const [userData, setUserData] = useState({
     name: '',
     email: '',
@@ -65,12 +71,6 @@ const SignUp = ({navigation}) => {
     };
   }, []);
 
-  useEffect(() => {
-    if (errorMessage == '') {
-      setCanSendData(true);
-    }
-  }, [errorMessage]);
-
   // useEffect(() => {
   //   signupButtonToggler();
   // }, [userData]);
@@ -87,38 +87,39 @@ const SignUp = ({navigation}) => {
   // name validation function
   const handleNameValidation = val => {
     let pattern = /^[a-zA-Z]{2,40}( [a-zA-Z]{2,40})+$/;
-    console.debug(val);
-    console.debug(pattern.test(val));
-
     if (pattern.test(val) === false) {
-      setErrorMessage('enter a valid name');
-    } else {
-      setErrorMessage('');
+      setNameErrorMessage('enter a valid name');
+      return;
     }
+    setNameErrorMessage('');
+    return;
   };
 
   //Email validation function
   const handleEmailValidation = val => {
-    console.log('email');
     let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w\w+)+$/;
     if (val.length === 0) {
-      console.log('Hello');
-      setErrorMessage('email field is empty');
+      setEmailErrorMessage('email field is empty');
+      return;
     } else if (reg.test(val) === false) {
-      console.log('Hello 2');
-      setErrorMessage('enter valid email address');
-    } else if (reg.test(val) === true) {
-      console.log('Hello 3');
-      setErrorMessage('');
+      setEmailErrorMessage('enter valid email address');
+      return;
     }
+    if (reg.test(val) === true) {
+      setEmailErrorMessage('');
+      return;
+    }
+    return;
   };
 
   async function sendUserData({email, password}) {
-    setisAuthenticating(true);
     response = await userSignup(email, password);
     console.log('res = ', response);
     if (typeof response != 'object') {
-      Alert.alert(response, 'Check your credentials, or try again later');
+      Alert.alert(
+        response.toLowerCase(),
+        'Check your credentials, or try again later',
+      );
     } else {
       Authctx.Authenticate(response.idToken);
     }
@@ -132,24 +133,46 @@ const SignUp = ({navigation}) => {
       userData.password == '' ||
       userData.confirmPassword == ''
     ) {
-      setErrorMessage('Fill all fields');
-      return;
-    } else if (userData.password.length < 8) {
-      setErrorMessage('Password is too short');
-      return;
-    } else if (userData.password != userData.confirmPassword) {
-      setErrorMessage('passwords must match');
+      if (userData.name == '') setNameErrorMessage('empty field');
+      if (userData.email == '') setEmailErrorMessage('empty field');
+      if (userData.password == '') setPasswordErrorMessage('empty field');
+      if (userData.confirmPassword == '')
+        setConfirmPasswordErrorMessage('empty field');
+
+      if (userData.name != '') setNameErrorMessage('');
+      if (userData.email != '') setEmailErrorMessage('');
+      if (userData.password != '') setPasswordErrorMessage('');
+      if (userData.confirmPassword != '') setConfirmPasswordErrorMessage('');
       return;
     }
-    if (true) {
-      handleEmailValidation(userData.email);
-    }
+
+    console.debug('gaya');
     handleNameValidation(userData.name);
+    handleEmailValidation(userData.email);
+    console.debug('aaya');
+
+    if (userData.password.length < 8) {
+      setPasswordErrorMessage('Password is too short');
+      return;
+    }
+
+    if (userData.password != userData.confirmPassword) {
+      setConfirmPasswordErrorMessage('both password must match');
+      return;
+    }
 
     const email = userData.email;
     const password = userData.password;
-    if (canSendData) {
+
+    console.debug('not sending data....');
+    console.debug(userData);
+    if (emailErrorMessage == '' && passwordErrorMessage == '') {
+      console.log('sending data....');
+      setisAuthenticating(true);
       sendUserData({email, password});
+      setUserData({...userData, password: ''});
+      setUserData({...userData, confirmPassword: ''});
+      return;
     }
   };
 
@@ -173,25 +196,17 @@ const SignUp = ({navigation}) => {
 
       <Text style={head1}>Create a new account</Text>
 
-      {errorMessage ? (
-        <Text style={[head2, {color: 'red'}]}>{errorMessage}</Text>
-      ) : passwordValidError ? (
-        <Text style={[head2, styles.passwordMsg]}> {passwordValidError} </Text>
-      ) : (
-        <Text style={styles.link2}>
-          Already registered?&nbsp;
-          <Text
-            style={styles.link}
-            onPress={() => navigation.navigate('Login')}>
-            Login here
-          </Text>
+      <Text style={styles.link2}>
+        Already registered?&nbsp;
+        <Text style={styles.link} onPress={() => navigation.navigate('Login')}>
+          Login here
         </Text>
-      )}
+      </Text>
 
       <View style={styles.formgroup}>
         <Text style={styles.label}>Name</Text>
         <TextInput
-          style={styles.input}
+          style={!nameErrorMessage ? styles.input : styles.inputError}
           placeholder="Enter your Name"
           placeholderTextColor={GlobalStyles.colors.color2}
           autoCorrect={false}
@@ -199,17 +214,20 @@ const SignUp = ({navigation}) => {
           value={userData.name}
           onChangeText={value => {
             setUserData({...userData, name: value});
+            setNameErrorMessage('');
           }}
           onPressIn={() => {
-            setpasswordValidError('');
-            setErrorMessage('');
+            setNameErrorMessage('');
           }}
         />
+        {!!nameErrorMessage ? (
+          <Text style={styles.errorMessage}>{nameErrorMessage}</Text>
+        ) : null}
       </View>
       <View style={styles.formgroup}>
         <Text style={styles.label}>Email</Text>
         <TextInput
-          style={styles.input}
+          style={!emailErrorMessage ? styles.input : styles.inputError}
           placeholder="Enter your Email"
           placeholderTextColor={GlobalStyles.colors.color2}
           value={userData.email}
@@ -217,17 +235,20 @@ const SignUp = ({navigation}) => {
           autoCapitalize="none"
           onChangeText={value => {
             setUserData({...userData, email: value});
+            setEmailErrorMessage('');
           }}
           onPressIn={() => {
-            setpasswordValidError('');
-            setErrorMessage('');
+            setEmailErrorMessage('');
           }} // remove error message on click
         />
+        {!!emailErrorMessage ? (
+          <Text style={styles.errorMessage}>{emailErrorMessage}</Text>
+        ) : null}
       </View>
       <View style={styles.formgroup}>
         <Text style={styles.label}>Password</Text>
         <TextInput
-          style={styles.input}
+          style={!passwordErrorMessage ? styles.input : styles.inputError}
           placeholder="Enter your password"
           placeholderTextColor={GlobalStyles.colors.color2}
           secureTextEntry={true}
@@ -236,17 +257,22 @@ const SignUp = ({navigation}) => {
           autoCapitalize="none"
           onChangeText={value => {
             setUserData({...userData, password: value});
+            setPasswordErrorMessage('');
           }}
           onPressIn={() => {
-            setErrorMessage('');
-            setpasswordValidError('');
+            setPasswordErrorMessage('');
           }}
         />
+        {!!passwordErrorMessage ? (
+          <Text style={styles.errorMessage}>{passwordErrorMessage}</Text>
+        ) : null}
       </View>
       <View style={styles.formgroup}>
         <Text style={styles.label}>Confirm password</Text>
         <TextInput
-          style={styles.input}
+          style={
+            !confirmPasswordErrorMessage ? styles.input : styles.inputError
+          }
           placeholderTextColor={GlobalStyles.colors.color2}
           placeholder="Enter your password again"
           secureTextEntry={true}
@@ -255,12 +281,15 @@ const SignUp = ({navigation}) => {
           autoCapitalize="none"
           onChangeText={value => {
             setUserData({...userData, confirmPassword: value});
+            setConfirmPasswordErrorMessage('');
           }}
           onPressIn={() => {
-            setpasswordValidError('');
-            setErrorMessage('');
+            setConfirmPasswordErrorMessage('');
           }}
         />
+        {!!confirmPasswordErrorMessage ? (
+          <Text style={styles.errorMessage}>{confirmPasswordErrorMessage}</Text>
+        ) : null}
       </View>
       <PrimaryButton
         style={styles.buttonRegisterOn}
@@ -307,6 +336,14 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 10,
   },
+  inputError: {
+    color: GlobalStyles.colors.color1,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    borderRadius: 20,
+    padding: 10,
+    borderColor: 'red',
+    borderWidth: 1,
+  },
   link: {
     color: GlobalStyles.colors.color01,
     fontSize: 15,
@@ -339,5 +376,10 @@ const styles = StyleSheet.create({
   },
   buttonRegisterOff: {
     backgroundColor: GlobalStyles.colors.color3,
+  },
+  errorMessage: {
+    color: 'red',
+    paddingHorizontal: 10,
+    // paddingVertical: 3,
   },
 });

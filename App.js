@@ -1,7 +1,7 @@
 import {StatusBar, Text} from 'react-native';
 import {GlobalStyles} from './AppFiles/Constants/GlobalStyles';
 import Card from './AppFiles/Components/UI/Card';
-import {Home, Login, SignUp} from './AppFiles/Exporter/index';
+import {Home, Login, SignUp, UserProfile} from './AppFiles/Exporter/index';
 import {useContext, useEffect, useState} from 'react';
 import {ProductDescription} from './AppFiles/Exporter/index';
 
@@ -19,11 +19,14 @@ const Stack = createStackNavigator();
 
 const DrawerMaker = () => {
   return (
-    <Drawer.Navigator initialRouteName="Home">
+    <Drawer.Navigator
+      initialRouteName="Home"
+      screenOptions={{headerShown: false}}>
       <Drawer.Screen
         name="Home"
         component={Home}
         options={{
+          headerTitle: 'Shopera',
           title: 'Home',
           drawerItemStyle: {backgroundColor: '#0000000'},
           drawerLabelStyle: {color: 'black'},
@@ -82,6 +85,7 @@ function AuthenticatedStack() {
           ),
         }}
       />
+      <Stack.Screen name="userProfile" component={UserProfile} />
     </Stack.Navigator>
   );
 }

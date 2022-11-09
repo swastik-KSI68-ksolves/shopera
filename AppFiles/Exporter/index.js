@@ -8,9 +8,13 @@ import ProductDescription from '../Screens/ProductDescription/ProductDescription
 
 // import all components
 import Card from '../Components/UI/Card';
+import UserAvatar from '../Components/UI/UserAvatar';
+import CustomImageSlider from '../Components/UI/CustomImageSlider';
+import CategorySlider from '../Components/UI/CategorySlider';
+import PrimaryButton from '../Components/UI/PrimaryButton';
 
 // export all screens
 export {Cart, Home, Login, SignUp, UserProfile, ProductDescription};
 
 // export all components
-export {Card};
+export {Card, UserAvatar, CustomImageSlider, CategorySlider, PrimaryButton};
