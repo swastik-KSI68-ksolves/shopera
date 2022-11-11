@@ -10,19 +10,24 @@ import {
 import {GlobalStyles} from '../../Constants/GlobalStyles';
 import {IconButton} from './IconButton';
 import Ratings from './Ratings';
+import {WishListAddButton} from '../../Exporter/index';
 
 const Card = ({
+  id,
   productName,
   productPrice,
   image,
   howManyStar,
   onPress,
   horizontal,
+  isAlreadyAdded,
+  manageWishListInDb,
 }) => {
   const {width, height, fontScale} = useWindowDimensions();
   // const nameLen =
   const producStyle = StyleSheet.create({
     productName: {
+      width: '80%',
       paddingVertical: 5,
       fontSize: productName.length >= 16 ? fontScale * 11 : fontScale * 15,
       color: GlobalStyles.colors.PrimaryTextColor,
@@ -123,20 +128,35 @@ const Card = ({
           <Image style={producStyle.image} source={{uri: image}} />
         </View>
         <View style={producStyle.detailsContainer}>
-          <Text style={producStyle.productName}>{productName}</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              paddingHorizontal: 2,
+            }}>
+            <Text style={producStyle.productName}>{productName}</Text>
+            <WishListAddButton
+              isAlreadyAdded={isAlreadyAdded}
+              onHeartPress={manageWishListInDb}
+            />
+          </View>
           <Text style={producStyle.productPrice}>${productPrice}</Text>
           <View style={producStyle.ratingAndButton}>
             <Ratings
               Touchable={false}
-              size={15}
+              size={fontScale * 15}
               howManyStarShow={howManyStar}
             />
-            <IconButton
-              color="white"
-              name="add"
-              size={23}
-              style={{backgroundColor: GlobalStyles.colors.PrimaryButtonColor}}
-            />
+            <View>
+              <IconButton
+                color="white"
+                name="add"
+                size={fontScale * 23}
+                style={{
+                  backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
+                }}
+              />
+            </View>
           </View>
         </View>
       </View>

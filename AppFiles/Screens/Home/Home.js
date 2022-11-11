@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   View,
   StyleSheet,
@@ -16,10 +16,12 @@ import {
   UserAvatar,
 } from '../../Exporter';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {AuthContext} from '../../Store/AuthContext';
 
 const Home = ({navigation}) => {
   const {fontScale, width, height} = useWindowDimensions();
   const [productsData, setProductsData] = useState();
+  const [wishListData, setWishListData] = useState();
   const getProductsData = async () => {
     let response = await fetch('https://dummyjson.com/products', {
       method: 'GET',
@@ -29,8 +31,15 @@ const Home = ({navigation}) => {
     setProductsData(data);
   };
 
+  const getWishListData = () => {};
+
+  const handleWishToggle = () => {};
+
+  const Authctx = useContext(AuthContext);
+
   useEffect(() => {
     getProductsData();
+    getWishListData();
   }, []);
 
   const imageData = [
@@ -53,6 +62,7 @@ const Home = ({navigation}) => {
             brand: itemData.item.brand,
             category: itemData.item.category,
             rating: Math.round(itemData.item.rating),
+            // TODO: isAlreadyAdded
           })
         }
         howManyStar={Math.round(itemData.item.rating)}
@@ -70,11 +80,7 @@ const Home = ({navigation}) => {
           <View>
             <Pressable
               style={({pressed}) => (pressed ? styles.pressed : null)}
-              onPress={() =>
-                setTimeout(() => {
-                  navigation.openDrawer();
-                }, 200)
-              }>
+              onPress={() => navigation.openDrawer()}>
               <Icon name="menu" color="white" size={fontScale * 32} />
             </Pressable>
           </View>
@@ -127,8 +133,8 @@ const styles = StyleSheet.create({
     width: '100%',
     flex: 0.5,
     backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
     elevation: 10,
   },
   logoContainer: {

@@ -1,33 +1,41 @@
 {
   "project_info": {
-    "project_number": "809397536901",
-    "project_id": "shopera-5da2e",
-    "storage_bucket": "shopera-5da2e.appspot.com"
+    "project_number": "477493844730",
+    "project_id": "shopera-7b2d5",
+    "storage_bucket": "shopera-7b2d5.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:809397536901:android:61cd2059eeda83f143c1ec",
+        "mobilesdk_app_id": "1:477493844730:android:a37947efa42d274fce8743",
         "android_client_info": {
           "package_name": "com.shopera"
         }
       },
       "oauth_client": [
         {
-          "client_id": "809397536901-792dc0iqdjrha59f8kf8rkeaoc0u505i.apps.googleusercontent.com",
+          "client_id": "477493844730-fs8augfr2hi7jn6vn99ik8faphbtlff7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.shopera",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "477493844730-1td1p65h4baomh849hl2frck36jc2s4l.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAxLqMIW3ZvLT5SW1aBP0CQnJzvKpkYykg"
+          "current_key": "AIzaSyC72h2O9SF49S-qMTkOIJ6XosGeavzmBPg"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "809397536901-792dc0iqdjrha59f8kf8rkeaoc0u505i.apps.googleusercontent.com",
+              "client_id": "477493844730-1td1p65h4baomh849hl2frck36jc2s4l.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from 'react';
+import {useContext, useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -14,11 +14,14 @@ import {
 import {GlobalStyles} from '../../Constants/GlobalStyles';
 import {PrimaryButton, UserAvatar} from '../../Exporter';
 import firestore from '@react-native-firebase/firestore';
+import {AuthContext} from '../../Store/AuthContext';
+import {useDrawerStatus} from '@react-navigation/drawer';
 const UserProfile = ({navigation}) => {
   const {fontScale} = useWindowDimensions();
   const [nameErrorMessage, setNameErrorMessage] = useState(null);
   const [pincodeErrorMessage, setPincodeErrorMessage] = useState(null);
   const [addressErrorMessage, setAddressErrorMessage] = useState(null);
+  const [userDocId, setUserDocId] = useState(null);
 
   const [userData, setUserData] = useState({
     name: '',
@@ -26,18 +29,41 @@ const UserProfile = ({navigation}) => {
     address: '',
   });
 
-  useEffect(() => {
+  const AuthCTX = useContext(AuthContext);
+
+  useLayoutEffect(() => {
+    const {email} = JSON.parse(AuthCTX.userInfo);
     firestore()
       .collection('User_details')
+      .where('email', '==', email)
       .get()
       .then(querySnapshot => {
         querySnapshot.forEach(documentSnapshot => {
-          const id = documentSnapshot.id;
+          console.log('doc = ', documentSnapshot);
+          console.log('doc Data = ', documentSnapshot.data());
+          console.log('doc ID = ', documentSnapshot.id);
+          setUserDocId(documentSnapshot.id);
           const {email, name} = documentSnapshot.data();
           setUserData({...userData, email: email, name: name});
         });
       });
   }, []);
+
+  const updateUserData = userData => {
+    const {email} = JSON.parse(AuthCTX.userInfo);
+    AuthCTX.setUserInfo({email: email, name: userData.name});
+    firestore()
+      .collection('User_details')
+      .doc(userDocId)
+      .update({
+        name: userData.name,
+        pincode: userData.pincode,
+        address: userData.address,
+      })
+      .then(() => {
+        console.log('User updated!');
+      });
+  };
 
   // name validation function
   const handleNameValidation = val => {
@@ -60,8 +86,25 @@ const UserProfile = ({navigation}) => {
       return;
     }
 
+    handleNameValidation(userData.name);
+
     if (userData.pincode.length != 6) {
       setPincodeErrorMessage('Pincode must be 6 character long');
+      return;
+    }
+
+    const pincode = userData.pincode;
+    const address = userData.address;
+    if (
+      pincodeErrorMessage == '' &&
+      addressErrorMessage == '' &&
+      nameErrorMessage == ''
+    ) {
+      console.log('sending data....');
+      updateUserData(userData);
+      // setisAuthenticating(true);
+      // setUserData({...userData, pincode: ''});
+      // setUserData({...userData, address: ''});
       return;
     }
   };
@@ -86,24 +129,23 @@ const UserProfile = ({navigation}) => {
         <View style={styles.formgroup}>
           <Text style={styles.label}>your name </Text>
           <TextInput
-            editable={false}
-            style={[styles.input, {backgroundColor: '#ddd'}]}
+            style={!pincodeErrorMessage ? styles.input : styles.inputError}
             placeholderTextColor={GlobalStyles.colors.color2}
             placeholder="Full Name"
             value={userData.name}
             autoCorrect={false}
             autoCapitalize="none"
             onChangeText={value => {
-              // setUserData({...userData, name: value});
-              // setNameErrorMessage('');
+              setUserData({...userData, name: value});
+              setNameErrorMessage('');
             }}
             onPressIn={() => {
-              // setNameErrorMessage('');
+              setNameErrorMessage('');
             }}
           />
-          {/* {!!nameErrorMessage ? (
+          {!!nameErrorMessage ? (
             <Text style={styles.errorMessage}>{nameErrorMessage}</Text>
-          ) : null} */}
+          ) : null}
         </View>
         <View style={styles.formgroup}>
           <Text style={styles.label}>your email</Text>
@@ -228,7 +270,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   buttonRegisterOn: {
-    backgroundColor: '#FE7E80',
+    backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
   },
   errorMessage: {
     color: GlobalStyles.colors.PrimaryButtonColor,

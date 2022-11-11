@@ -42,7 +42,7 @@ export default UserAvatar;
 
 const styles = StyleSheet.create({
   userCirlce: {
-    backgroundColor: GlobalStyles.colors.colorRedShade2,
+    backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
     alignItems: 'center',
     borderRadius: 100,
   },

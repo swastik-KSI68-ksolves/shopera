@@ -130,6 +130,7 @@ const SignUp = ({navigation}) => {
         console.log('saved in db');
       });
       Authctx.Authenticate(response.idToken);
+      Authctx.setUserInfo({email: email, name: name});
     }
     setisAuthenticating(false);
   }

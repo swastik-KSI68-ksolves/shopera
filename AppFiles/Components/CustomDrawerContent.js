@@ -3,7 +3,8 @@ import {
   DrawerItem,
   DrawerItemList,
 } from '@react-navigation/drawer';
-import {useContext} from 'react';
+import {validatePathConfig} from '@react-navigation/native';
+import {useContext, useEffect, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -12,6 +13,7 @@ import {
   Pressable,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {Children} from 'react/cjs/react.production.min';
 import {GlobalStyles} from '../Constants/GlobalStyles';
 import {UserAvatar} from '../Exporter';
 import {AuthContext} from '../Store/AuthContext';
@@ -40,42 +42,53 @@ const ShowLogOutButton = ({fontScale}) => {
   );
 };
 
+const UserImageAndNameContainer = ({fontScale, navigation}) => {
+  const [Name, setName] = useState('User Name');
+  // const Authctx = useContext(AuthContext);
+  // useEffect(() => {
+  //   if (Authctx.appLoaded) {
+  //     const {name} = JSON.parse(Authctx.userInfo);
+  //     setName(name);
+  //   }
+  // }, [Authctx.appLoaded]);
+
+  return (
+    <View style={styles.userDetailsContainer}>
+      <View style={styles.userAvatarContainer}>
+        <UserAvatar
+          isImage={false}
+          fontScale={fontScale * 3}
+          word={Name.charAt(0)}
+          onPress={() => navigation.navigate('userProfile')}
+        />
+      </View>
+      <View style={styles.HelloTextContainer}>
+        <Text style={[styles.Hello, {fontSize: fontScale * 20}]}>Hello,</Text>
+        <Text style={[styles.name, {fontSize: fontScale * 25}]}>{Name}</Text>
+      </View>
+      <View
+        style={{
+          marginVertical: 10,
+          width: '100%',
+          height: 1,
+          borderBottomColor: 'rgba(0,0,0,0.07)',
+          borderBottomWidth: 1,
+          marginHorizontal: 10,
+        }}></View>
+    </View>
+  );
+};
+
 const CustomDrawerContent = props => {
   const Authctx = useContext(AuthContext);
   const {width, height, fontScale} = useWindowDimensions();
-  const image =
-    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLe5PABjXc17cjIMOibECLM7ppDwMmiDg6Dw&usqp=CAU';
-
   return (
     <DrawerContentScrollView {...props}>
       <View style={styles.container}>
-        <View style={styles.userDetailsContainer}>
-          <View style={styles.userAvatarContainer}>
-            <UserAvatar
-              imageLink={image}
-              isImage={true}
-              fontScale={fontScale * 3}
-              onPress={() => props.navigation.navigate('userProfile')}
-            />
-          </View>
-          <View style={styles.HelloTextContainer}>
-            <Text style={[styles.Hello, {fontSize: fontScale * 20}]}>
-              Hello,
-            </Text>
-            <Text style={[styles.name, {fontSize: fontScale * 25}]}>
-              your name
-            </Text>
-          </View>
-          <View
-            style={{
-              marginVertical: 10,
-              width: '100%',
-              height: 1,
-              borderBottomColor: 'rgba(0,0,0,0.07)',
-              borderBottomWidth: 1,
-              marginHorizontal: 10,
-            }}></View>
-        </View>
+        <UserImageAndNameContainer
+          fontScale={fontScale}
+          navigation={props.navigation}
+        />
         <DrawerItemList {...props} />
         <ShowLogOutButton fontScale={fontScale} />
 

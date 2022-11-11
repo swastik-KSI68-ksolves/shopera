@@ -6,6 +6,7 @@ import SignUp from '../Screens/Signup/SignUp';
 import UserProfile from '../Screens/UserProfile/UserProfile';
 import ProductDescription from '../Screens/ProductDescription/ProductDescription';
 import Wishlist from '../Screens/Wishlist/Wishlist';
+import CategoryScreen from '../Screens/Category/CategoryScreen';
 
 // import all components
 import Card from '../Components/UI/Card';
@@ -15,9 +16,19 @@ import CategorySlider from '../Components/UI/CategorySlider';
 import PrimaryButton from '../Components/UI/PrimaryButton';
 import CartItemDetails from '../Components/UI/CartItemDetails';
 import CustomDrawerContent from '../Components/CustomDrawerContent';
+import WishListAddButton from '../Components/UI/WishListAddButton';
 
 // export all screens
-export {Cart, Home, Login, SignUp, UserProfile, ProductDescription, Wishlist};
+export {
+  Cart,
+  Home,
+  Login,
+  SignUp,
+  UserProfile,
+  ProductDescription,
+  Wishlist,
+  CategoryScreen,
+};
 
 // export all components
 export {
@@ -28,4 +39,5 @@ export {
   PrimaryButton,
   CartItemDetails,
   CustomDrawerContent,
+  WishListAddButton,
 };

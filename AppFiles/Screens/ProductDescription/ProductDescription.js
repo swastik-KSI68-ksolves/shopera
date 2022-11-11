@@ -15,7 +15,8 @@ import ImageViewer from '../../Components/UI/ImageViewer';
 import Ratings from '../../Components/UI/Ratings';
 import {IconButton} from '../../Components/UI/IconButton';
 import PrimaryButton from '../../Components/UI/PrimaryButton';
-import {CustomImageSlider} from '../../Exporter/index';
+import {CustomImageSlider, WishListAddButton} from '../../Exporter/index';
+import {H1, H2, H3, H4, H5, H6} from '../../Components/Heading';
 
 const ProductDescription = ({navigation}) => {
   const route = useRoute();
@@ -27,6 +28,7 @@ const ProductDescription = ({navigation}) => {
   const Brand = route.params.brand;
   const Category = route.params.category;
   const Rating = route.params.rating;
+  const isAlreadyAdded = route.params.isAlreadyAdded;
 
   const {width, height, fontScale} = useWindowDimensions();
   const [numberofItems, setNumberofItems] = useState(1);
@@ -51,10 +53,9 @@ const ProductDescription = ({navigation}) => {
       backgroundColor: 'rgba(255,255,255,0.1)',
     },
     rateAndTitleContainer: {
-      flexDirection: 'row',
-      paddingHorizontal: 10,
-      paddingVertical: 10,
-      alignItems: 'center',
+      // paddingHorizontal: 20,
+      paddingVertical: 20,
+      alignItems: 'flex-start',
       justifyContent: 'space-between',
     },
     imageStyle: {
@@ -80,14 +81,25 @@ const ProductDescription = ({navigation}) => {
       marginVertical: 3,
       paddingVertical: 3,
       paddingHorizontal: 10,
+      alignItems: 'center',
       flexDirection: 'row',
+      justifyContent: 'space-between',
+    },
+    ratingBrandCatWithHeart: {
+      // width: '100%',
+      marginVertical: 3,
+      paddingVertical: 3,
+      paddingHorizontal: 10,
+      alignItems: 'center',
+      flexDirection: 'row',
+      justifyContent: 'space-between',
     },
     smallDetails: {
       borderBottomWidth: 1,
       borderBottomColor: GlobalStyles.colors.PrimaryTextColor,
     },
     titleText: {
-      fontSize: fontScale * 16,
+      fontSize: Title.length > 40 ? fontScale * 16 : fontScale * 20,
       color: 'black',
       width: '70%',
     },
@@ -116,15 +128,16 @@ const ProductDescription = ({navigation}) => {
       paddingHorizontal: 10,
     },
     addToCartArea: {
+      width: '100%',
       flexDirection: 'row',
-      paddingVertical: 20,
-      justifyContent: 'space-around',
-      alignItems: 'center',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
     },
     numberofItems: {
       color: 'black',
       fontSize: fontScale * 20,
       paddingHorizontal: 15,
+      paddingVertical: 10,
     },
     numberofItemsChanger: {
       flexDirection: 'row',
@@ -141,19 +154,88 @@ const ProductDescription = ({navigation}) => {
       <CustomImageSlider data={data} width={width} />
       <View style={styles.productDetails}>
         <View style={styles.rateAndTitleContainer}>
-          <Text style={styles.titleText}>{Title}</Text>
-          <View>
-            <Text style={styles.rateText}>${Price}</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              width: '100%',
+              paddingHorizontal: 10,
+            }}>
+            <Text style={styles.titleText}>{Title}</Text>
+
+            <View style={{paddingRight: 20}}>
+              <WishListAddButton isAlreadyAdded={isAlreadyAdded} />
+            </View>
+          </View>
+          <View
+            style={{
+              width: '100%',
+              marginTop: 20,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}>
+            <View style={styles.addToCartArea}>
+              {/* <Text style={styles.rateText}>${Price}</Text> */}
+
+              <View style={{paddingHorizontal: 10}}>
+                <H3 style={{color: 'black'}}>${Price}</H3>
+                <View style={styles.ratingBrandCat}>
+                  <Ratings
+                    Touchable={false}
+                    size={15}
+                    howManyStarShow={Rating}
+                  />
+                </View>
+              </View>
+
+              <View style={{justifyContent: 'center', alignItems: 'flex-end'}}>
+                <PrimaryButton
+                  children="   Buy now   "
+                  color={GlobalStyles.colors.PrimaryTextColor}
+                  style={{
+                    backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
+                  }}
+                  fsize={fontScale * 14}
+                />
+                <PrimaryButton
+                  children="Add to cart"
+                  color={GlobalStyles.colors.PrimaryTextColor}
+                  style={{
+                    backgroundColor: GlobalStyles.colors.PrimaryTextColor,
+                  }}
+                  fsize={fontScale * 14}
+                />
+              </View>
+              {/* <View style={styles.numberofItemsChanger}>
+                <IconButton
+                color="white"
+                  name="add"
+                  size={23}
+                  style={{
+                    backgroundColor: GlobalStyles.colors.PrimaryTextColor,
+                  }}
+                  onPress={() => setNumberofItems(numberofItems + 1)}
+                />
+                <Text style={styles.numberofItems}>{numberofItems}</Text>
+                <IconButton
+                  color="white"
+                  name="remove-outline"
+                  size={23}
+                  style={{
+                    backgroundColor: GlobalStyles.colors.PrimaryTextColor,
+                  }}
+                  onPress={() =>
+                    numberofItems > 1 && setNumberofItems(numberofItems - 1)
+                  }
+                />
+              </View> */}
+            </View>
           </View>
         </View>
 
         <ScrollView
           style={styles.smallDetails}
           contentContainerStyle={{alignItems: 'flex-start'}}>
-          <View style={styles.ratingBrandCat}>
-            <Ratings Touchable={false} size={15} howManyStarShow={Rating} />
-          </View>
-
           <View style={styles.ratingBrandCat}>
             <Text style={[styles.detailsText, {fontWeight: 'bold'}]}>
               Brand
@@ -171,33 +253,6 @@ const ProductDescription = ({navigation}) => {
             <Text style={styles.descText}>{Description}</Text>
           </View>
         </ScrollView>
-        <View style={styles.addToCartArea}>
-          <View style={styles.numberofItemsChanger}>
-            <IconButton
-              color="white"
-              name="add"
-              size={23}
-              style={{backgroundColor: GlobalStyles.colors.PrimaryTextColor}}
-              onPress={() => setNumberofItems(numberofItems + 1)}
-            />
-            <Text style={styles.numberofItems}>{numberofItems}</Text>
-            <IconButton
-              color="white"
-              name="remove-outline"
-              size={23}
-              style={{backgroundColor: GlobalStyles.colors.PrimaryTextColor}}
-              onPress={() =>
-                numberofItems > 1 && setNumberofItems(numberofItems - 1)
-              }
-            />
-          </View>
-          <PrimaryButton
-            children="Add to cart"
-            color={GlobalStyles.colors.PrimaryTextColor}
-            style={{backgroundColor: GlobalStyles.colors.PrimaryTextColor}}
-            fsize={fontScale * 14}
-          />
-        </View>
       </View>
     </View>
   );
