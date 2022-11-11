@@ -18,6 +18,7 @@ import Lottie from 'lottie-react-native';
 import LoadingOverlay from '../../Components/UI/LoadingOverlay';
 import {AuthContext} from '../../Store/AuthContext';
 import {userSignup} from '../../Utils/auth';
+import firestore from '@react-native-firebase/firestore';
 
 const SignUp = ({navigation}) => {
   const Authctx = useContext(AuthContext);
@@ -112,7 +113,7 @@ const SignUp = ({navigation}) => {
     return;
   };
 
-  async function sendUserData({email, password}) {
+  async function sendUserData({name, email, password}) {
     response = await userSignup(email, password);
     console.log('res = ', response);
     if (typeof response != 'object') {
@@ -121,6 +122,13 @@ const SignUp = ({navigation}) => {
         'Check your credentials, or try again later',
       );
     } else {
+      const users = firestore().collection('User_details').add({
+        email: email,
+        name: name,
+      });
+      users.then(sd => {
+        console.log('saved in db');
+      });
       Authctx.Authenticate(response.idToken);
     }
     setisAuthenticating(false);
@@ -133,11 +141,11 @@ const SignUp = ({navigation}) => {
       userData.password == '' ||
       userData.confirmPassword == ''
     ) {
-      if (userData.name == '') setNameErrorMessage('empty field');
-      if (userData.email == '') setEmailErrorMessage('empty field');
-      if (userData.password == '') setPasswordErrorMessage('empty field');
+      if (userData.name == '') setNameErrorMessage('name required');
+      if (userData.email == '') setEmailErrorMessage('email required');
+      if (userData.password == '') setPasswordErrorMessage('password required');
       if (userData.confirmPassword == '')
-        setConfirmPasswordErrorMessage('empty field');
+        setConfirmPasswordErrorMessage('required');
 
       if (userData.name != '') setNameErrorMessage('');
       if (userData.email != '') setEmailErrorMessage('');
@@ -146,10 +154,8 @@ const SignUp = ({navigation}) => {
       return;
     }
 
-    console.debug('gaya');
     handleNameValidation(userData.name);
     handleEmailValidation(userData.email);
-    console.debug('aaya');
 
     if (userData.password.length < 8) {
       setPasswordErrorMessage('Password is too short');
@@ -163,13 +169,18 @@ const SignUp = ({navigation}) => {
 
     const email = userData.email;
     const password = userData.password;
+    const name = userData.name;
 
     console.debug('not sending data....');
     console.debug(userData);
-    if (emailErrorMessage == '' && passwordErrorMessage == '') {
+    if (
+      emailErrorMessage == '' &&
+      passwordErrorMessage == '' &&
+      nameErrorMessage == ''
+    ) {
       console.log('sending data....');
       setisAuthenticating(true);
-      sendUserData({email, password});
+      sendUserData({name, email, password});
       setUserData({...userData, password: ''});
       setUserData({...userData, confirmPassword: ''});
       return;
@@ -341,7 +352,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.05)',
     borderRadius: 20,
     padding: 10,
-    borderColor: 'red',
+    borderColor: GlobalStyles.colors.PrimaryButtonColor,
     borderWidth: 1,
   },
   link: {
@@ -359,18 +370,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     textAlign: 'center',
   },
-  passwordMsg: {
-    color: 'red',
-  },
-  PasswordStrong: {
-    color: 'green',
-  },
-  PasswordMedium: {
-    color: 'blue',
-  },
-  PasswordWeak: {
-    color: 'red',
-  },
   buttonRegisterOn: {
     backgroundColor: '#FE7E80',
   },
@@ -378,7 +377,7 @@ const styles = StyleSheet.create({
     backgroundColor: GlobalStyles.colors.color3,
   },
   errorMessage: {
-    color: 'red',
+    color: GlobalStyles.colors.PrimaryButtonColor,
     paddingHorizontal: 10,
     // paddingVertical: 3,
   },

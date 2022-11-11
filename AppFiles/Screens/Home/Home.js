@@ -98,7 +98,7 @@ const Home = ({navigation}) => {
         </View>
         <View style={styles.middleContainer}>
           <Text style={[styles.best, {fontSize: fontScale * 23}]}>
-            Best Collections
+            Browse categories
           </Text>
           <CategorySlider color={'black'} size={25} />
         </View>

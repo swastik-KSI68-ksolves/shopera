@@ -1,7 +1,15 @@
 import {StatusBar, Text} from 'react-native';
 import {GlobalStyles} from './AppFiles/Constants/GlobalStyles';
 import Card from './AppFiles/Components/UI/Card';
-import {Home, Login, SignUp, UserProfile} from './AppFiles/Exporter/index';
+import {
+  Home,
+  Login,
+  SignUp,
+  UserProfile,
+  Cart,
+  Wishlist,
+  CustomDrawerContent,
+} from './AppFiles/Exporter/index';
 import {useContext, useEffect, useState} from 'react';
 import {ProductDescription} from './AppFiles/Exporter/index';
 
@@ -20,19 +28,49 @@ const Stack = createStackNavigator();
 const DrawerMaker = () => {
   return (
     <Drawer.Navigator
+      drawerContent={props => <CustomDrawerContent {...props} />}
       initialRouteName="Home"
-      screenOptions={{headerShown: false}}>
+      screenOptions={{headerShown: false}}
+      >
       <Drawer.Screen
         name="Home"
         component={Home}
         options={{
-          headerTitle: 'Shopera',
-          title: 'Home',
           drawerItemStyle: {backgroundColor: '#0000000'},
           drawerLabelStyle: {color: 'black'},
           drawerIcon: ({focused, size}) => (
             <Icon
               name="md-home"
+              color={focused ? GlobalStyles.colors.PrimaryButtonColor : '#ccc'}
+              size={size}
+            />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Cart"
+        component={Cart}
+        options={{
+          drawerItemStyle: {backgroundColor: '#0000000'},
+          drawerLabelStyle: {color: 'black'},
+          drawerIcon: ({focused, size}) => (
+            <Icon
+              name="cart-outline"
+              color={focused ? GlobalStyles.colors.PrimaryButtonColor : '#ccc'}
+              size={size}
+            />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Wishlist"
+        component={Wishlist}
+        options={{
+          drawerItemStyle: {backgroundColor: '#0000000'},
+          drawerLabelStyle: {color: 'black'},
+          drawerIcon: ({focused, size}) => (
+            <Icon
+              name="heart-outline"
               color={focused ? GlobalStyles.colors.PrimaryButtonColor : '#ccc'}
               size={size}
             />
@@ -69,21 +107,6 @@ function AuthenticatedStack() {
       <Stack.Screen
         name="ProductDescription"
         component={ProductDescription}
-        options={{
-          headerRight: () => (
-            <IconButton
-              style={{
-                backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
-                width: 33,
-                height: 33,
-              }}
-              color="white"
-              name="log-out"
-              size={22}
-              onPress={Authctx.Logout}
-            />
-          ),
-        }}
       />
       <Stack.Screen name="userProfile" component={UserProfile} />
     </Stack.Navigator>

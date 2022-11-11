@@ -110,8 +110,8 @@ const Login = ({navigation}) => {
 
   const handleUserLogin = () => {
     if (userData.email == '' || userData.password == '') {
-      if (userData.email == '') setEmailErrorMessage('empty field');
-      if (userData.password == '') setPasswordErrorMessage('empty field');
+      if (userData.email == '') setEmailErrorMessage('email required');
+      if (userData.password == '') setPasswordErrorMessage('password required');
       if (userData.email != '') setEmailErrorMessage('');
       if (userData.password != '') setPasswordErrorMessage('');
       return;
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.05)',
     borderRadius: 20,
     padding: 10,
-    borderColor: 'red',
+    borderColor: GlobalStyles.colors.PrimaryButtonColor,
     borderWidth: 1,
   },
   link: {
@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     backgroundColor: GlobalStyles.colors.color3,
   },
   errorMessage: {
-    color: 'red',
+    color: GlobalStyles.colors.PrimaryButtonColor,
     paddingHorizontal: 10,
     paddingVertical: 3,
   },
