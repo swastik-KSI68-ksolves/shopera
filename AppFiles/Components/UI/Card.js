@@ -11,19 +11,25 @@ import {GlobalStyles} from '../../Constants/GlobalStyles';
 import {IconButton} from './IconButton';
 import Ratings from './Ratings';
 import {WishListAddButton} from '../../Exporter/index';
+import {useContext, useState} from 'react';
+import {AuthContext} from '../../Store/AuthContext';
 
 const Card = ({
   id,
+  howMany,
   productName,
   productPrice,
+  productDesc,
   image,
   howManyStar,
   onPress,
   horizontal,
   isAlreadyAdded,
   manageWishListInDb,
+  onRemoveHandler,
 }) => {
   const {width, height, fontScale} = useWindowDimensions();
+  const [numberofItems, setNumberofItems] = useState(1);
   // const nameLen =
   const producStyle = StyleSheet.create({
     productName: {
@@ -32,17 +38,33 @@ const Card = ({
       fontSize: productName.length >= 16 ? fontScale * 11 : fontScale * 15,
       color: GlobalStyles.colors.PrimaryTextColor,
     },
+    productNameHorizontal: {
+      width: '80%',
+      paddingVertical: 5,
+      fontSize: productName.length >= 16 ? fontScale * 15 : fontScale * 20,
+      color: GlobalStyles.colors.PrimaryTextColor,
+    },
     productPrice: {
-      fontSize: productName.length >= 16 ? fontScale * 13 : fontScale * 16,
+      fontSize: fontScale * 16,
       color: 'black',
+      fontWeight: 'bold',
+    },
+    productPriceHorizontal: {
+      fontSize: fontScale * 20,
+      color: 'black',
+      fontWeight: 'bold',
+    },
+    productDesc: {
+      fontSize: fontScale * 11,
+      color: GlobalStyles.colors.color2,
     },
     cardContainer: {
       backgroundColor: '#ffffff',
       paddingHorizontal: 5,
       paddingVertical: 5,
       margin: 10,
-      width: horizontal ? height * 0.35 : width * 0.43,
-      height: horizontal ? width * 0.43 : height * 0.35,
+      width: horizontal ? height * 0.47 : width * 0.43,
+      height: horizontal ? width * 0.55 : height * 0.35,
       justifyContent: 'space-evenly',
       flexDirection: horizontal ? 'row' : 'column',
       borderRadius: 10,
@@ -68,8 +90,9 @@ const Card = ({
     },
     ratingAndButton: {
       flexDirection: 'row',
-      alignItems: 'center',
+      alignItems: 'flex-end',
       justifyContent: 'space-between',
+      paddingLeft: fontScale * 15,
     },
     pressed: {
       opacity: 0.75,
@@ -88,7 +111,20 @@ const Card = ({
     detailsContainerHorizontal: {
       flex: 1,
       justifyContent: 'space-evenly',
+      alignItems: 'flex-start',
+      paddingLeft: 10,
+    },
+    numberofItemsChanger: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
       alignItems: 'center',
+    },
+    numberofItems: {
+      color: 'black',
+      fontSize: fontScale * 20,
+      paddingHorizontal: 15,
+      paddingVertical: 10,
+      // justifyContent:"space-evenly"
     },
   });
 
@@ -102,17 +138,47 @@ const Card = ({
             <Image style={producStyle.imageHorizontal} source={{uri: image}} />
           </View>
           <View style={producStyle.detailsContainerHorizontal}>
-            <Text style={producStyle.productName}>{productName}</Text>
-            <Text style={producStyle.productPrice}>${productPrice}</Text>
-            <View style={producStyle.ratingAndButton}>
+            <Text style={producStyle.productNameHorizontal}>{productName}</Text>
+            <Text style={producStyle.productDesc}>
+              {productDesc.slice(0, 30)}...
+            </Text>
+            <Text style={producStyle.productPriceHorizontal}>
+              ${productPrice}
+            </Text>
+
+            <View style={producStyle.numberofItemsChanger}>
               <IconButton
                 color="white"
-                name="close-outline"
+                name="add"
                 size={23}
                 style={{
-                  backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
+                  backgroundColor: GlobalStyles.colors.PrimaryTextColor,
                 }}
+                // onPress={() => setNumberofItems(numberofItems + 1)}  increase howMany
               />
+              <Text style={producStyle.numberofItems}>{howMany}</Text>
+              <IconButton
+                color="white"
+                name="remove-outline"
+                size={23}
+                style={{
+                  backgroundColor: GlobalStyles.colors.PrimaryTextColor,
+                }}
+                // onPress={() =>
+                //   // numberofItems > 1 && setNumberofItems(numberofItems - 1) reduce howMany
+                // }
+              />
+              <View style={producStyle.ratingAndButton}>
+                <IconButton
+                  onPress={() => onRemoveHandler(id)}
+                  color="white"
+                  name="close-outline"
+                  size={23}
+                  style={{
+                    backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
+                  }}
+                />
+              </View>
             </View>
           </View>
         </View>
@@ -136,8 +202,8 @@ const Card = ({
             }}>
             <Text style={producStyle.productName}>{productName}</Text>
             <WishListAddButton
+              manageWishListInDb={manageWishListInDb}
               isAlreadyAdded={isAlreadyAdded}
-              onHeartPress={manageWishListInDb}
             />
           </View>
           <Text style={producStyle.productPrice}>${productPrice}</Text>

@@ -3,29 +3,33 @@ import {Pressable, useWindowDimensions} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {GlobalStyles} from '../../Constants/GlobalStyles';
 
-const WishListAddButton = ({onHeartPress, isAlreadyAdded}) => {
+const WishListAddButton = ({isAlreadyAdded, manageWishListInDb}) => {
   const {fontScale} = useWindowDimensions();
   const icon = isAlreadyAdded ? 'heart' : 'heart-outline';
   const color = isAlreadyAdded
     ? GlobalStyles.colors.colorRedShade
     : 'rgba(0,0,0,0.6)';
-  const [heatOnTap, setHeatOnTap] = useState(icon);
+  const [heartOnTap, setheartOnTap] = useState(icon);
   const [heartColor, setHeartColor] = useState(color);
   return (
     <Pressable
       onPress={() => {
         const change =
-          heatOnTap === 'heart-outline' ? 'heart' : 'heart-outline';
+          heartOnTap === 'heart-outline' ? 'heart' : 'heart-outline';
         const changeColor =
           heartColor === 'rgba(0,0,0,0.6)'
             ? GlobalStyles.colors.colorRedShade
             : 'rgba(0,0,0,0.6)';
-
-        setHeatOnTap(change);
+        setheartOnTap(change);
         setHeartColor(changeColor);
-        // onHeartPress();
+        // if (
+        //   heartOnTap === 'heart' &&
+        //   heartColor === GlobalStyles.colors.colorRedShade
+        // ) {
+        () => manageWishListInDb;
+        // }
       }}>
-      <Icon name={heatOnTap} color={heartColor} size={fontScale * 31} />
+      <Icon name={heartOnTap} color={heartColor} size={fontScale * 31} />
     </Pressable>
   );
 };

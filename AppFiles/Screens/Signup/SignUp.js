@@ -119,10 +119,11 @@ const SignUp = ({navigation}) => {
     if (typeof response != 'object') {
       Alert.alert(
         response.toLowerCase(),
-        'Check your credentials, or try again later',
+        'check your credentials, or try again later',
       );
     } else {
-      const users = firestore().collection('User_details').add({
+      const localId = response.localId;
+      const users = firestore().collection('User_details').doc(localId).set({
         email: email,
         name: name,
       });
@@ -130,7 +131,11 @@ const SignUp = ({navigation}) => {
         console.log('saved in db');
       });
       Authctx.Authenticate(response.idToken);
-      Authctx.setUserInfo({email: email, name: name});
+      Authctx.setUserInfo({
+        email: email,
+        name: name,
+        localId: localId,
+      });
     }
     setisAuthenticating(false);
   }
@@ -159,12 +164,12 @@ const SignUp = ({navigation}) => {
     handleEmailValidation(userData.email);
 
     if (userData.password.length < 8) {
-      setPasswordErrorMessage('Password is too short');
+      setPasswordErrorMessage('password is too short');
       return;
     }
 
     if (userData.password != userData.confirmPassword) {
-      setConfirmPasswordErrorMessage('both password must match');
+      setConfirmPasswordErrorMessage('both passwords must match');
       return;
     }
 
@@ -189,7 +194,7 @@ const SignUp = ({navigation}) => {
   };
 
   if (isAuthenticating) {
-    return <LoadingOverlay message="Creating new user" />;
+    return <LoadingOverlay message="creating new user" />;
   }
 
   return (
@@ -206,20 +211,20 @@ const SignUp = ({navigation}) => {
         />
       </Animated.View>
 
-      <Text style={head1}>Create a new account</Text>
+      <Text style={head1}>create a new account</Text>
 
       <Text style={styles.link2}>
-        Already registered?&nbsp;
+        already registered?&nbsp;
         <Text style={styles.link} onPress={() => navigation.navigate('Login')}>
-          Login here
+          login here
         </Text>
       </Text>
 
       <View style={styles.formgroup}>
-        <Text style={styles.label}>Name</Text>
+        <Text style={styles.label}>name</Text>
         <TextInput
           style={!nameErrorMessage ? styles.input : styles.inputError}
-          placeholder="Enter your Name"
+          placeholder="enter your name"
           placeholderTextColor={GlobalStyles.colors.color2}
           autoCorrect={false}
           autoCapitalize="none"
@@ -237,10 +242,10 @@ const SignUp = ({navigation}) => {
         ) : null}
       </View>
       <View style={styles.formgroup}>
-        <Text style={styles.label}>Email</Text>
+        <Text style={styles.label}>email</Text>
         <TextInput
           style={!emailErrorMessage ? styles.input : styles.inputError}
-          placeholder="Enter your Email"
+          placeholder="enter your email"
           placeholderTextColor={GlobalStyles.colors.color2}
           value={userData.email}
           autoCorrect={false}
@@ -258,10 +263,10 @@ const SignUp = ({navigation}) => {
         ) : null}
       </View>
       <View style={styles.formgroup}>
-        <Text style={styles.label}>Password</Text>
+        <Text style={styles.label}>password</Text>
         <TextInput
           style={!passwordErrorMessage ? styles.input : styles.inputError}
-          placeholder="Enter your password"
+          placeholder="enter your password"
           placeholderTextColor={GlobalStyles.colors.color2}
           secureTextEntry={true}
           value={userData.password}
@@ -280,13 +285,13 @@ const SignUp = ({navigation}) => {
         ) : null}
       </View>
       <View style={styles.formgroup}>
-        <Text style={styles.label}>Confirm password</Text>
+        <Text style={styles.label}>confirm password</Text>
         <TextInput
           style={
             !confirmPasswordErrorMessage ? styles.input : styles.inputError
           }
           placeholderTextColor={GlobalStyles.colors.color2}
-          placeholder="Enter your password again"
+          placeholder="enter your password again"
           secureTextEntry={true}
           value={userData.confirmPassword}
           autoCorrect={false}
@@ -357,7 +362,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   link: {
-    color: GlobalStyles.colors.color01,
+    color: GlobalStyles.colors.PrimaryButtonColor,
     fontSize: 15,
   },
   fp: {
@@ -372,7 +377,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   buttonRegisterOn: {
-    backgroundColor: '#FE7E80',
+    backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
   },
   buttonRegisterOff: {
     backgroundColor: GlobalStyles.colors.color3,

@@ -5,20 +5,123 @@ import {
   View,
   Pressable,
   Text,
+  FlatList,
+  Alert,
 } from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {GlobalStyles} from '../../Constants/GlobalStyles';
 import {H5, H6} from '../../Components/Heading';
 import {Card, CartItemDetails, PrimaryButton} from '../../Exporter';
+import firestore from '@react-native-firebase/firestore';
+import {ReloadCart} from '../../Utils/Reloader';
 
 const Cart = ({navigation}) => {
   const {fontScale} = useWindowDimensions();
-  const total = 1200;
-  const numberOfItems = 3;
-  const image =
-    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2TOQn2aqp0iOP0WcA9MOb46jqXLJmviPnFg&usqp=CAU';
+  const [productData, setProductData] = useState([]);
+
+  let total;
+  if (productData.length > 0) {
+    total = productData.reduce((sum, product) => {
+      return sum + product.price;
+    }, 0);
+  } else {
+    total = 0;
+  }
+
+  const onRemoveHandler = id => {
+    firestore()
+      .collection('Cart_items')
+      .where('id', '==', id)
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.forEach(documentSnapshot => {
+          // setDocId(documentSnapshot.id);
+          firestore()
+            .collection('Cart_items')
+            .doc(documentSnapshot.id)
+            .delete()
+            .then(() => {
+              console.log('item deleted!');
+            });
+        });
+      });
+    return;
+  };
+
+  const renderCartProducts = itemData => {
+    console.log(itemData);
+    return (
+      <Card
+        id={itemData.item.id}
+        productDesc={itemData.item.description}
+        horizontal={true}
+        productName={itemData.item.title}
+        productPrice={itemData.item.price}
+        image={itemData.item.thumbnail}
+        howMany={itemData.item.howMany}
+        onRemoveHandler={onRemoveHandler}
+      />
+    );
+  };
+
+  // useEffect(() => {
+  //   firestore()
+  //     .collection('Cart_items')
+  //     .get()
+  //     .then(querySnapshot => {
+  //       querySnapshot.forEach(documentSnapshot => {
+  //         setProductData(oldArray => [...oldArray, documentSnapshot.data()]);
+  //       });
+  //     });
+  // }, []);
+
+  // useEffect(() => {
+  //   const subscriber = firestore()
+  //     .collection('Cart_items')
+  //     .onSnapshot(documentSnapshot => {
+  //       console.log('data = ', documentSnapshot.docs);
+  //     });
+
+  //   return () => subscriber();
+  // }, []);
+
+  useEffect(() => {
+    function onResult(QuerySnapshot) {
+      console.log('Got Users collection result.');
+      // console.log('QuerySnapshot =  ', QuerySnapshot.docs);
+      setProductData([]);
+      QuerySnapshot.forEach(documentSnapshot => {
+        setProductData(oldArray => [...oldArray, documentSnapshot.data()]);
+      });
+    }
+
+    function onError(error) {
+      console.error(error);
+      Alert.alert('something went wrong');
+    }
+
+    firestore().collection('Cart_items').onSnapshot(onResult, onError);
+  }, []);
+
+  const RenderCartData = () => {
+    if (productData.length > 0) {
+      return (
+        <FlatList
+          style={styles.cartItemCards}
+          contentContainerStyle={styles.cardItemCardContainer}
+          data={productData}
+          renderItem={renderCartProducts}
+          keyExtractor={item => item.id}
+        />
+      );
+    } else {
+      return (
+        <Text style={styles.altText}>You don't have any item in your cart</Text>
+      );
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
@@ -31,55 +134,22 @@ const Cart = ({navigation}) => {
               }, 200)
             }>
             <View style={styles.cartAndBack}>
-              <Icon name="arrow-back" color="black" size={fontScale * 32} />
+              <Icon
+                name="arrow-back"
+                color="black"
+                size={fontScale * 32}
+                onPress={() => navigation.goBack()}
+              />
             </View>
           </Pressable>
         </View>
-        {/* <Text style={{paddingHorizontal: 10, fontSize: fontScale * 22}}>
-          Cart
-        </Text> */}
         <View style={styles.rateDetails}>
           <H6 style={styles.H6}>Total</H6>
           <H5 style={styles.H3}>${total}</H5>
         </View>
       </View>
-      <ScrollView
-        style={styles.cartItemCards}
-        contentContainerStyle={styles.cardItemCardContainer}>
-        <Card
-          horizontal={true}
-          productName="mobile"
-          productPrice={250}
-          image={image}
-        />
-        <Card
-          horizontal={true}
-          productName="mobile"
-          productPrice={250}
-          image={image}
-        />
-        <Card
-          horizontal={true}
-          productName="mobile"
-          productPrice={250}
-          image={image}
-        />
-        <Card
-          horizontal={true}
-          productName="mobile"
-          productPrice={250}
-          image={image}
-        />
-        <Card
-          horizontal={true}
-          productName="mobile"
-          productPrice={250}
-          image={image}
-        />
-      </ScrollView>
-      {/* <View style={styles.textContainer}></View> */}
+      <RenderCartData />
       <View style={styles.buttonContainer}>
-        {/* <H6>Total - ${total}</H6> */}
         <PrimaryButton style={styles.buttonSettleNow}>SETTLE NOW</PrimaryButton>
       </View>
     </View>
@@ -131,5 +201,9 @@ const styles = StyleSheet.create({
   },
   buttonSettleNow: {
     backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
+  },
+  altText: {
+    color: 'black',
+    textAlign: 'center',
   },
 });

@@ -1,5 +1,5 @@
-import {useRoute} from '@react-navigation/native';
-import React, {useLayoutEffect, useState} from 'react';
+import {useRoute, validatePathConfig} from '@react-navigation/native';
+import React, {useContext, useEffect, useLayoutEffect, useState} from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -8,6 +8,7 @@ import {
   useWindowDimensions,
   Pressable,
   Text,
+  Alert,
 } from 'react-native';
 import {roundToNearestPixel} from 'react-native/Libraries/Utilities/PixelRatio';
 import {GlobalStyles} from '../../Constants/GlobalStyles';
@@ -15,10 +16,25 @@ import ImageViewer from '../../Components/UI/ImageViewer';
 import Ratings from '../../Components/UI/Ratings';
 import {IconButton} from '../../Components/UI/IconButton';
 import PrimaryButton from '../../Components/UI/PrimaryButton';
-import {CustomImageSlider, WishListAddButton} from '../../Exporter/index';
+import {
+  CartItemDetails,
+  CustomImageSlider,
+  WishListAddButton,
+} from '../../Exporter/index';
 import {H1, H2, H3, H4, H5, H6} from '../../Components/Heading';
+import {handleWishToggle} from '../../Utils/Wishlist_Handler';
+import firestore from '@react-native-firebase/firestore';
+import Icon from 'react-native-vector-icons/Ionicons';
+import {AuthContext} from '../../Store/AuthContext';
+import {ReloadCart} from '../../Utils/Reloader';
+import {CardAnimationContext} from '@react-navigation/stack';
+import {RotationGesture} from 'react-native-gesture-handler/lib/typescript/handlers/gestures/rotationGesture';
 
 const ProductDescription = ({navigation}) => {
+  const Authctx = useContext(AuthContext);
+  const {width, height, fontScale} = useWindowDimensions();
+  const [numberofItems, setNumberofItems] = useState(0);
+
   const route = useRoute();
   const data = route.params.Images;
   const Productid = route.params.id;
@@ -28,20 +44,93 @@ const ProductDescription = ({navigation}) => {
   const Brand = route.params.brand;
   const Category = route.params.category;
   const Rating = route.params.rating;
-  const isAlreadyAdded = route.params.isAlreadyAdded;
+  const Thumbnail = route.params.thumbnail;
+  // const isAlreadyAdded = route.params.isAlreadyAdded;
 
-  const {width, height, fontScale} = useWindowDimensions();
-  const [numberofItems, setNumberofItems] = useState(1);
+  const itemDetails = {
+    id: Productid,
+    Images: data,
+    title: Title,
+    price: Price,
+    description: Description,
+    brand: Brand,
+    category: Category,
+    rating: Rating,
+    thumbnail: Thumbnail,
+    howMany: 1,
+  };
+
+  const addItemToCart = () => {
+    const {localId} = JSON.parse(Authctx.userInfo);
+    const cart = firestore()
+      .collection('Cart_items')
+      .doc(localId)
+      .set(itemDetails);
+    cart.then(sd => {
+      console.log('added item to cart list');
+    });
+    cart.catch(err => {
+      console.log('not added to cart list some error occured');
+    });
+  };
+
+  const loadCartItems = async setNumberofItems => {
+    const {localId} = JSON.parse(Authctx.userInfo);
+    const Cart_items = await firestore()
+      .collection('Cart_items')
+      .doc(localId)
+      .get();
+    setNumberofItems(Cart_items.data.length);
+  };
+
+  const CartCountContainer = () => {
+    return (
+      <Pressable
+        onPress={() => navigation.navigate('Cart')}
+        style={({pressed}) =>
+          pressed
+            ? [styles.cartUpperContianer, {opacity: 0.75}]
+            : [styles.cartUpperContianer]
+        }>
+        <Icon name="cart-outline" color={'black'} size={fontScale * 35} />
+        <View style={styles.cartIconContainer}>
+          <Text style={{color: 'white', fontSize: fontScale * 12}}>
+            {numberofItems}
+          </Text>
+        </View>
+      </Pressable>
+    );
+  };
 
   useLayoutEffect(() => {
+    loadCartItems(setNumberofItems);
     navigation.setOptions({
       title: Title === '' ? 'Product Overview' : Title,
       headerTitleStyle: {
         fontWeight: 'bold',
         fontSize: fontScale * 14,
       },
+      headerRight: CartCountContainer,
+      headerRightContainerStyle: {
+        alignItems: 'flex-end',
+        paddingRight: 20,
+      },
     });
   }, []);
+
+  const handleCartButtonClick = () => {
+    firestore()
+      .collection('Cart_items')
+      .where('id', '==', itemDetails.id)
+      .get()
+      .then(querySnapshot => {
+        querySnapshot.docs.length > 0
+          ? Alert.alert('already in cart, "see your cart')
+          : addItemToCart();
+      });
+    loadCartItems(setNumberofItems);
+    return;
+  };
 
   const styles = StyleSheet.create({
     container: {
@@ -86,7 +175,6 @@ const ProductDescription = ({navigation}) => {
       justifyContent: 'space-between',
     },
     ratingBrandCatWithHeart: {
-      // width: '100%',
       marginVertical: 3,
       paddingVertical: 3,
       paddingHorizontal: 10,
@@ -133,15 +221,17 @@ const ProductDescription = ({navigation}) => {
       justifyContent: 'space-between',
       alignItems: 'flex-start',
     },
-    numberofItems: {
-      color: 'black',
-      fontSize: fontScale * 20,
-      paddingHorizontal: 15,
-      paddingVertical: 10,
+    cartIconContainer: {
+      backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
+      borderRadius: 200,
+      width: numberofItems < 99 ? fontScale * 25 : fontScale * 30,
+      height: numberofItems < 99 ? fontScale * 25 : fontScale * 30,
+      alignItems: 'center',
+      justifyContent: 'center',
     },
-    numberofItemsChanger: {
+    cartUpperContianer: {
       flexDirection: 'row',
-      justifyContent: 'space-evenly',
+      justifyContent: 'center',
       alignItems: 'center',
     },
   });
@@ -164,7 +254,10 @@ const ProductDescription = ({navigation}) => {
             <Text style={styles.titleText}>{Title}</Text>
 
             <View style={{paddingRight: 20}}>
-              <WishListAddButton isAlreadyAdded={isAlreadyAdded} />
+              <WishListAddButton
+              // manageWishListInDb={handleWishToggle}
+              // isAlreadyAdded={isAlreadyAdded}
+              />
             </View>
           </View>
           <View
@@ -198,6 +291,7 @@ const ProductDescription = ({navigation}) => {
                   fsize={fontScale * 14}
                 />
                 <PrimaryButton
+                  onPress={handleCartButtonClick}
                   children="Add to cart"
                   color={GlobalStyles.colors.PrimaryTextColor}
                   style={{
@@ -206,29 +300,6 @@ const ProductDescription = ({navigation}) => {
                   fsize={fontScale * 14}
                 />
               </View>
-              {/* <View style={styles.numberofItemsChanger}>
-                <IconButton
-                color="white"
-                  name="add"
-                  size={23}
-                  style={{
-                    backgroundColor: GlobalStyles.colors.PrimaryTextColor,
-                  }}
-                  onPress={() => setNumberofItems(numberofItems + 1)}
-                />
-                <Text style={styles.numberofItems}>{numberofItems}</Text>
-                <IconButton
-                  color="white"
-                  name="remove-outline"
-                  size={23}
-                  style={{
-                    backgroundColor: GlobalStyles.colors.PrimaryTextColor,
-                  }}
-                  onPress={() =>
-                    numberofItems > 1 && setNumberofItems(numberofItems - 1)
-                  }
-                />
-              </View> */}
             </View>
           </View>
         </View>

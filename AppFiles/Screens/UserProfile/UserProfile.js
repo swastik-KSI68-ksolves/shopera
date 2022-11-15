@@ -33,6 +33,7 @@ const UserProfile = ({navigation}) => {
 
   useLayoutEffect(() => {
     const {email} = JSON.parse(AuthCTX.userInfo);
+    console.log(typeof email);
     firestore()
       .collection('User_details')
       .where('email', '==', email)
@@ -50,8 +51,8 @@ const UserProfile = ({navigation}) => {
   }, []);
 
   const updateUserData = userData => {
-    const {email} = JSON.parse(AuthCTX.userInfo);
-    AuthCTX.setUserInfo({email: email, name: userData.name});
+    const {email, localId} = JSON.parse(AuthCTX.userInfo);
+    AuthCTX.setUserInfo({email: email, name: userData.name, localId: localId});
     firestore()
       .collection('User_details')
       .doc(userDocId)

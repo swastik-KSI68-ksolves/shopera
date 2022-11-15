@@ -20,6 +20,7 @@ import {FlatList} from 'react-native-gesture-handler';
 import LoadingOverlay from '../../Components/UI/LoadingOverlay';
 import {AuthContext} from '../../Store/AuthContext';
 import {userLogin} from '../../Utils/auth';
+import firestore from '@react-native-firebase/firestore';
 
 const Login = ({navigation}) => {
   const Authctx = useContext(AuthContext);
@@ -103,6 +104,19 @@ const Login = ({navigation}) => {
         'Check your email and password, or try again later',
       );
     } else {
+      const localId = response.localId;
+      console.log('token = ', response);
+      firestore()
+        .collection('User_details')
+        .where('email', '==', email)
+        .get()
+        .then(querySnapshot => {
+          querySnapshot.forEach(documentSnapshot => {
+            const {email, name} = documentSnapshot.data();
+            Authctx.setUserInfo({email: email, name: name, localId: localId});
+          });
+        });
+
       Authctx.Authenticate(response.idToken);
     }
     setisAuthenticating(false);
@@ -119,7 +133,7 @@ const Login = ({navigation}) => {
     handleEmailValidation(userData.email);
 
     if (userData.password.length < 8) {
-      setPasswordErrorMessage('Password is too short');
+      setPasswordErrorMessage('password is too short');
       return;
     }
 
@@ -154,14 +168,14 @@ const Login = ({navigation}) => {
         />
       </Animated.View>
 
-      <Text style={head1}>Login</Text>
-      <Text style={head2}>Sign in to continue</Text>
+      <Text style={head1}>login</Text>
+      <Text style={head2}>login in to continue</Text>
 
       <View style={styles.formgroup}>
-        <Text style={styles.label}>Email</Text>
+        <Text style={styles.label}>email</Text>
         <TextInput
           style={!emailErrorMessage ? styles.input : styles.inputError}
-          placeholder="Enter your Email"
+          placeholder="Enter your email"
           value={userData.email}
           autoCorrect={false}
           autoCapitalize="none"
@@ -179,7 +193,7 @@ const Login = ({navigation}) => {
         ) : null}
       </View>
       <View style={styles.formgroup}>
-        <Text style={styles.label}>Password</Text>
+        <Text style={styles.label}>password</Text>
         <TextInput
           style={!passwordErrorMessage ? styles.input : styles.inputError}
           placeholder="Enter your password"
@@ -200,7 +214,7 @@ const Login = ({navigation}) => {
         ) : null}
       </View>
       <View style={styles.fp}>
-        <Text style={styles.link}>Forgot password?</Text>
+        <Text style={styles.link}>forgot password?</Text>
       </View>
       <PrimaryButton
         style={styles.buttonLoginOn}
@@ -213,12 +227,12 @@ const Login = ({navigation}) => {
 
       <View>
         <Text style={styles.link2}>
-          Don't have an account?&nbsp;
+          don't have an account?&nbsp;
           <Text
             style={styles.link}
             onPress={() => navigation.navigate('Signup')} //navigate to register screen
           >
-            Create a new account
+            create a new account
           </Text>
         </Text>
       </View>
@@ -283,7 +297,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   link: {
-    color: GlobalStyles.colors.color01,
+    color: GlobalStyles.colors.PrimaryButtonColor,
     fontSize: 15,
   },
   fp: {
@@ -312,7 +326,7 @@ const styles = StyleSheet.create({
     color: 'red',
   },
   buttonLoginOn: {
-    backgroundColor: '#FE7E80',
+    backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
   },
   buttonLoginOff: {
     backgroundColor: GlobalStyles.colors.color3,

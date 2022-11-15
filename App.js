@@ -30,8 +30,7 @@ const DrawerMaker = () => {
     <Drawer.Navigator
       drawerContent={props => <CustomDrawerContent {...props} />}
       initialRouteName="Home"
-      screenOptions={{headerShown: false}}
-      >
+      screenOptions={{headerShown: false}}>
       <Drawer.Screen
         name="Home"
         component={Home}
@@ -108,7 +107,13 @@ function AuthenticatedStack() {
         name="ProductDescription"
         component={ProductDescription}
       />
-      <Stack.Screen name="userProfile" component={UserProfile} />
+      <Stack.Screen
+        name="userProfile"
+        component={UserProfile}
+        options={{
+          headerTitle: 'User profile',
+        }}
+      />
     </Stack.Navigator>
   );
 }
