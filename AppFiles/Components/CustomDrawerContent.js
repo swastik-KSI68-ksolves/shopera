@@ -1,9 +1,9 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   DrawerContentScrollView,
   DrawerItem,
   DrawerItemList,
 } from '@react-navigation/drawer';
-import {validatePathConfig} from '@react-navigation/native';
 import {useContext, useEffect, useState} from 'react';
 import {
   StyleSheet,
@@ -13,11 +13,9 @@ import {
   Pressable,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import {Children} from 'react/cjs/react.production.min';
 import {GlobalStyles} from '../Constants/GlobalStyles';
 import {UserAvatar} from '../Exporter';
 import {AuthContext} from '../Store/AuthContext';
-import {H3, H5} from './Heading';
 
 const ShowLogOutButton = ({fontScale}) => {
   const Authctx = useContext(AuthContext);
@@ -44,13 +42,29 @@ const ShowLogOutButton = ({fontScale}) => {
 
 const UserImageAndNameContainer = ({fontScale, navigation}) => {
   const [Name, setName] = useState('User Name');
-  // const Authctx = useContext(AuthContext);
+  const Authctx = useContext(AuthContext);
+
+  useEffect(() => {
+    try {
+      let name = 'Guest';
+      setTimeout(() => {
+        if (Authctx.userInfo) {
+          const userInforamtion = JSON.parse(Authctx.userInfo);
+          name = userInforamtion.name;
+        }
+        setName(name);
+      }, 1500);
+    } catch (err) {
+      console.log('something went wrong');
+    }
+  }, [Name]);
+
   // useEffect(() => {
-  //   if (Authctx.appLoaded) {
-  //     const {name} = JSON.parse(Authctx.userInfo);
+  //   setTimeout(() => {
+  // const {name} = JSON.parse(Authctx.userInfo);
   //     setName(name);
-  //   }
-  // }, [Authctx.appLoaded]);
+  //   }, 5000);
+  // }, [AsyncStorage.getItem('userInfomation')]);
 
   return (
     <View style={styles.userDetailsContainer}>

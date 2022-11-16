@@ -8,15 +8,17 @@ import {
   FlatList,
   Alert,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {GlobalStyles} from '../../Constants/GlobalStyles';
 import {H5, H6} from '../../Components/Heading';
 import {Card, CartItemDetails, PrimaryButton} from '../../Exporter';
-import firestore from '@react-native-firebase/firestore';
+import firestore, {firebase} from '@react-native-firebase/firestore';
 import {ReloadCart} from '../../Utils/Reloader';
+import {AuthContext} from '../../Store/AuthContext';
 
 const Cart = ({navigation}) => {
+  const Authctx = useContext(AuthContext);
   const {fontScale} = useWindowDimensions();
   const [productData, setProductData] = useState([]);
 
@@ -29,28 +31,57 @@ const Cart = ({navigation}) => {
     total = 0;
   }
 
-  const onRemoveHandler = id => {
-    firestore()
-      .collection('Cart_items')
-      .where('id', '==', id)
-      .get()
-      .then(querySnapshot => {
-        querySnapshot.forEach(documentSnapshot => {
-          // setDocId(documentSnapshot.id);
-          firestore()
-            .collection('Cart_items')
-            .doc(documentSnapshot.id)
-            .delete()
-            .then(() => {
-              console.log('item deleted!');
-            });
-        });
+  const onRemoveHandler = async id => {
+    const {localId} = JSON.parse(Authctx.userInfo);
+
+    try {
+      const response = await firestore()
+        .collection('Cart_items')
+        .doc(localId)
+        .get();
+      const products = response.data().products;
+      const filteredData = products.filter(item => {
+        return item.id === id;
       });
+
+      const res = firestore().collection('Cart_items').doc(localId);
+      res.update({
+        products : firebase.firestore.FieldValue.delete(filteredData),
+      });
+    } catch (err) {
+      console.log(err);
+    }
+    // .then(querySnapshot => {
+    //   console.log(querySnapshot);
+    //   // querySnapshot.forEach(documentSnapshot => {
+    //   //   console.log("DS = =",documentSnapshot);
+    //   //   // setDocId(documentSnapshot.id);
+    //   //   // firestore()
+    //   //   //   .collection('Cart_items')
+    //   //   //   .doc(documentSnapshot.id)
+    //   //   //   .delete()
+    //   //   //   .then(() => {
+    //   //   //     console.log('item deleted!');
+    //   //   //   });
+    //   // });
+    // })
+    // .catch(err => console.log(err));
     return;
   };
 
   const renderCartProducts = itemData => {
-    console.log(itemData);
+    const itemDetailsForRemove = {
+      id: itemData.item.id,
+      Images: itemData.item.Images,
+      title: itemData.item.title,
+      price: itemData.item.price,
+      description: itemData.item.description,
+      brand: itemData.item.brand,
+      category: itemData.item.category,
+      rating: itemData.item.rating,
+      thumbnail: itemData.item.thumbnail,
+      howMany: itemData.item.howMany,
+    };
     return (
       <Card
         id={itemData.item.id}
@@ -60,7 +91,7 @@ const Cart = ({navigation}) => {
         productPrice={itemData.item.price}
         image={itemData.item.thumbnail}
         howMany={itemData.item.howMany}
-        onRemoveHandler={onRemoveHandler}
+        onRemoveHandler={onRemoveHandler.bind(this, itemData.item.id)}
       />
     );
   };
@@ -87,13 +118,20 @@ const Cart = ({navigation}) => {
   // }, []);
 
   useEffect(() => {
+    const {localId} = JSON.parse(Authctx.userInfo);
     function onResult(QuerySnapshot) {
-      console.log('Got Users collection result.');
-      // console.log('QuerySnapshot =  ', QuerySnapshot.docs);
       setProductData([]);
-      QuerySnapshot.forEach(documentSnapshot => {
-        setProductData(oldArray => [...oldArray, documentSnapshot.data()]);
-      });
+      try {
+        const products = QuerySnapshot.data().products;
+        products.forEach(documentSnapshot => {
+          setProductData(oldArray => [
+            ...oldArray,
+            documentSnapshot.itemDetails,
+          ]);
+        });
+      } catch (err) {
+        console.log(err);
+      }
     }
 
     function onError(error) {
@@ -101,7 +139,10 @@ const Cart = ({navigation}) => {
       Alert.alert('something went wrong');
     }
 
-    firestore().collection('Cart_items').onSnapshot(onResult, onError);
+    firestore()
+      .collection('Cart_items')
+      .doc(localId)
+      .onSnapshot(onResult, onError);
   }, []);
 
   const RenderCartData = () => {

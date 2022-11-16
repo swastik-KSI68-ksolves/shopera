@@ -140,7 +140,7 @@ const Card = ({
           <View style={producStyle.detailsContainerHorizontal}>
             <Text style={producStyle.productNameHorizontal}>{productName}</Text>
             <Text style={producStyle.productDesc}>
-              {productDesc.slice(0, 30)}...
+              {productDesc.slice(0, 30)}... desc
             </Text>
             <Text style={producStyle.productPriceHorizontal}>
               ${productPrice}

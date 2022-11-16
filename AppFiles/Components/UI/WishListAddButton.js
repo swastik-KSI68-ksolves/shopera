@@ -13,22 +13,26 @@ const WishListAddButton = ({isAlreadyAdded, manageWishListInDb}) => {
   const [heartColor, setHeartColor] = useState(color);
   return (
     <Pressable
-      onPress={() => {
-        const change =
-          heartOnTap === 'heart-outline' ? 'heart' : 'heart-outline';
-        const changeColor =
-          heartColor === 'rgba(0,0,0,0.6)'
-            ? GlobalStyles.colors.colorRedShade
-            : 'rgba(0,0,0,0.6)';
-        setheartOnTap(change);
-        setHeartColor(changeColor);
-        // if (
-        //   heartOnTap === 'heart' &&
-        //   heartColor === GlobalStyles.colors.colorRedShade
-        // ) {
-        () => manageWishListInDb;
+      style={({pressed}) => (pressed ? {opacity: 0.85} : null)}
+      onPress={
+        manageWishListInDb
+        //    {
+        //   // const change =
+        //   //   heartOnTap === 'heart-outline' ? 'heart' : 'heart-outline';
+        //   // const changeColor =
+        //   //   heartColor === 'rgba(0,0,0,0.6)'
+        //   //     ? GlobalStyles.colors.colorRedShade
+        //   //     : 'rgba(0,0,0,0.6)';
+        //   // setheartOnTap(change);
+        //   // setHeartColor(changeColor);
+        //   // // if (
+        //   //   heartOnTap === 'heart' &&
+        //   //   heartColor === GlobalStyles.colors.colorRedShade
+        //   // ) {
+        //   manageWishListInDb;
+        //   // }
         // }
-      }}>
+      }>
       <Icon name={heartOnTap} color={heartColor} size={fontScale * 31} />
     </Pressable>
   );

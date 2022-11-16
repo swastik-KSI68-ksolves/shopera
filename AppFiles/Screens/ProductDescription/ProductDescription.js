@@ -9,6 +9,7 @@ import {
   Pressable,
   Text,
   Alert,
+  ToastAndroid,
 } from 'react-native';
 import {roundToNearestPixel} from 'react-native/Libraries/Utilities/PixelRatio';
 import {GlobalStyles} from '../../Constants/GlobalStyles';
@@ -23,7 +24,7 @@ import {
 } from '../../Exporter/index';
 import {H1, H2, H3, H4, H5, H6} from '../../Components/Heading';
 import {handleWishToggle} from '../../Utils/Wishlist_Handler';
-import firestore from '@react-native-firebase/firestore';
+import firestore, {firebase} from '@react-native-firebase/firestore';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {AuthContext} from '../../Store/AuthContext';
 import {ReloadCart} from '../../Utils/Reloader';
@@ -62,28 +63,69 @@ const ProductDescription = ({navigation}) => {
 
   const addItemToCart = () => {
     const {localId} = JSON.parse(Authctx.userInfo);
+    console.log('localid 2= ', localId);
+
     const cart = firestore()
       .collection('Cart_items')
       .doc(localId)
-      .set(itemDetails);
+      .set(
+        {
+          products: firebase.firestore.FieldValue.arrayUnion({
+            itemDetails: itemDetails,
+          }),
+        },
+        {merge: true},
+      );
     cart.then(sd => {
-      console.log('added item to cart list');
+      ToastAndroid.show('Added to cart', ToastAndroid.SHORT);
     });
     cart.catch(err => {
-      console.log('not added to cart list some error occured');
+      ToastAndroid.show('something went wrong', ToastAndroid.SHORT);
     });
   };
 
-  const loadCartItems = async setNumberofItems => {
+  const addItemToWishList = () => {
     const {localId} = JSON.parse(Authctx.userInfo);
-    const Cart_items = await firestore()
-      .collection('Cart_items')
+    console.log('localid 3= ', localId);
+
+    const wishes = firestore()
+      .collection('Wish_list_items')
       .doc(localId)
-      .get();
-    setNumberofItems(Cart_items.data.length);
+      .set(
+        {
+          products: firebase.firestore.FieldValue.arrayUnion({
+            wishes: itemDetails,
+          }),
+        },
+        {merge: true},
+      );
+    wishes.then(sd => {
+      ToastAndroid.show('Added to wishlist', ToastAndroid.SHORT);
+    });
+    wishes.catch(err => {
+      ToastAndroid.show('something went wrong', ToastAndroid.SHORT);
+    });
+  };
+
+  const loadCartItems = async () => {
+    const {localId} = JSON.parse(Authctx.userInfo);
+    console.log('localid 4= ', localId);
+
+    try {
+      const response = await firestore()
+        .collection('Cart_items')
+        .doc(localId)
+        .get();
+      const products = response.data().products;
+      console.log(products.length);
+      setNumberofItems(products.length);
+    } catch (err) {
+      console.log('error in load data', err);
+    }
   };
 
   const CartCountContainer = () => {
+    // loadCartItems();
     return (
       <Pressable
         onPress={() => navigation.navigate('Cart')}
@@ -103,7 +145,7 @@ const ProductDescription = ({navigation}) => {
   };
 
   useLayoutEffect(() => {
-    loadCartItems(setNumberofItems);
+    // loadCartItems();
     navigation.setOptions({
       title: Title === '' ? 'Product Overview' : Title,
       headerTitleStyle: {
@@ -118,17 +160,63 @@ const ProductDescription = ({navigation}) => {
     });
   }, []);
 
-  const handleCartButtonClick = () => {
-    firestore()
-      .collection('Cart_items')
-      .where('id', '==', itemDetails.id)
-      .get()
-      .then(querySnapshot => {
-        querySnapshot.docs.length > 0
-          ? Alert.alert('already in cart, "see your cart')
-          : addItemToCart();
+  const handleCartButtonClick = async () => {
+    const {localId} = JSON.parse(Authctx.userInfo);
+    console.log('localid 6 = ', localId);
+
+    let flag;
+
+    try {
+      const res = await firestore().collection('Cart_items').doc(localId).get();
+      const products = res.data().products;
+      console.log(products);
+      products.forEach(item => {
+        if (item.id === itemDetails.id) {
+          flag = 1;
+          return;
+        }
       });
-    loadCartItems(setNumberofItems);
+    } catch (err) {
+      console.log('Error occured during add to cart', err);
+      flag = 0;
+    }
+
+    flag
+      ? ToastAndroid.show(
+          'Already in cart, Check your cart',
+          ToastAndroid.SHORT,
+        )
+      : addItemToCart();
+    // loadCartItems();
+    return;
+  };
+
+  const handleHeartButtonClick = async () => {
+    const {localId} = JSON.parse(Authctx.userInfo);
+    console.log('localid 1 = ', localId);
+    let flag;
+    try {
+      const res = await firestore()
+        .collection('Wish_list_items')
+        .doc(localId)
+        .get();
+      const products = res.data().products;
+      console.debug(products);
+      products.forEach(item => {
+        if (item.itemDetails.id === itemDetails.id) {
+          flag = 1;
+          return;
+        }
+      });
+    } catch (err) {
+      console.log('Error occured during add to wish list', err);
+      flag = 0;
+    }
+
+    flag
+      ? ToastAndroid.show('already in wishlist', ToastAndroid.SHORT)
+      : addItemToWishList();
+    loadCartItems();
     return;
   };
 
@@ -236,9 +324,6 @@ const ProductDescription = ({navigation}) => {
     },
   });
 
-  const showImageZoomer = e => {
-    return <ImageViewer url={e} title="hello" visible={true} />;
-  };
   return (
     <View style={styles.container}>
       <CustomImageSlider data={data} width={width} />
@@ -255,8 +340,8 @@ const ProductDescription = ({navigation}) => {
 
             <View style={{paddingRight: 20}}>
               <WishListAddButton
-              // manageWishListInDb={handleWishToggle}
-              // isAlreadyAdded={isAlreadyAdded}
+                manageWishListInDb={handleHeartButtonClick}
+                // isAlreadyAdded={isAlreadyAdded}
               />
             </View>
           </View>

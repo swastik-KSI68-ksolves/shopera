@@ -25,7 +25,7 @@ export const AuthContextProvider = ({children}) => {
     const getData = async () => {
       try {
         const value = await AsyncStorage.getItem('authToken');
-        let userInfo = await AsyncStorage.getItem('userInfomation');
+        const userInfo = await AsyncStorage.getItem('userInfomation');
         if (value !== null) {
           setAuthToken(value);
         }

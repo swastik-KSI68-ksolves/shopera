@@ -179,6 +179,7 @@ const Login = ({navigation}) => {
           value={userData.email}
           autoCorrect={false}
           autoCapitalize="none"
+          keyboardType='email-address'
           placeholderTextColor={GlobalStyles.colors.color2}
           onChangeText={value => {
             setuserData({...userData, email: value});
