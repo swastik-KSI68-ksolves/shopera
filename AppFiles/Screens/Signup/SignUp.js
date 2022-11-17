@@ -115,7 +115,6 @@ const SignUp = ({navigation}) => {
 
   async function sendUserData({name, email, password}) {
     response = await userSignup(email, password);
-    console.log('res = ', response);
     if (typeof response != 'object') {
       Alert.alert(
         response.toLowerCase(),
@@ -176,15 +175,11 @@ const SignUp = ({navigation}) => {
     const email = userData.email;
     const password = userData.password;
     const name = userData.name;
-
-    console.debug('not sending data....');
-    console.debug(userData);
     if (
       emailErrorMessage == '' &&
       passwordErrorMessage == '' &&
       nameErrorMessage == ''
     ) {
-      console.log('sending data....');
       setisAuthenticating(true);
       sendUserData({name, email, password});
       setUserData({...userData, password: ''});

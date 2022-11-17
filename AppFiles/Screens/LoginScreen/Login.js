@@ -105,7 +105,6 @@ const Login = ({navigation}) => {
       );
     } else {
       const localId = response.localId;
-      console.log('token = ', response);
       firestore()
         .collection('User_details')
         .where('email', '==', email)
@@ -139,8 +138,6 @@ const Login = ({navigation}) => {
 
     const email = userData.email;
     const password = userData.password;
-    console.debug('not sending data....');
-    console.debug(userData);
 
     if (emailErrorMessage == '' && passwordErrorMessage == '') {
       setisAuthenticating(true);

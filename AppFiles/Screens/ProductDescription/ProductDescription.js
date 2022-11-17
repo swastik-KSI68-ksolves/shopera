@@ -31,10 +31,14 @@ import {ReloadCart} from '../../Utils/Reloader';
 import {CardAnimationContext} from '@react-navigation/stack';
 import {RotationGesture} from 'react-native-gesture-handler/lib/typescript/handlers/gestures/rotationGesture';
 
+import {HandleHeartButtonClick} from '../../Utils/WishListManagement';
+import {HandleCartButtonClick} from '../../Utils/CartManagement';
+
 const ProductDescription = ({navigation}) => {
   const Authctx = useContext(AuthContext);
   const {width, height, fontScale} = useWindowDimensions();
   const [numberofItems, setNumberofItems] = useState(0);
+  const [isInWishLIst, setIsInWishLIst] = useState(false);
 
   const route = useRoute();
   const data = route.params.Images;
@@ -56,55 +60,9 @@ const ProductDescription = ({navigation}) => {
     description: Description,
     brand: Brand,
     category: Category,
-    rating: Rating,
     thumbnail: Thumbnail,
     howMany: 1,
-  };
-
-  const addItemToCart = () => {
-    const {localId} = JSON.parse(Authctx.userInfo);
-    console.log('localid 2= ', localId);
-
-    const cart = firestore()
-      .collection('Cart_items')
-      .doc(localId)
-      .set(
-        {
-          products: firebase.firestore.FieldValue.arrayUnion({
-            itemDetails: itemDetails,
-          }),
-        },
-        {merge: true},
-      );
-    cart.then(sd => {
-      ToastAndroid.show('Added to cart', ToastAndroid.SHORT);
-    });
-    cart.catch(err => {
-      ToastAndroid.show('something went wrong', ToastAndroid.SHORT);
-    });
-  };
-
-  const addItemToWishList = () => {
-    const {localId} = JSON.parse(Authctx.userInfo);
-    console.log('localid 3= ', localId);
-
-    const wishes = firestore()
-      .collection('Wish_list_items')
-      .doc(localId)
-      .set(
-        {
-          products: firebase.firestore.FieldValue.arrayUnion({
-            wishes: itemDetails,
-          }),
-        },
-        {merge: true},
-      );
-    wishes.then(sd => {
-      ToastAndroid.show('Added to wishlist', ToastAndroid.SHORT);
-    });
-    wishes.catch(err => {
-      ToastAndroid.show('something went wrong', ToastAndroid.SHORT);
-    });
+    rating: Rating,
   };
 
   const loadCartItems = async () => {
@@ -160,64 +118,43 @@ const ProductDescription = ({navigation}) => {
     });
   }, []);
 
-  const handleCartButtonClick = async () => {
+  useLayoutEffect(() => {
+    handleHeartButtonColor();
+  }, []);
+
+  const handleHeartButtonColor = async () => {
     const {localId} = JSON.parse(Authctx.userInfo);
-    console.log('localid 6 = ', localId);
-
     let flag;
-
-    try {
-      const res = await firestore().collection('Cart_items').doc(localId).get();
-      const products = res.data().products;
-      console.log(products);
-      products.forEach(item => {
-        if (item.id === itemDetails.id) {
-          flag = 1;
-          return;
-        }
+    await firestore()
+      .collection('Wish_list_items')
+      .doc(localId)
+      .get()
+      .then(response => {
+        const products = response?.data().products;
+        !!products &&
+          products.forEach(item => {
+            if (item.wishes.id === itemDetails.id) {
+              flag = true;
+              return;
+            }
+          });
+      })
+      .catch(err => {
+        console.log('Error occured during add to wish list', err);
+        flag = false;
       });
-    } catch (err) {
-      console.log('Error occured during add to cart', err);
-      flag = 0;
-    }
-
-    flag
-      ? ToastAndroid.show(
-          'Already in cart, Check your cart',
-          ToastAndroid.SHORT,
-        )
-      : addItemToCart();
-    // loadCartItems();
+    setIsInWishLIst(flag);
     return;
   };
 
-  const handleHeartButtonClick = async () => {
+  const handleCartButton = () => {
     const {localId} = JSON.parse(Authctx.userInfo);
-    console.log('localid 1 = ', localId);
-    let flag;
-    try {
-      const res = await firestore()
-        .collection('Wish_list_items')
-        .doc(localId)
-        .get();
-      const products = res.data().products;
-      console.debug(products);
-      products.forEach(item => {
-        if (item.itemDetails.id === itemDetails.id) {
-          flag = 1;
-          return;
-        }
-      });
-    } catch (err) {
-      console.log('Error occured during add to wish list', err);
-      flag = 0;
-    }
+    HandleCartButtonClick(itemDetails, localId);
+  };
 
-    flag
-      ? ToastAndroid.show('already in wishlist', ToastAndroid.SHORT)
-      : addItemToWishList();
-    loadCartItems();
-    return;
+  const handleHeartButton = itemDetails => {
+    const {localId} = JSON.parse(Authctx.userInfo);
+    HandleHeartButtonClick(itemDetails, localId, setIsInWishLIst);
   };
 
   const styles = StyleSheet.create({
@@ -340,8 +277,8 @@ const ProductDescription = ({navigation}) => {
 
             <View style={{paddingRight: 20}}>
               <WishListAddButton
-                manageWishListInDb={handleHeartButtonClick}
-                // isAlreadyAdded={isAlreadyAdded}
+                manageWishListInDb={handleHeartButton.bind(this, itemDetails)}
+                isAlreadyAdded={isInWishLIst}
               />
             </View>
           </View>
@@ -376,7 +313,7 @@ const ProductDescription = ({navigation}) => {
                   fsize={fontScale * 14}
                 />
                 <PrimaryButton
-                  onPress={handleCartButtonClick}
+                  onPress={handleCartButton}
                   children="Add to cart"
                   color={GlobalStyles.colors.PrimaryTextColor}
                   style={{

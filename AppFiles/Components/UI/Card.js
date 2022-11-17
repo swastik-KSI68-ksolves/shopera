@@ -27,6 +27,8 @@ const Card = ({
   isAlreadyAdded,
   manageWishListInDb,
   onRemoveHandler,
+  onAddPress,
+  wishListCard,
 }) => {
   const {width, height, fontScale} = useWindowDimensions();
   const [numberofItems, setNumberofItems] = useState(1);
@@ -129,6 +131,57 @@ const Card = ({
   });
 
   if (horizontal) {
+    const ShowPlusMinus = () => {
+      if (!wishListCard) {
+        return (
+          <View style={producStyle.numberofItemsChanger}>
+            <IconButton
+              color="white"
+              name="add"
+              size={23}
+              style={{
+                backgroundColor: GlobalStyles.colors.PrimaryTextColor,
+              }}
+              // onPress={() => setNumberofItems(numberofItems + 1)}  increase howMany
+            />
+            <Text style={producStyle.numberofItems}>{howMany}</Text>
+            <IconButton
+              color="white"
+              name="remove-outline"
+              size={23}
+              style={{
+                backgroundColor: GlobalStyles.colors.PrimaryTextColor,
+              }}
+              // onPress={() =>
+              //   // numberofItems > 1 && setNumberofItems(numberofItems - 1) reduce howMany
+              // }
+            />
+            <View style={producStyle.ratingAndButton}>
+              <IconButton
+                onPress={() => onRemoveHandler(id)}
+                color="white"
+                name="close-outline"
+                size={23}
+                style={{
+                  backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
+                }}
+              />
+            </View>
+          </View>
+        );
+      }
+      return (
+        <IconButton
+          onPress={() => onRemoveHandler(id)}
+          color="white"
+          name="close-outline"
+          size={23}
+          style={{
+            backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
+          }}
+        />
+      );
+    };
     return (
       <Pressable
         style={({pressed}) => pressed && producStyle.pressed}
@@ -145,41 +198,7 @@ const Card = ({
             <Text style={producStyle.productPriceHorizontal}>
               ${productPrice}
             </Text>
-
-            <View style={producStyle.numberofItemsChanger}>
-              <IconButton
-                color="white"
-                name="add"
-                size={23}
-                style={{
-                  backgroundColor: GlobalStyles.colors.PrimaryTextColor,
-                }}
-                // onPress={() => setNumberofItems(numberofItems + 1)}  increase howMany
-              />
-              <Text style={producStyle.numberofItems}>{howMany}</Text>
-              <IconButton
-                color="white"
-                name="remove-outline"
-                size={23}
-                style={{
-                  backgroundColor: GlobalStyles.colors.PrimaryTextColor,
-                }}
-                // onPress={() =>
-                //   // numberofItems > 1 && setNumberofItems(numberofItems - 1) reduce howMany
-                // }
-              />
-              <View style={producStyle.ratingAndButton}>
-                <IconButton
-                  onPress={() => onRemoveHandler(id)}
-                  color="white"
-                  name="close-outline"
-                  size={23}
-                  style={{
-                    backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
-                  }}
-                />
-              </View>
-            </View>
+            <ShowPlusMinus />
           </View>
         </View>
       </Pressable>
@@ -215,6 +234,7 @@ const Card = ({
             />
             <View>
               <IconButton
+                onPress={onAddPress}
                 color="white"
                 name="add"
                 size={fontScale * 23}

@@ -1,16 +1,22 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Pressable, useWindowDimensions} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {GlobalStyles} from '../../Constants/GlobalStyles';
 
 const WishListAddButton = ({isAlreadyAdded, manageWishListInDb}) => {
   const {fontScale} = useWindowDimensions();
-  const icon = isAlreadyAdded ? 'heart' : 'heart-outline';
-  const color = isAlreadyAdded
-    ? GlobalStyles.colors.colorRedShade
-    : 'rgba(0,0,0,0.6)';
-  const [heartOnTap, setheartOnTap] = useState(icon);
-  const [heartColor, setHeartColor] = useState(color);
+  const [heartOnTap, setheartOnTap] = useState('heart-outline');
+  const [heartColor, setHeartColor] = useState('rgba(0,0,0,0.6)');
+
+  useEffect(() => {
+    const icon = isAlreadyAdded ? 'heart' : 'heart-outline';
+    const color = isAlreadyAdded
+      ? GlobalStyles.colors.colorRedShade
+      : 'rgba(0,0,0,0.6)';
+    setHeartColor(color);
+    setheartOnTap(icon);
+  }, [isAlreadyAdded]);
+
   return (
     <Pressable
       style={({pressed}) => (pressed ? {opacity: 0.85} : null)}

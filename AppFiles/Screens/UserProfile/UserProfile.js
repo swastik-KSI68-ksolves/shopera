@@ -33,16 +33,12 @@ const UserProfile = ({navigation}) => {
 
   useLayoutEffect(() => {
     const {email} = JSON.parse(AuthCTX.userInfo);
-    console.log(typeof email);
     firestore()
       .collection('User_details')
       .where('email', '==', email)
       .get()
       .then(querySnapshot => {
         querySnapshot.forEach(documentSnapshot => {
-          console.log('doc = ', documentSnapshot);
-          console.log('doc Data = ', documentSnapshot.data());
-          console.log('doc ID = ', documentSnapshot.id);
           setUserDocId(documentSnapshot.id);
           const {email, name} = documentSnapshot.data();
           setUserData({...userData, email: email, name: name});
@@ -101,7 +97,6 @@ const UserProfile = ({navigation}) => {
       addressErrorMessage == '' &&
       nameErrorMessage == ''
     ) {
-      console.log('sending data....');
       updateUserData(userData);
       // setisAuthenticating(true);
       // setUserData({...userData, pincode: ''});
@@ -158,19 +153,8 @@ const UserProfile = ({navigation}) => {
             value={userData.email}
             autoCorrect={false}
             autoCapitalize="none"
-            onChangeText={value => {
-              // setUserData({...userData, confirmPassword: value});
-              // setConfirmPasswordErrorMessage('');
-            }}
-            // onPressIn={() => {
-            //   console.log("done")
-            // }}
+            onChangeText={value => {}}
           />
-          {/* {!!confirmPasswordErrorMessage ? (
-            <Text style={styles.errorMessage}>
-              {confirmPasswordErrorMessage}
-            </Text>
-          ) : null} */}
         </View>
         <View style={styles.formgroup}>
           <Text style={styles.label}>Enter pincode</Text>

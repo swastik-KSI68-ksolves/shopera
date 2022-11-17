@@ -9,6 +9,7 @@ import {
   Cart,
   Wishlist,
   CustomDrawerContent,
+  CheckoutScreen,
 } from './AppFiles/Exporter/index';
 import {useContext, useEffect, useState} from 'react';
 import {ProductDescription} from './AppFiles/Exporter/index';
@@ -21,6 +22,7 @@ import SplashScreen from 'react-native-splash-screen';
 import {AuthContextProvider, AuthContext} from './AppFiles/Store/AuthContext';
 import {IconButton} from './AppFiles/Components/UI/IconButton';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Pressable from 'react-native/Libraries/Components/Pressable/Pressable';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -29,12 +31,12 @@ const DrawerMaker = () => {
   return (
     <Drawer.Navigator
       drawerContent={props => <CustomDrawerContent {...props} />}
-      initialRouteName="Home"
-      screenOptions={{headerShown: false}}>
+      initialRouteName="Home">
       <Drawer.Screen
         name="Home"
         component={Home}
         options={{
+          headerShown: false,
           drawerItemStyle: {backgroundColor: '#0000000'},
           drawerLabelStyle: {color: 'black'},
           drawerIcon: ({focused, size}) => (
@@ -50,6 +52,7 @@ const DrawerMaker = () => {
         name="Cart"
         component={Cart}
         options={{
+          headerShown: false,
           drawerItemStyle: {backgroundColor: '#0000000'},
           drawerLabelStyle: {color: 'black'},
           drawerIcon: ({focused, size}) => (
@@ -65,6 +68,7 @@ const DrawerMaker = () => {
         name="Wishlist"
         component={Wishlist}
         options={{
+          headerRightContainerStyle:{alignItems:"flex-end",paddingRight:5,},
           drawerItemStyle: {backgroundColor: '#0000000'},
           drawerLabelStyle: {color: 'black'},
           drawerIcon: ({focused, size}) => (
@@ -103,10 +107,7 @@ function AuthenticatedStack() {
       />
 
       <Stack.Screen name="Home" component={Home} />
-      <Stack.Screen
-        name="ProductDescription"
-        component={ProductDescription}
-      />
+      <Stack.Screen name="ProductDescription" component={ProductDescription} />
       <Stack.Screen
         name="userProfile"
         component={UserProfile}
@@ -114,6 +115,7 @@ function AuthenticatedStack() {
           headerTitle: 'User profile',
         }}
       />
+      <Stack.Screen name="checkOutScreen" component={CheckoutScreen} />
     </Stack.Navigator>
   );
 }

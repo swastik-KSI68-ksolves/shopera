@@ -7,6 +7,7 @@ import UserProfile from '../Screens/UserProfile/UserProfile';
 import ProductDescription from '../Screens/ProductDescription/ProductDescription';
 import Wishlist from '../Screens/Wishlist/Wishlist';
 import CategoryScreen from '../Screens/Category/CategoryScreen';
+import CheckoutScreen from '../Screens/CheckoutScreen/CheckoutScreen';
 
 // import all components
 import Card from '../Components/UI/Card';
@@ -28,6 +29,7 @@ export {
   ProductDescription,
   Wishlist,
   CategoryScreen,
+  CheckoutScreen,
 };
 
 // export all components

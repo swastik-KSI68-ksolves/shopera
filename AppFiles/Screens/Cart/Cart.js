@@ -16,6 +16,7 @@ import {Card, CartItemDetails, PrimaryButton} from '../../Exporter';
 import firestore, {firebase} from '@react-native-firebase/firestore';
 import {ReloadCart} from '../../Utils/Reloader';
 import {AuthContext} from '../../Store/AuthContext';
+import {CheckoutScreen} from '../../Exporter/index';
 
 const Cart = ({navigation}) => {
   const Authctx = useContext(AuthContext);
@@ -46,26 +47,11 @@ const Cart = ({navigation}) => {
 
       const res = firestore().collection('Cart_items').doc(localId);
       res.update({
-        products : firebase.firestore.FieldValue.delete(filteredData),
+        products: firebase.firestore.FieldValue.delete(filteredData),
       });
     } catch (err) {
       console.log(err);
     }
-    // .then(querySnapshot => {
-    //   console.log(querySnapshot);
-    //   // querySnapshot.forEach(documentSnapshot => {
-    //   //   console.log("DS = =",documentSnapshot);
-    //   //   // setDocId(documentSnapshot.id);
-    //   //   // firestore()
-    //   //   //   .collection('Cart_items')
-    //   //   //   .doc(documentSnapshot.id)
-    //   //   //   .delete()
-    //   //   //   .then(() => {
-    //   //   //     console.log('item deleted!');
-    //   //   //   });
-    //   // });
-    // })
-    // .catch(err => console.log(err));
     return;
   };
 
@@ -95,27 +81,6 @@ const Cart = ({navigation}) => {
       />
     );
   };
-
-  // useEffect(() => {
-  //   firestore()
-  //     .collection('Cart_items')
-  //     .get()
-  //     .then(querySnapshot => {
-  //       querySnapshot.forEach(documentSnapshot => {
-  //         setProductData(oldArray => [...oldArray, documentSnapshot.data()]);
-  //       });
-  //     });
-  // }, []);
-
-  // useEffect(() => {
-  //   const subscriber = firestore()
-  //     .collection('Cart_items')
-  //     .onSnapshot(documentSnapshot => {
-  //       console.log('data = ', documentSnapshot.docs);
-  //     });
-
-  //   return () => subscriber();
-  // }, []);
 
   useEffect(() => {
     const {localId} = JSON.parse(Authctx.userInfo);
@@ -191,7 +156,11 @@ const Cart = ({navigation}) => {
       </View>
       <RenderCartData />
       <View style={styles.buttonContainer}>
-        <PrimaryButton style={styles.buttonSettleNow}>SETTLE NOW</PrimaryButton>
+        <PrimaryButton
+          onPress={() => navigation.navigate('checkOutScreen')}
+          style={styles.buttonSettleNow}>
+          SETTLE NOW
+        </PrimaryButton>
       </View>
     </View>
   );

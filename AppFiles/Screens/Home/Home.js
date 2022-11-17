@@ -18,12 +18,15 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import {AuthContext} from '../../Store/AuthContext';
 import firestore from '@react-native-firebase/firestore';
-import {handleWishToggle} from '../../Utils/Wishlist_Handler';
+import {AddItemToCart, HandleCartButtonClick} from '../../Utils/CartManagement';
+import {HandleHeartButtonClick} from '../../Utils/WishListManagement';
 
 const Home = ({navigation}) => {
+  const Authctx = useContext(AuthContext);
   const {fontScale, width, height} = useWindowDimensions();
   const [productsData, setProductsData] = useState();
   const [wishListData, setWishListData] = useState();
+  const [isInWishLIst, setIsInWishLIst] = useState(false);
   const getProductsData = async () => {
     let response = await fetch('https://dummyjson.com/products', {
       method: 'GET',
@@ -48,22 +51,31 @@ const Home = ({navigation}) => {
   // ];
 
   const renderProductsCard = itemData => {
-    const wishListManager = () => {
-      handleWishToggle(
-        itemData.item.id,
-        itemData.item.images,
-        itemData.item.title,
-        itemData.item.price,
-        itemData.item.description,
-        itemData.item.brand,
-        itemData.item.category,
-        Math.round(itemData.item.rating),
-      );
+    const itemDetails = {
+      id: itemData.item.id,
+      Images: itemData.item.images,
+      title: itemData.item.title,
+      price: itemData.item.price,
+      description: itemData.item.description,
+      brand: itemData.item.brand,
+      category: itemData.item.category,
+      thumbnail: itemData.item.thumbnail,
+      howMany: 1,
+      rating: Math.round(itemData.item.rating),
+    };
+
+    const handleCartButton = itemDetails => {
+      const {localId} = JSON.parse(Authctx.userInfo);
+      HandleCartButtonClick(itemDetails, localId);
+    };
+
+    const handleHeartButton = itemDetails => {
+      const {localId} = JSON.parse(Authctx.userInfo);
+      HandleHeartButtonClick(itemDetails, localId, setIsInWishLIst);
     };
 
     return (
       <Card
-        manageWishListInDb={wishListManager}
         onPress={() =>
           navigation.navigate('ProductDescription', {
             id: itemData.item.id,
@@ -82,6 +94,9 @@ const Home = ({navigation}) => {
         productName={itemData.item.title}
         productPrice={itemData.item.price}
         image={itemData.item.thumbnail}
+        isAlreadyAdded={isInWishLIst}
+        manageWishListInDb={handleHeartButton.bind(this, itemDetails)}
+        onAddPress={handleCartButton.bind(this, itemDetails)}
       />
     );
   };
