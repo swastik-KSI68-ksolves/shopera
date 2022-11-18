@@ -236,7 +236,7 @@ const Card = ({
               <IconButton
                 onPress={onAddPress}
                 color="white"
-                name="add"
+                name="cart"
                 size={fontScale * 23}
                 style={{
                   backgroundColor: GlobalStyles.colors.PrimaryButtonColor,

@@ -42,11 +42,10 @@ const Wishlist = ({navigation}) => {
         .get();
       const products = response.data().products;
       const filteredData = products.filter(item => {
-        
         return item.wishes.id !== id;
       });
 
-      console.log("filerd",filteredData);
+      console.log('filerd', filteredData);
       const res = firestore().collection('Wish_list_items').doc(localId);
       res.update({
         wishes: firebase.firestore.FieldValue.delete(filteredData),
@@ -133,6 +132,7 @@ const Wishlist = ({navigation}) => {
 
   useEffect(() => {
     navigation.setOptions({
+      headerRightContainerStyle:{paddingHorizontal:20},
       headerTitleAlign: 'center',
       headerTitleStyle: {color: GlobalStyles.colors.PrimaryButtonColor},
 
@@ -141,6 +141,7 @@ const Wishlist = ({navigation}) => {
           <Icon name="search-outline" color="black" size={fontScale * 25} />
         </Pressable>
       ),
+
     });
   }, [navigation]);
   return (

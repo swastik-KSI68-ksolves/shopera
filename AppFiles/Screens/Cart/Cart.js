@@ -153,8 +153,6 @@ const Cart = ({navigation}) => {
           <H6 style={styles.H6}>Total</H6>
           <H5 style={styles.H3}>${total}</H5>
         </View>
-      </View>
-      <RenderCartData />
       <View style={styles.buttonContainer}>
         <PrimaryButton
           onPress={() => navigation.navigate('checkOutScreen')}
@@ -162,6 +160,9 @@ const Cart = ({navigation}) => {
           SETTLE NOW
         </PrimaryButton>
       </View>
+            </View>
+      <RenderCartData />
+      
     </View>
   );
 };
@@ -188,9 +189,9 @@ const styles = StyleSheet.create({
   },
   textContainer: {flex: 1, backgroundColor: 'red'},
   buttonContainer: {
-    flex: 0.2,
-    justifyContent: 'space-evenly',
-    paddingHorizontal: 30,
+    // flex: 0.2,
+    // justifyContent: 'space-evenly',
+    // paddingHorizontal: 30,
   },
   cartAndBack: {
     flexDirection: 'row',

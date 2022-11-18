@@ -10,6 +10,7 @@ import {
   Wishlist,
   CustomDrawerContent,
   CheckoutScreen,
+  CategoryScreen,
 } from './AppFiles/Exporter/index';
 import {useContext, useEffect, useState} from 'react';
 import {ProductDescription} from './AppFiles/Exporter/index';
@@ -17,72 +18,132 @@ import {ProductDescription} from './AppFiles/Exporter/index';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import 'react-native-gesture-handler';
 import SplashScreen from 'react-native-splash-screen';
 import {AuthContextProvider, AuthContext} from './AppFiles/Store/AuthContext';
 import {IconButton} from './AppFiles/Components/UI/IconButton';
 import Icon from 'react-native-vector-icons/Ionicons';
-import Pressable from 'react-native/Libraries/Components/Pressable/Pressable';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
 
-const DrawerMaker = () => {
+function BottomTabNavigator() {
   return (
-    <Drawer.Navigator
-      drawerContent={props => <CustomDrawerContent {...props} />}
-      initialRouteName="Home">
-      <Drawer.Screen
+    <Tab.Navigator
+      screenOptions={{
+        tabBarStyle: {
+          backgroundColor: GlobalStyles.colors.color4,
+          width: '100%',
+          height: '7%',
+        },
+        tabBarActiveTintColor: GlobalStyles.colors.PrimaryButtonColor,
+        tabBarInactiveTintColor: GlobalStyles.colors.color1,
+      }}>
+      <Tab.Screen
         name="Home"
         component={Home}
         options={{
           headerShown: false,
-          drawerItemStyle: {backgroundColor: '#0000000'},
-          drawerLabelStyle: {color: 'black'},
-          drawerIcon: ({focused, size}) => (
-            <Icon
-              name="md-home"
-              color={focused ? GlobalStyles.colors.PrimaryButtonColor : '#ccc'}
-              size={size}
-            />
+          tabBarLabel: 'Home',
+          tabBarIcon: ({color, size}) => (
+            <Icon name="md-home" color={color} size={size * 1.1} />
           ),
         }}
       />
-      <Drawer.Screen
+      <Tab.Screen
+        name="CategoryScreen"
+        component={CategoryScreen}
+        options={{
+          headerShown: false,
+          tabBarLabel: 'Categories',
+          tabBarIcon: ({color, size}) => (
+            <Icon name="grid-outline" color={color} size={size * 1.1} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Wishlist"
+        component={Wishlist}
+        options={{
+          tabBarLabel: 'Wishlist',
+          tabBarIcon: ({color, size}) => (
+            <Icon name="heart" color={color} size={size * 1.1} />
+          ),
+        }}
+      />
+      <Tab.Screen
         name="Cart"
         component={Cart}
         options={{
           headerShown: false,
-          drawerItemStyle: {backgroundColor: '#0000000'},
-          drawerLabelStyle: {color: 'black'},
-          drawerIcon: ({focused, size}) => (
-            <Icon
-              name="cart-outline"
-              color={focused ? GlobalStyles.colors.PrimaryButtonColor : '#ccc'}
-              size={size}
-            />
+          tabBarLabel: 'Cart',
+          tabBarIcon: ({color, size}) => (
+            <Icon name="cart-outline" color={color} size={size * 1.1} />
           ),
         }}
       />
-      <Drawer.Screen
-        name="Wishlist"
-        component={Wishlist}
-        options={{
-          headerRightContainerStyle:{alignItems:"flex-end",paddingRight:5,},
-          drawerItemStyle: {backgroundColor: '#0000000'},
-          drawerLabelStyle: {color: 'black'},
-          drawerIcon: ({focused, size}) => (
-            <Icon
-              name="heart-outline"
-              color={focused ? GlobalStyles.colors.PrimaryButtonColor : '#ccc'}
-              size={size}
-            />
-          ),
-        }}
-      />
-    </Drawer.Navigator>
+    </Tab.Navigator>
   );
-};
+}
+
+// const DrawerMaker = () => {
+//   return (
+//     <Drawer.Navigator
+//       drawerContent={props => <CustomDrawerContent {...props} />}
+//       initialRouteName="Home">
+//       <Drawer.Screen
+//         name="Home"
+//         component={Home}
+//         options={{
+//           headerShown: false,
+//           drawerItemStyle: {backgroundColor: '#0000000'},
+//           drawerLabelStyle: {color: 'black'},
+//           drawerIcon: ({focused, size}) => (
+//             <Icon
+//               name="md-home"
+//               color={focused ? GlobalStyles.colors.PrimaryButtonColor : '#ccc'}
+//               size={size}
+//             />
+//           ),
+//         }}
+//       />
+//       <Drawer.Screen
+//         name="Cart"
+//         component={Cart}
+//         options={{
+//           headerShown: false,
+//           drawerItemStyle: {backgroundColor: '#0000000'},
+//           drawerLabelStyle: {color: 'black'},
+//           drawerIcon: ({focused, size}) => (
+//             <Icon
+//               name="cart-outline"
+//               color={focused ? GlobalStyles.colors.PrimaryButtonColor : '#ccc'}
+//               size={size}
+//             />
+//           ),
+//         }}
+//       />
+//       <Drawer.Screen
+//         name="Wishlist"
+//         component={Wishlist}
+//         options={{
+//           headerRightContainerStyle: {alignItems: 'flex-end', paddingRight: 5},
+//           drawerItemStyle: {backgroundColor: '#0000000'},
+//           drawerLabelStyle: {color: 'black'},
+//           drawerIcon: ({focused, size}) => (
+//             <Icon
+//               name="heart-outline"
+//               color={focused ? GlobalStyles.colors.PrimaryButtonColor : '#ccc'}
+//               size={size}
+//             />
+//           ),
+//         }}
+//       />
+//     </Drawer.Navigator>
+//   );
+// };
 
 function AuthStack() {
   return (
@@ -101,11 +162,18 @@ function AuthenticatedStack() {
   return (
     <Stack.Navigator>
       <Stack.Screen
-        name="DrawerMaker"
-        component={DrawerMaker}
+        name="BottomTabNavigator"
+        component={BottomTabNavigator}
         options={{headerShown: false}}
       />
-
+      {/* <Stack.Screen
+        name="DrawerMaker"
+        component={DrawerMaker}
+        options={{
+          headerShown: false,
+          // tabBarItemStyle: {display: 'none'},
+        }}
+      /> */}
       <Stack.Screen name="Home" component={Home} />
       <Stack.Screen name="ProductDescription" component={ProductDescription} />
       <Stack.Screen
