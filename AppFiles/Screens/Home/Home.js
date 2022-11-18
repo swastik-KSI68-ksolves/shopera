@@ -36,11 +36,12 @@ const Home = ({navigation}) => {
     setProductsData(data);
   };
 
+
   const getWishListData = () => {};
 
   useEffect(() => {
     getProductsData();
-    // getWishListData();
+
   }, []);
 
   const renderProductsCard = itemData => {

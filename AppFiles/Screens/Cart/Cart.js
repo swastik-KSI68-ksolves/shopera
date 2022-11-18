@@ -11,7 +11,7 @@ import {
 import React, {useContext, useEffect, useState} from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {GlobalStyles} from '../../Constants/GlobalStyles';
-import {H5, H6} from '../../Components/Heading';
+import {H3, H4, H5, H6} from '../../Components/Heading';
 import {Card, CartItemDetails, PrimaryButton} from '../../Exporter';
 import firestore, {firebase} from '@react-native-firebase/firestore';
 import {ReloadCart} from '../../Utils/Reloader';
@@ -44,10 +44,9 @@ const Cart = ({navigation}) => {
       const filteredData = products.filter(item => {
         return item.id === id;
       });
-
       const res = firestore().collection('Cart_items').doc(localId);
       res.update({
-        products: firebase.firestore.FieldValue.delete(filteredData),
+        products: firebase.firestore.FieldValue.arrayRemove(...filteredData),
       });
     } catch (err) {
       console.log(err);
@@ -89,10 +88,7 @@ const Cart = ({navigation}) => {
       try {
         const products = QuerySnapshot.data().products;
         products.forEach(documentSnapshot => {
-          setProductData(oldArray => [
-            ...oldArray,
-            documentSnapshot.itemDetails,
-          ]);
+          setProductData(oldArray => [...oldArray, documentSnapshot]);
         });
       } catch (err) {
         console.log(err);
@@ -149,20 +145,20 @@ const Cart = ({navigation}) => {
             </View>
           </Pressable>
         </View>
-        <View style={styles.rateDetails}>
-          <H6 style={styles.H6}>Total</H6>
-          <H5 style={styles.H3}>${total}</H5>
+
+        <View style={styles.buttonContainer}>
+          <PrimaryButton
+            onPress={() => navigation.navigate('checkOutScreen')}
+            style={styles.buttonSettleNow}>
+            SETTLE NOW
+          </PrimaryButton>
         </View>
-      <View style={styles.buttonContainer}>
-        <PrimaryButton
-          onPress={() => navigation.navigate('checkOutScreen')}
-          style={styles.buttonSettleNow}>
-          SETTLE NOW
-        </PrimaryButton>
       </View>
-            </View>
+      <View style={styles.rateDetails}>
+        <H5 style={styles.H6}>Total</H5>
+        <H5 style={styles.H3}>${total}</H5>
+      </View>
       <RenderCartData />
-      
     </View>
   );
 };
@@ -174,7 +170,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   headerContainer: {
-    flex: 0.2,
+    flex: 0.1,
     alignItems: 'center',
     justifyContent: 'space-between',
     flexDirection: 'row',
@@ -189,8 +185,8 @@ const styles = StyleSheet.create({
   },
   textContainer: {flex: 1, backgroundColor: 'red'},
   buttonContainer: {
-    // flex: 0.2,
-    // justifyContent: 'space-evenly',
+    flex: 0.5,
+    justifyContent: 'space-evenly',
     // paddingHorizontal: 30,
   },
   cartAndBack: {
@@ -199,13 +195,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   rateDetails: {
-    alignItems: 'baseline',
+    padding: 10,
+    paddingHorizontal: 20,
+    justifyContent: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   H3: {
     color: GlobalStyles.colors.color2,
   },
   H6: {
-    color: GlobalStyles.colors.color3,
+    color: GlobalStyles.colors.color2,
+    paddingHorizontal: 10,
   },
   pressed: {
     opacity: 0.75,

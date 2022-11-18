@@ -24,6 +24,8 @@ import SplashScreen from 'react-native-splash-screen';
 import {AuthContextProvider, AuthContext} from './AppFiles/Store/AuthContext';
 import {IconButton} from './AppFiles/Components/UI/IconButton';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {Provider} from 'react-redux';
+import {myStore} from './AppFiles/Store/Redux/Store';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -207,9 +209,11 @@ const App = () => {
         barStyle="dark-content"
         backgroundColor={GlobalStyles.colors.white}
       />
-      <AuthContextProvider>
-        <Navigation />
-      </AuthContextProvider>
+      <Provider store={myStore} >
+        <AuthContextProvider>
+          <Navigation />
+        </AuthContextProvider>
+      </Provider>
     </>
   );
 };

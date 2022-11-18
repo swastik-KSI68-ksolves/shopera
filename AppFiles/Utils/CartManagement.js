@@ -8,9 +8,7 @@ export const AddItemToCart = (itemDetails, localId) => {
       .doc(localId)
       .set(
         {
-          products: firebase.firestore.FieldValue.arrayUnion({
-            itemDetails: itemDetails,
-          }),
+          products: firebase.firestore.FieldValue.arrayUnion(itemDetails),
         },
         {merge: true},
       )
@@ -31,12 +29,10 @@ export const HandleCartButtonClick = async (itemDetails, localId) => {
       .doc(localId)
       .get()
       .then(response => {
-        console.log('respoce', response.data());
         const products = response.data()?.products;
-        console.log('pro', products);
         !!products &&
           products.forEach(item => {
-            if (item.itemDetails.id === itemDetails.id) {
+            if (item.id === itemDetails.id) {
               console.log('match');
               flag = 1;
               return;
@@ -55,7 +51,6 @@ export const HandleCartButtonClick = async (itemDetails, localId) => {
           ToastAndroid.SHORT,
         )
       : AddItemToCart(itemDetails, localId);
-    // : ToastAndroid.show('Test', ToastAndroid.SHORT);
   }
 
   return;
