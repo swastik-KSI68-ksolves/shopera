@@ -8,6 +8,7 @@ import ProductDescription from '../Screens/ProductDescription/ProductDescription
 import Wishlist from '../Screens/Wishlist/Wishlist';
 import CategoryScreen from '../Screens/Category/CategoryScreen';
 import CheckoutScreen from '../Screens/CheckoutScreen/CheckoutScreen';
+import IndivisualCategory from '../Screens/Category/IndivisualCategory';
 
 // import all components
 import Card from '../Components/UI/Card';
@@ -30,6 +31,7 @@ export {
   Wishlist,
   CategoryScreen,
   CheckoutScreen,
+  IndivisualCategory,
 };
 
 // export all components

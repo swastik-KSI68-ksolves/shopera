@@ -44,7 +44,7 @@ const Cart = ({navigation}) => {
       const filteredData = products.filter(item => {
         return item.id === id;
       });
-      const res = firestore().collection('Cart_items').doc(localId);
+      const res = firestore().collection('Cart_items').doc(localId)
       res.update({
         products: firebase.firestore.FieldValue.arrayRemove(...filteredData),
       });

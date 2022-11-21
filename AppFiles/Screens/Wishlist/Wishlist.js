@@ -34,21 +34,18 @@ const Wishlist = ({navigation}) => {
 
   const onRemoveHandler = async id => {
     const {localId} = JSON.parse(Authctx.userInfo);
-
     try {
       const response = await firestore()
         .collection('Wish_list_items')
         .doc(localId)
         .get();
-      const products = response.data().products;
-      const filteredData = products.filter(item => {
-        return item.wishes.id !== id;
+      const wishes = response.data().wishes;
+      const filteredData = wishes.filter(item => {
+        return item.id === id;
       });
-
-      console.log('filerd', filteredData);
       const res = firestore().collection('Wish_list_items').doc(localId);
       res.update({
-        wishes: firebase.firestore.FieldValue.delete(filteredData),
+        wishes: firebase.firestore.FieldValue.arrayRemove(...filteredData),
       });
     } catch (err) {
       console.log(err);
@@ -89,10 +86,9 @@ const Wishlist = ({navigation}) => {
     function onResult(QuerySnapshot) {
       setProductData([]);
       try {
-        const products = QuerySnapshot.data().products;
-        console.log(products);
-        products.forEach(documentSnapshot => {
-          setProductData(oldArray => [...oldArray, documentSnapshot.wishes]);
+        const wishes = QuerySnapshot.data().wishes;
+        wishes.forEach(documentSnapshot => {
+          setProductData(oldArray => [...oldArray, documentSnapshot]);
         });
       } catch (err) {
         console.log(err);
@@ -132,7 +128,7 @@ const Wishlist = ({navigation}) => {
 
   useEffect(() => {
     navigation.setOptions({
-      headerRightContainerStyle:{paddingHorizontal:20},
+      headerRightContainerStyle: {paddingHorizontal: 20},
       headerTitleAlign: 'center',
       headerTitleStyle: {color: GlobalStyles.colors.PrimaryButtonColor},
 
@@ -141,7 +137,6 @@ const Wishlist = ({navigation}) => {
           <Icon name="search-outline" color="black" size={fontScale * 25} />
         </Pressable>
       ),
-
     });
   }, [navigation]);
   return (

@@ -120,20 +120,20 @@ const ProductDescription = ({navigation}) => {
 
   useLayoutEffect(() => {
     handleHeartButtonColor();
-  }, []);
+  }, [handleHeartButton, setIsInWishLIst]);
 
   const handleHeartButtonColor = async () => {
     const {localId} = JSON.parse(Authctx.userInfo);
-    let flag;
+    let flag = false;
     await firestore()
       .collection('Wish_list_items')
       .doc(localId)
       .get()
       .then(response => {
-        const products = response?.data().products;
+        const products = response?.data().wishes;
         !!products &&
           products.forEach(item => {
-            if (item.wishes.id === itemDetails.id) {
+            if (item.id === itemDetails.id) {
               flag = true;
               return;
             }
@@ -152,9 +152,35 @@ const ProductDescription = ({navigation}) => {
     HandleCartButtonClick(itemDetails, localId);
   };
 
-  const handleHeartButton = itemDetails => {
+  const handleHeartButton = async itemDetails => {
+    const removeData = (res, filteredData) => {
+      res.update({
+        wishes: firebase.firestore.FieldValue.arrayRemove(...filteredData),
+      });
+      setTimeout(() => {
+        setIsInWishLIst(false);
+      }, 500);
+      ToastAndroid.show('removed from wishlist', ToastAndroid.SHORT);
+    };
     const {localId} = JSON.parse(Authctx.userInfo);
-    HandleHeartButtonClick(itemDetails, localId, setIsInWishLIst);
+    try {
+      const response = await firestore()
+        .collection('Wish_list_items')
+        .doc(localId)
+        .get();
+      const wishes = response.data().wishes;
+      const filteredData = wishes.filter(item => {
+        return item.id === itemDetails.id;
+      });
+      console.log('filterdData = ', filteredData);
+      const res = firestore().collection('Wish_list_items').doc(localId);
+      filteredData.length > 0
+        ? removeData(res, filteredData)
+        : HandleHeartButtonClick(itemDetails, localId, setIsInWishLIst);
+    } catch (err) {
+      console.log(err);
+      HandleHeartButtonClick(itemDetails, localId, setIsInWishLIst);
+    }
   };
 
   const styles = StyleSheet.create({

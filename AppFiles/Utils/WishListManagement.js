@@ -1,20 +1,23 @@
 import firestore, {firebase} from '@react-native-firebase/firestore';
 import {ToastAndroid} from 'react-native';
 
-export const AddItemToWishList = async (itemDetails, localId) => {
+export const AddItemToWishList = async (
+  itemDetails,
+  localId,
+  setIsInWishLIst,
+) => {
   if (localId) {
     await firestore()
       .collection('Wish_list_items')
       .doc(localId)
       .set(
         {
-          products: firebase.firestore.FieldValue.arrayUnion({
-            wishes: itemDetails,
-          }),
+          wishes: firebase.firestore.FieldValue.arrayUnion(itemDetails),
         },
         {merge: true},
       )
       .then(() => {
+        setIsInWishLIst(true);
         ToastAndroid.show('Added to wishlist', ToastAndroid.SHORT);
       })
       .catch(() => {
@@ -52,6 +55,6 @@ export const HandleHeartButtonClick = async (
   }
   flag
     ? ToastAndroid.show('already in wishlist', ToastAndroid.SHORT)
-    : AddItemToWishList(itemDetails, localId);
+    : AddItemToWishList(itemDetails, localId, setIsInWishLIst);
   return;
 };

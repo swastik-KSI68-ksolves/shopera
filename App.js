@@ -11,6 +11,7 @@ import {
   CustomDrawerContent,
   CheckoutScreen,
   CategoryScreen,
+  IndivisualCategory,
 } from './AppFiles/Exporter/index';
 import {useContext, useEffect, useState} from 'react';
 import {ProductDescription} from './AppFiles/Exporter/index';
@@ -186,6 +187,7 @@ function AuthenticatedStack() {
         }}
       />
       <Stack.Screen name="checkOutScreen" component={CheckoutScreen} />
+      <Stack.Screen name="IndivisualCategory" component={IndivisualCategory} />
     </Stack.Navigator>
   );
 }
@@ -209,7 +211,7 @@ const App = () => {
         barStyle="dark-content"
         backgroundColor={GlobalStyles.colors.white}
       />
-      <Provider store={myStore} >
+      <Provider store={myStore}>
         <AuthContextProvider>
           <Navigation />
         </AuthContextProvider>

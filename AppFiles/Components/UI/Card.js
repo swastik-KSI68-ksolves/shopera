@@ -220,10 +220,10 @@ const Card = ({
               paddingHorizontal: 2,
             }}>
             <Text style={producStyle.productName}>{productName}</Text>
-            <WishListAddButton
+            {/* <WishListAddButton
               manageWishListInDb={manageWishListInDb}
               isAlreadyAdded={isAlreadyAdded}
-            />
+            /> */}
           </View>
           <Text style={producStyle.productPrice}>${productPrice}</Text>
           <View style={producStyle.ratingAndButton}>

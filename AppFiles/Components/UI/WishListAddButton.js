@@ -5,18 +5,10 @@ import {GlobalStyles} from '../../Constants/GlobalStyles';
 
 const WishListAddButton = ({isAlreadyAdded, manageWishListInDb}) => {
   const {fontScale} = useWindowDimensions();
-  const [heartOnTap, setheartOnTap] = useState('heart-outline');
-  const [heartColor, setHeartColor] = useState('rgba(0,0,0,0.6)');
-
-  useEffect(() => {
-    const icon = isAlreadyAdded ? 'heart' : 'heart-outline';
-    const color = isAlreadyAdded
-      ? GlobalStyles.colors.colorRedShade
-      : 'rgba(0,0,0,0.6)';
-    setHeartColor(color);
-    setheartOnTap(icon);
-  }, [isAlreadyAdded]);
-
+  const icon = isAlreadyAdded ? 'heart' : 'heart-outline';
+  const color = isAlreadyAdded
+    ? GlobalStyles.colors.colorRedShade
+    : 'rgba(0,0,0,0.6)';
   return (
     <Pressable
       style={({pressed}) => (pressed ? {opacity: 0.85} : null)}
@@ -39,7 +31,7 @@ const WishListAddButton = ({isAlreadyAdded, manageWishListInDb}) => {
         //   // }
         // }
       }>
-      <Icon name={heartOnTap} color={heartColor} size={fontScale * 31} />
+      <Icon name={icon} color={color} size={fontScale * 31} />
     </Pressable>
   );
 };

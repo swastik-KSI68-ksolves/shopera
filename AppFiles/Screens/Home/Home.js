@@ -7,6 +7,7 @@ import {
   useWindowDimensions,
   Pressable,
   ScrollView,
+  Alert,
 } from 'react-native';
 import {GlobalStyles} from '../../Constants/GlobalStyles';
 import {
@@ -25,23 +26,32 @@ const Home = ({navigation}) => {
   const Authctx = useContext(AuthContext);
   const {fontScale, width, height} = useWindowDimensions();
   const [productsData, setProductsData] = useState();
-  const [wishListData, setWishListData] = useState();
   const [isInWishLIst, setIsInWishLIst] = useState(false);
+
   const getProductsData = async () => {
-    let response = await fetch('https://dummyjson.com/products', {
-      method: 'GET',
-    });
+    try {
+      let response = await fetch('https://dummyjson.com/products', {
+        method: 'GET',
+      });
 
-    let data = await response.json().then(res => res.products);
-    setProductsData(data);
+      let data = await response.json().then(res => res.products);
+      setProductsData(data);
+    } catch (err) {
+      Alert.alert('Turn internet connection on ', 'or restart app', [
+        {
+          text: '',
+          onPress: () => getProductsData(),
+          style: 'cancel',
+        },
+        {text: 'OK', onPress: () => getProductsData()},
+      ]);
+    }
   };
-
 
   const getWishListData = () => {};
 
   useEffect(() => {
     getProductsData();
-
   }, []);
 
   const renderProductsCard = itemData => {
@@ -89,7 +99,7 @@ const Home = ({navigation}) => {
         productPrice={itemData.item.price}
         image={itemData.item.thumbnail}
         isAlreadyAdded={isInWishLIst}
-        manageWishListInDb={handleHeartButton.bind(this, itemDetails)}
+        // manageWishListInDb={handleHeartButton.bind(this, itemDetails)}
         onAddPress={handleCartButton.bind(this, itemDetails)}
       />
     );

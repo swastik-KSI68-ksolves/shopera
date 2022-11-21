@@ -1,4 +1,4 @@
-import {useContext, useEffect, useLayoutEffect, useRef, useState} from 'react';
+import {useContext, useEffect, useLayoutEffect, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,12 +10,14 @@ import {
   Animated,
   Keyboard,
   ToastAndroid,
+  Pressable,
 } from 'react-native';
 import {GlobalStyles} from '../../Constants/GlobalStyles';
 import {PrimaryButton, UserAvatar} from '../../Exporter';
 import firestore from '@react-native-firebase/firestore';
 import {AuthContext} from '../../Store/AuthContext';
-import {useDrawerStatus} from '@react-navigation/drawer';
+import Icon from 'react-native-vector-icons/Ionicons';
+
 const UserProfile = ({navigation}) => {
   const {fontScale} = useWindowDimensions();
   const [nameErrorMessage, setNameErrorMessage] = useState(null);
@@ -30,6 +32,20 @@ const UserProfile = ({navigation}) => {
   });
 
   const AuthCTX = useContext(AuthContext);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Pressable
+          style={({pressed}) =>
+            pressed ? {paddingRight: 15, opacity: 0.75} : {paddingRight: 15}
+          }
+          onPress={() => AuthCTX.Logout()}>
+          <Icon name="log-out-outline" color="black" size={fontScale * 30} />
+        </Pressable>
+      ),
+    });
+  }, [navigation]);
 
   useLayoutEffect(() => {
     const {email} = JSON.parse(AuthCTX.userInfo);
@@ -205,6 +221,9 @@ const UserProfile = ({navigation}) => {
           onPress={sendUserDataToServer}>
           Update
         </PrimaryButton>
+        {/* <PrimaryButton style={styles.logout} onPress={() => AuthCTX.Logout()}>
+          Logout
+        </PrimaryButton> */}
       </KeyboardAvoidingView>
     </ScrollView>
   );
@@ -256,6 +275,10 @@ const styles = StyleSheet.create({
   },
   buttonRegisterOn: {
     backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
+  },
+  logout: {
+    paddingTop: 20,
+    backgroundColor: GlobalStyles.colors.color2,
   },
   errorMessage: {
     color: GlobalStyles.colors.PrimaryButtonColor,
