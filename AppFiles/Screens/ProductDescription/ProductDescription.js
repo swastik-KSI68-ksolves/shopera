@@ -19,7 +19,7 @@ import {IconButton} from '../../Components/UI/IconButton';
 import PrimaryButton from '../../Components/UI/PrimaryButton';
 import {
   CartItemDetails,
-  CustomImageSlider,
+  // CustomImageSlider,
   WishListAddButton,
 } from '../../Exporter/index';
 import {H1, H2, H3, H4, H5, H6} from '../../Components/Heading';
@@ -30,6 +30,8 @@ import {AuthContext} from '../../Store/AuthContext';
 import {ReloadCart} from '../../Utils/Reloader';
 import {CardAnimationContext} from '@react-navigation/stack';
 import {RotationGesture} from 'react-native-gesture-handler/lib/typescript/handlers/gestures/rotationGesture';
+import {FlatListSlider} from 'react-native-flatlist-slider';
+import Preview from '../../Components/ImageSlider/Preview';
 
 import {HandleHeartButtonClick} from '../../Utils/WishListManagement';
 import {HandleCartButtonClick} from '../../Utils/CartManagement';
@@ -52,6 +54,10 @@ const ProductDescription = ({navigation}) => {
   const Thumbnail = route.params.thumbnail;
   // const isAlreadyAdded = route.params.isAlreadyAdded;
 
+  const ImgData = data.map(object => {
+    return {image: object};
+  });
+
   const itemDetails = {
     id: Productid,
     Images: data,
@@ -64,6 +70,19 @@ const ProductDescription = ({navigation}) => {
     howMany: 1,
     rating: Rating,
   };
+
+  const images = [
+    {
+      image:
+        'https://images.unsplash.com/photo-1567226475328-9d6baaf565cf?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60',
+      desc: 'Silent Waters in the mountains in midst of Himilayas',
+    },
+    {
+      image:
+        'https://images.unsplash.com/photo-1455620611406-966ca6889d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1130&q=80',
+      desc: 'Red fort in India New Delhi is a magnificient masterpeiece of humans',
+    },
+  ];
 
   const loadCartItems = async () => {
     const {localId} = JSON.parse(Authctx.userInfo);
@@ -289,7 +308,21 @@ const ProductDescription = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <CustomImageSlider data={data} width={width} />
+      <FlatListSlider
+        component={<Preview />}
+        // contentContainerStyle={{}}
+        indicatorActiveColor={GlobalStyles.colors.color5}
+        loop={false}
+        autoscroll={false}
+        data={ImgData}
+        width={width}
+        // timer={5000}
+        // animation={true}
+        imageKey={'image'}
+        onPress={item => alert(JSON.stringify(item))}
+        indicatorActiveWidth={40}
+        // contentContainerStyle={{paddingHorizontal: 16}}
+      />
       <View style={styles.productDetails}>
         <View style={styles.rateAndTitleContainer}>
           <View

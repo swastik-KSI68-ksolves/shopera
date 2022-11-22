@@ -29,6 +29,7 @@ const Home = ({navigation}) => {
   const [isInWishLIst, setIsInWishLIst] = useState(false);
 
   const getProductsData = async () => {
+    setProductsData([]);
     try {
       let response = await fetch('https://dummyjson.com/products', {
         method: 'GET',
@@ -47,8 +48,6 @@ const Home = ({navigation}) => {
       ]);
     }
   };
-
-  const getWishListData = () => {};
 
   useEffect(() => {
     getProductsData();
@@ -126,7 +125,7 @@ const Home = ({navigation}) => {
               fontScale={fontScale}
               isImage={false}
               word="S"
-              style={{backgroundColor: GlobalStyles.colors.color1}}
+              style={{backgroundColor: GlobalStyles.colors.color8}}
               onPress={() => {
                 navigation.navigate('userProfile');
               }}
@@ -142,6 +141,8 @@ const Home = ({navigation}) => {
         </View>
       </View>
       <FlatList
+        onEndReached={() => getProductsData}
+        onEndReachedThreshold={5}
         style={{flex: 1, marginTop: 20}}
         data={productsData}
         renderItem={renderProductsCard}

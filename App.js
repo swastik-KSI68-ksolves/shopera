@@ -59,7 +59,6 @@ function BottomTabNavigator() {
         name="CategoryScreen"
         component={CategoryScreen}
         options={{
-          headerShown: false,
           tabBarLabel: 'Categories',
           tabBarIcon: ({color, size}) => (
             <Icon name="grid-outline" color={color} size={size * 1.1} />

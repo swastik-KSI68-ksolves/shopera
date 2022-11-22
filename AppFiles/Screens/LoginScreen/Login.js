@@ -176,7 +176,7 @@ const Login = ({navigation}) => {
           value={userData.email}
           autoCorrect={false}
           autoCapitalize="none"
-          keyboardType='email-address'
+          keyboardType="email-address"
           placeholderTextColor={GlobalStyles.colors.color2}
           onChangeText={value => {
             setuserData({...userData, email: value});
@@ -295,7 +295,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   link: {
-    color: GlobalStyles.colors.PrimaryButtonColor,
+    color: GlobalStyles.colors.color1,
     fontSize: 15,
   },
   fp: {
@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
     color: 'red',
   },
   buttonLoginOn: {
-    backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
+    backgroundColor: GlobalStyles.colors.color5,
   },
   buttonLoginOff: {
     backgroundColor: GlobalStyles.colors.color3,

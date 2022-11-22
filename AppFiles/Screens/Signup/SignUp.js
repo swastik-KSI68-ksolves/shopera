@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   link: {
-    color: GlobalStyles.colors.PrimaryButtonColor,
+    color: GlobalStyles.colors.color1,
     fontSize: 15,
   },
   fp: {

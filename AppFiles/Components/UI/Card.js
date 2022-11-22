@@ -159,11 +159,11 @@ const Card = ({
             <View style={producStyle.ratingAndButton}>
               <IconButton
                 onPress={() => onRemoveHandler(id)}
-                color="white"
+                color={GlobalStyles.colors.color4}
                 name="close-outline"
                 size={23}
                 style={{
-                  backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
+                  backgroundColor: GlobalStyles.colors.color8,
                 }}
               />
             </View>
@@ -235,11 +235,11 @@ const Card = ({
             <View>
               <IconButton
                 onPress={onAddPress}
-                color="white"
+                color={GlobalStyles.colors.color7}
                 name="cart"
                 size={fontScale * 23}
                 style={{
-                  backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
+                  backgroundColor: GlobalStyles.colors.color9,
                 }}
               />
             </View>
