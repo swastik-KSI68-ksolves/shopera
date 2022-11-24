@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.05)',
     borderRadius: 20,
     padding: 10,
-    borderColor: GlobalStyles.colors.PrimaryButtonColor,
+    borderColor: GlobalStyles.colors.colorRedShade2,
     borderWidth: 1,
   },
   link: {
@@ -324,13 +324,13 @@ const styles = StyleSheet.create({
     color: 'red',
   },
   buttonLoginOn: {
-    backgroundColor: GlobalStyles.colors.color5,
+    backgroundColor: GlobalStyles.colors.PrimaryButtonColor2,
   },
   buttonLoginOff: {
     backgroundColor: GlobalStyles.colors.color3,
   },
   errorMessage: {
-    color: GlobalStyles.colors.PrimaryButtonColor,
+    color: GlobalStyles.colors.colorRedShade2,
     paddingHorizontal: 10,
     paddingVertical: 3,
   },

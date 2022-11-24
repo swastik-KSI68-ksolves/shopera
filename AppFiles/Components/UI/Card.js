@@ -37,13 +37,19 @@ const Card = ({
     productName: {
       width: '80%',
       paddingVertical: 5,
-      fontSize: productName.length >= 16 ? fontScale * 11 : fontScale * 15,
+      fontSize:
+        productName && productName.length >= 16
+          ? fontScale * 11
+          : fontScale * 15,
       color: GlobalStyles.colors.PrimaryTextColor,
     },
     productNameHorizontal: {
       width: '80%',
       paddingVertical: 5,
-      fontSize: productName.length >= 16 ? fontScale * 15 : fontScale * 20,
+      fontSize:
+        productName && productName.length >= 16
+          ? fontScale * 15
+          : fontScale * 20,
       color: GlobalStyles.colors.PrimaryTextColor,
     },
     productPrice: {

@@ -3,7 +3,8 @@ export const GlobalStyles = {
   colors: {
     Primary1: '##F8F8F8',
     // PrimaryButtonColor: '#1363DF',
-    PrimaryButtonColor: '#61764B',
+    PrimaryButtonColor2: '#61764B',
+    PrimaryButtonColor: '#8aad64',
     // PrimaryButtonColor: '#FE7E80',
 
     PrimaryTextColor: '#5D5D5D',

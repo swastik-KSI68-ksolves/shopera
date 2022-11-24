@@ -8,6 +8,9 @@ import {
   Pressable,
   ScrollView,
   Alert,
+  ActivityIndicator,
+  ToastAndroid,
+  RefreshControl,
 } from 'react-native';
 import {GlobalStyles} from '../../Constants/GlobalStyles';
 import {
@@ -27,31 +30,68 @@ const Home = ({navigation}) => {
   const {fontScale, width, height} = useWindowDimensions();
   const [productsData, setProductsData] = useState();
   const [isInWishLIst, setIsInWishLIst] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [skip, setSkip] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  const limit = 30;
+
+  const wait = timeout => {
+    return new Promise(resolve => setTimeout(resolve, timeout));
+  };
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    wait(1000).then(() => setRefreshing(false));
+    getProductsData();
+  }, []);
+
+  const RenderLoader = () => {
+    return isLoading ? (
+      <View style={styles.loader}>
+        <ActivityIndicator color={GlobalStyles.colors.color9} size="large" />
+      </View>
+    ) : null;
+  };
+
+  const LoadMoreItems = () => {
+    setSkip(skip + limit);
+  };
 
   const getProductsData = async () => {
-    setProductsData([]);
+    setIsLoading(true);
     try {
-      let response = await fetch('https://dummyjson.com/products', {
-        method: 'GET',
-      });
+      let response = await fetch(
+        `https://dummyjson.com/products?limit=${limit}&skip=${skip}`,
+        {
+          method: 'GET',
+        },
+      );
 
       let data = await response.json().then(res => res.products);
-      setProductsData(data);
+      if (data.length < 1) {
+        ToastAndroid.show('no more products', ToastAndroid.SHORT);
+      }
+      skip
+        ? setProductsData(oldArray => [...oldArray, ...data])
+        : data && setProductsData(data);
     } catch (err) {
-      Alert.alert('Turn internet connection on ', 'or restart app', [
-        {
-          text: '',
-          onPress: () => getProductsData(),
-          style: 'cancel',
-        },
-        {text: 'OK', onPress: () => getProductsData()},
-      ]);
+      setIsLoading(false);
+      productsData.length < 1 &&
+        Alert.alert('Turn internet connection on ', 'or restart app', [
+          {
+            text: '',
+            onPress: () => getProductsData(),
+            style: 'cancel',
+          },
+          {text: 'OK', onPress: () => getProductsData()},
+        ]);
     }
+    setIsLoading(false);
   };
 
   useEffect(() => {
     getProductsData();
-  }, []);
+  }, [skip]);
 
   const renderProductsCard = itemData => {
     const itemDetails = {
@@ -141,13 +181,17 @@ const Home = ({navigation}) => {
         </View>
       </View>
       <FlatList
-        onEndReached={() => getProductsData}
-        onEndReachedThreshold={5}
         style={{flex: 1, marginTop: 20}}
         data={productsData}
         renderItem={renderProductsCard}
         keyExtractor={item => item.id}
         numColumns={2}
+        onEndReached={LoadMoreItems}
+        ListFooterComponent={RenderLoader}
+        onEndReachedThreshold={0}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       />
     </View>
   );
@@ -200,5 +244,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     paddingHorizontal: 15,
     paddingVertical: 5,
+  },
+  loader: {
+    marginVertical: 15,
+    alignItems: 'center',
   },
 });

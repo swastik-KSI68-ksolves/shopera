@@ -1,6 +1,11 @@
 import {useRoute} from '@react-navigation/native';
 import React, {useContext, useEffect, useLayoutEffect, useState} from 'react';
-import {FlatList} from 'react-native';
+import {
+  FlatList,
+  StyleSheet,
+  View,
+  ActivityIndicator,
+} from 'react-native';
 import {GlobalStyles} from '../../Constants/GlobalStyles';
 import {Card} from '../../Exporter';
 import {AuthContext} from '../../Store/AuthContext';
@@ -12,7 +17,18 @@ const IndivisualCategory = ({navigation}) => {
   const category = route.params.category;
   const [productsData, setProductsData] = useState();
   const url = `https://dummyjson.com/products/category/${category}`;
+  const [isLoading, setIsLoading] = useState(false);
+
+  const RenderLoader = () => {
+    return isLoading ? (
+      <View style={styles.loader}>
+        <ActivityIndicator color={GlobalStyles.colors.color9} size="large" />
+      </View>
+    ) : null;
+  };
+
   const getProductsData = async () => {
+    setIsLoading(true);
     try {
       let response = await fetch(url, {
         method: 'GET',
@@ -21,15 +37,18 @@ const IndivisualCategory = ({navigation}) => {
       let data = await response.json().then(res => res.products);
       setProductsData(data);
     } catch (err) {
-      Alert.alert('Turn internet connection on ', 'or restart app', [
-        {
-          text: '',
-          onPress: () => getProductsData(),
-          style: 'cancel',
-        },
-        {text: 'OK', onPress: () => getProductsData()},
-      ]);
+      setIsLoading(false);
+      productsData.length < 1 &&
+        Alert.alert('Turn internet connection on ', 'or restart app', [
+          {
+            text: '',
+            onPress: () => getProductsData(),
+            style: 'cancel',
+          },
+          {text: 'OK', onPress: () => getProductsData()},
+        ]);
     }
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -41,6 +60,19 @@ const IndivisualCategory = ({navigation}) => {
       headerTitle: `${category}`,
     });
   }, [navigation]);
+
+  const RenderData = () => {
+    if (isLoading) return <RenderLoader />;
+    return (
+      <FlatList
+        style={{flex: 1, backgroundColor: GlobalStyles.colors.color4}}
+        data={productsData}
+        renderItem={renderProductsCard}
+        keyExtractor={item => item.id}
+        numColumns={2}
+      />
+    );
+  };
 
   const renderProductsCard = itemData => {
     const itemDetails = {
@@ -90,15 +122,16 @@ const IndivisualCategory = ({navigation}) => {
     );
   };
 
-  return (
-    <FlatList
-      style={{flex: 1, backgroundColor: GlobalStyles.colors.color4}}
-      data={productsData}
-      renderItem={renderProductsCard}
-      keyExtractor={item => item.id}
-      numColumns={2}
-    />
-  );
+  return <RenderData />;
 };
 
 export default IndivisualCategory;
+const styles = StyleSheet.create({
+  loader: {
+    backgroundColor: 'white',
+    flex: 1,
+    padding: 50,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
+});

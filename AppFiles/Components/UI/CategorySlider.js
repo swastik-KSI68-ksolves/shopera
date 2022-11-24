@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  Alert,
   FlatList,
   Image,
   Pressable,
@@ -15,20 +16,28 @@ import IconMCI from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Cat} from '../../Utils/HardCodedData/AllCategories';
 import {useNavigation} from '@react-navigation/native';
 
-const CategorySlider = ({size, color, image, style}) => {
+const CategorySlider = ({size, color, image, style, setCat, fadeIn}) => {
   const {width, fontScale} = useWindowDimensions();
 
   const GotoCatScreen = itemData => {
     navigation.navigate('IndivisualCategory', {
-      category: itemData.item.cat.replace('-', ' '),
+      category: itemData.item.cat,
     });
   };
 
-  const renderCatData = () => {};
+  const renderCatData = itemData => {
+    setCat(itemData);
+    fadeIn();
+  };
+
   const RenderFlatList = () => {
     if (style) {
       return (
         <FlatList
+          contentContainerStyle={{
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
           style={[styles.categorySlider, style]}
           data={Cat}
           renderItem={renderCategories}
@@ -84,7 +93,11 @@ const CategorySlider = ({size, color, image, style}) => {
       <View style={[styles.setView]}>
         <Pressable
           style={({pressed}) => (pressed ? {opacity: 0.75} : null)}
-          onPress={style ? renderCatData : GotoCatScreen.bind(this, itemData)}>
+          onPress={
+            style
+              ? renderCatData.bind(this, itemData.item.cat)
+              : GotoCatScreen.bind(this, itemData)
+          }>
           <View style={styles.iconBox}>
             <RenderIcon />
           </View>
@@ -94,7 +107,9 @@ const CategorySlider = ({size, color, image, style}) => {
             styles.setText,
             style && {color: 'black', fontSize: fontScale * 10, padding: 2},
           ]}>
-          {itemData.item.cat}
+          {itemData.item.cat.length < 10
+            ? itemData.item.cat
+            : itemData.item.cat.slice(0, 10)}
         </Text>
       </View>
     );
@@ -109,7 +124,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   setView: {
-    // justifyContent: 'center',
+    justifyContent: 'center',
     alignItems: 'center',
     padding: 13,
   },
