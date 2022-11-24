@@ -16,7 +16,7 @@ import IconMCI from 'react-native-vector-icons/MaterialCommunityIcons';
 import {Cat} from '../../Utils/HardCodedData/AllCategories';
 import {useNavigation} from '@react-navigation/native';
 
-const CategorySlider = ({size, color, image, style, setCat, fadeIn}) => {
+const CategorySlider = ({size, color, image, style, setCat}) => {
   const {width, fontScale} = useWindowDimensions();
 
   const GotoCatScreen = itemData => {
@@ -27,7 +27,6 @@ const CategorySlider = ({size, color, image, style, setCat, fadeIn}) => {
 
   const renderCatData = itemData => {
     setCat(itemData);
-    fadeIn();
   };
 
   const RenderFlatList = () => {

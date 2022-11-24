@@ -27,25 +27,6 @@ const CategoryScreen = ({navigation}) => {
   const Authctx = useContext(AuthContext);
   const [productsData, setProductsData] = useState();
   const [cat, setCat] = useState('');
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-
-  const fadeIn = () => {
-    // Will change fadeAnim value to 1 in 5 seconds
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 5000,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const fadeOut = () => {
-    // Will change fadeAnim value to 0 in 3 seconds
-    Animated.timing(fadeAnim, {
-      toValue: 0,
-      duration: 3000,
-      useNativeDriver: true,
-    }).start();
-  };
 
   const getProductsData = async () => {
     setProductsData([]);
@@ -72,8 +53,6 @@ const CategoryScreen = ({navigation}) => {
 
   useEffect(() => {
     getProductsData();
-    fadeIn();
-    return () => fadeOut();
   }, [cat]);
 
   console.log('PD = ', productsData);
@@ -147,6 +126,7 @@ const CategoryScreen = ({navigation}) => {
           {cat.toUpperCase().replace('-', ' ')}
         </Text> */}
         <FlatList
+          contentContainerStyle={{alignItems: 'center'}}
           style={{flex: 1, backgroundColor: GlobalStyles.colors.color4}}
           data={productsData}
           renderItem={renderProductsCard}
@@ -161,25 +141,17 @@ const CategoryScreen = ({navigation}) => {
     <View style={styles.container}>
       <View style={[styles.Allcategories, {borderRadius: fontScale * 25}]}>
         <CategorySlider
-          fadeIn={fadeIn}
           setCat={setCat}
           color={'black'}
           size={25}
           style={{flexDirection: 'row'}}
         />
       </View>
-      <Animated.View
-        style={[
-          styles.catList,
-          {
-            opacity: fadeAnim,
-          },
-        ]}>
-        <RenderCategoryItems />
-        {/* <Text style={{color:"black"}}>Hello</Text> */}
-      </Animated.View>
+      {/* <Text style={{color:"black"}}>Hello</Text> */}
 
-      {/* <View style={styles.catList}></View> */}
+      <View style={styles.catList}>
+        <RenderCategoryItems />
+      </View>
 
       <View style={styles.MoreOnShopera}></View>
     </View>

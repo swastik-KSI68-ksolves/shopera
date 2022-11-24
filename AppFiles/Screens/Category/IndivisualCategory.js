@@ -1,15 +1,11 @@
 import {useRoute} from '@react-navigation/native';
 import React, {useContext, useEffect, useLayoutEffect, useState} from 'react';
-import {
-  FlatList,
-  StyleSheet,
-  View,
-  ActivityIndicator,
-} from 'react-native';
+import {FlatList, StyleSheet, View, ActivityIndicator} from 'react-native';
 import {GlobalStyles} from '../../Constants/GlobalStyles';
 import {Card} from '../../Exporter';
 import {AuthContext} from '../../Store/AuthContext';
 import {HandleCartButtonClick} from '../../Utils/CartManagement';
+import RenderProductCards from '../../Utils/RenderProductCards';
 
 const IndivisualCategory = ({navigation}) => {
   const Authctx = useContext(AuthContext);
@@ -65,6 +61,7 @@ const IndivisualCategory = ({navigation}) => {
     if (isLoading) return <RenderLoader />;
     return (
       <FlatList
+        contentContainerStyle={{alignItems: 'center'}}
         style={{flex: 1, backgroundColor: GlobalStyles.colors.color4}}
         data={productsData}
         renderItem={renderProductsCard}

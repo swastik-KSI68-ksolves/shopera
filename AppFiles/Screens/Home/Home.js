@@ -24,6 +24,8 @@ import {AuthContext} from '../../Store/AuthContext';
 import firestore from '@react-native-firebase/firestore';
 import {AddItemToCart, HandleCartButtonClick} from '../../Utils/CartManagement';
 import {HandleHeartButtonClick} from '../../Utils/WishListManagement';
+import {FlatListSlider} from 'react-native-flatlist-slider';
+import Preview from '../../Components/ImageSlider/Preview';
 
 const Home = ({navigation}) => {
   const Authctx = useContext(AuthContext);
@@ -33,7 +35,23 @@ const Home = ({navigation}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [skip, setSkip] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
+  const [shouldGetData, setShouldGetdata] = useState(true);
   const limit = 30;
+
+  console.log(productsData);
+
+  const images = [
+    {
+      image:
+        'https://images.unsplash.com/photo-1567226475328-9d6baaf565cf?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60',
+      desc: 'Silent Waters in the mountains in midst of Himilayas',
+    },
+    {
+      image:
+        'https://images.unsplash.com/photo-1455620611406-966ca6889d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1130&q=80',
+      desc: 'Red fort in India New Delhi is a magnificient masterpeiece of humans',
+    },
+  ];
 
   const wait = timeout => {
     return new Promise(resolve => setTimeout(resolve, timeout));
@@ -54,7 +72,7 @@ const Home = ({navigation}) => {
   };
 
   const LoadMoreItems = () => {
-    setSkip(skip + limit);
+    shouldGetData && setSkip(skip + limit);
   };
 
   const getProductsData = async () => {
@@ -67,16 +85,18 @@ const Home = ({navigation}) => {
         },
       );
 
-      let data = await response.json().then(res => res.products);
-      if (data.length < 1) {
+      const data = await response.json().then(res => res.products);
+
+      if (!data) {
         ToastAndroid.show('no more products', ToastAndroid.SHORT);
+        setShouldGetdata(false);
       }
       skip
         ? setProductsData(oldArray => [...oldArray, ...data])
         : data && setProductsData(data);
     } catch (err) {
       setIsLoading(false);
-      productsData.length < 1 &&
+      !productsData &&
         Alert.alert('Turn internet connection on ', 'or restart app', [
           {
             text: '',
@@ -112,10 +132,10 @@ const Home = ({navigation}) => {
       HandleCartButtonClick(itemDetails, localId);
     };
 
-    const handleHeartButton = itemDetails => {
-      const {localId} = JSON.parse(Authctx.userInfo);
-      HandleHeartButtonClick(itemDetails, localId, setIsInWishLIst);
-    };
+    // const handleHeartButton = itemDetails => {
+    //   const {localId} = JSON.parse(Authctx.userInfo);
+    //   HandleHeartButtonClick(itemDetails, localId, setIsInWishLIst);
+    // };
 
     return (
       <Card
@@ -146,43 +166,56 @@ const Home = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.aboveContainer}>
-        <View style={styles.logoContainer}>
-          {/* <View>
-            <Pressable
-              style={({pressed}) => (pressed ? styles.pressed : null)}
-              onPress={() => navigation.openDrawer()}>
-              <Icon name="menu" color="white" size={fontScale * 32} />
-            </Pressable>
-          </View> */}
-          <View>
-            <Text style={[styles.logo, {fontSize: fontScale * 16}]}>
-              Shopera
-            </Text>
-          </View>
-          <View>
-            <UserAvatar
-              fontScale={fontScale}
-              isImage={false}
-              word="S"
-              style={{backgroundColor: GlobalStyles.colors.color8}}
-              onPress={() => {
-                navigation.navigate('userProfile');
-              }}
-            />
-            {/* <Icon name="person-circle" color="white" size={fontScale * 32} /> */}
-          </View>
-        </View>
-        <View style={styles.middleContainer}>
-          <Text style={[styles.best, {fontSize: fontScale * 23}]}>
-            Browse categories
-          </Text>
-          <CategorySlider color={'black'} size={25} />
-        </View>
-      </View>
       <FlatList
-        style={{flex: 1, marginTop: 20}}
+        ListHeaderComponent={
+          <>
+            <View style={styles.aboveContainer}>
+              <View style={styles.logoContainer}>
+                <View>
+                  <Text style={[styles.logo, {fontSize: fontScale * 16}]}>
+                    Shopera
+                  </Text>
+                </View>
+                <View>
+                  <UserAvatar
+                    fontScale={fontScale}
+                    isImage={false}
+                    word="S"
+                    style={{backgroundColor: GlobalStyles.colors.color8}}
+                    onPress={() => {
+                      navigation.navigate('userProfile');
+                    }}
+                  />
+                  {/* <Icon name="person-circle" color="white" size={fontScale * 32} /> */}
+                </View>
+              </View>
+              <View style={styles.middleContainer}>
+                <Text style={[styles.best, {fontSize: fontScale * 23}]}>
+                  Browse categories
+                </Text>
+                <CategorySlider color={'black'} size={25} />
+              </View>
+            </View>
+            <FlatListSlider
+              // style={{paddingTop:200,}}
+              component={<Preview />}
+              indicatorActiveColor={GlobalStyles.colors.color5}
+              loop={true}
+              autoscroll={true}
+              data={images}
+              width={width}
+              timer={5000}
+              animation={true}
+              imageKey={'image'}
+              indicatorActiveWidth={20}
+              // contentContainerStyle={{paddingHorizontal: 16}}
+            />
+          </>
+        }
+        style={{flex: 1}}
+        nestedScrollEnabled
         data={productsData}
+        initialNumToRender={5}
         renderItem={renderProductsCard}
         keyExtractor={item => item.id}
         numColumns={2}
@@ -207,6 +240,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   aboveContainer: {
+    paddingTop: 10,
     width: '100%',
     flex: 0.5,
     backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
