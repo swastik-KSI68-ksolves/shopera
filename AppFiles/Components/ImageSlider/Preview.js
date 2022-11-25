@@ -19,7 +19,7 @@ export default Preview = ({
   active,
   local,
 }) => {
-  const {width} = useWindowDimensions();
+  const {width, fontScale} = useWindowDimensions();
   return (
     <Pressable style={[styles.videoContainer]} onPress={() => onPress(item)}>
       <View style={[styles.imageContainer, styles.shadow]}>
@@ -32,7 +32,13 @@ export default Preview = ({
           source={{uri: item[imageKey]}}
         />
       </View>
-      <Text style={styles.desc}>{item.desc}</Text>
+      <Text
+        style={[
+          styles.desc,
+          {fontSize: item.desc.length < 50 ? fontScale * 10 : fontScale * 9},
+        ]}>
+        {item.desc.slice(0, 60)}...
+      </Text>
     </Pressable>
   );
 };
@@ -51,6 +57,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0,
     lineHeight: 24,
     marginTop: 18,
+    color: 'black',
   },
   imageContainer: {
     justifyContent: 'center',

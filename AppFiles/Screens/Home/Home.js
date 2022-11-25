@@ -5,8 +5,6 @@ import {
   Text,
   FlatList,
   useWindowDimensions,
-  Pressable,
-  ScrollView,
   Alert,
   ActivityIndicator,
   ToastAndroid,
@@ -16,7 +14,6 @@ import {GlobalStyles} from '../../Constants/GlobalStyles';
 import {
   Card,
   CategorySlider,
-  CustomImageSlider,
   UserAvatar,
 } from '../../Exporter';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -37,21 +34,19 @@ const Home = ({navigation}) => {
   const [refreshing, setRefreshing] = useState(false);
   const [shouldGetData, setShouldGetdata] = useState(true);
   const limit = 30;
+  let firstTenProducts = [];
 
-  console.log(productsData);
+  useEffect(() => {
+    getProductsData();
+  }, [skip]);
 
-  const images = [
-    {
-      image:
-        'https://images.unsplash.com/photo-1567226475328-9d6baaf565cf?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=60',
-      desc: 'Silent Waters in the mountains in midst of Himilayas',
-    },
-    {
-      image:
-        'https://images.unsplash.com/photo-1455620611406-966ca6889d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1130&q=80',
-      desc: 'Red fort in India New Delhi is a magnificient masterpeiece of humans',
-    },
-  ];
+  if (productsData) {
+    firstTenProducts = productsData.slice(0, 10);
+  }
+
+  const images = firstTenProducts.map(object => {
+    return {image: object.images[0], desc: object.description};
+  });
 
   const wait = timeout => {
     return new Promise(resolve => setTimeout(resolve, timeout));
@@ -109,10 +104,6 @@ const Home = ({navigation}) => {
     setIsLoading(false);
   };
 
-  useEffect(() => {
-    getProductsData();
-  }, [skip]);
-
   const renderProductsCard = itemData => {
     const itemDetails = {
       id: itemData.item.id,
@@ -164,6 +155,24 @@ const Home = ({navigation}) => {
     );
   };
 
+  const RenderImageSlider = () => {
+    return images ? (
+      <FlatListSlider
+        component={<Preview />}
+        indicatorActiveColor={GlobalStyles.colors.color5}
+        loop={true}
+        autoscroll={true}
+        data={images}
+        width={width}
+        timer={5000}
+        animation={true}
+        imageKey={'image'}
+        indicatorActiveWidth={20}
+        // contentContainerStyle={{paddingHorizontal: 16}}
+      />
+    ) : null;
+  };
+
   return (
     <View style={styles.container}>
       <FlatList
@@ -196,20 +205,14 @@ const Home = ({navigation}) => {
                 <CategorySlider color={'black'} size={25} />
               </View>
             </View>
-            <FlatListSlider
-              // style={{paddingTop:200,}}
-              component={<Preview />}
-              indicatorActiveColor={GlobalStyles.colors.color5}
-              loop={true}
-              autoscroll={true}
-              data={images}
-              width={width}
-              timer={5000}
-              animation={true}
-              imageKey={'image'}
-              indicatorActiveWidth={20}
-              // contentContainerStyle={{paddingHorizontal: 16}}
-            />
+            <View
+              style={{
+                paddingBottom: 10,
+                paddingTop: 20,
+                backgroundColor: GlobalStyles.colors.color4,
+              }}>
+              <RenderImageSlider />
+            </View>
           </>
         }
         style={{flex: 1}}
