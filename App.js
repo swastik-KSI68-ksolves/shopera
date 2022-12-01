@@ -27,12 +27,36 @@ import {IconButton} from './AppFiles/Components/UI/IconButton';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {Provider} from 'react-redux';
 import {myStore} from './AppFiles/Store/Redux/Store';
+import firestore, {firebase} from '@react-native-firebase/firestore';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function BottomTabNavigator() {
+  const Authctx = useContext(AuthContext);
+  const [cartCount, setCartCount] = useState(0);
+  const getCartCount = async () => {
+    const userInfo = JSON.parse(Authctx.userInfo);
+    console.log('u', userInfo);
+    const localId = userInfo.localId;
+    try {
+      const response = await firestore()
+        .collection('Cart_items')
+        .doc(localId)
+        .get();
+      const products = response.data().products;
+      setCartCount(products.length);
+    } catch (err) {
+      console.log(err);
+    }
+    return;
+  };
+
+  useEffect(() => {
+    getCartCount();
+  }, [setCartCount]);
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -81,6 +105,11 @@ function BottomTabNavigator() {
         options={{
           headerShown: false,
           tabBarLabel: 'Cart',
+          tabBarBadge: cartCount,
+          tabBarBadgeStyle: {
+            color: 'white',
+            backgroundColor: GlobalStyles.colors.color9,
+          },
           tabBarIcon: ({color, size}) => (
             <Icon name="cart-outline" color={color} size={size * 1.1} />
           ),
@@ -185,8 +214,7 @@ function AuthenticatedStack() {
           headerTitle: 'User profile',
         }}
       />
-      <Stack.Screen name="checkOutScreen" component={CheckoutScreen} 
-      />
+      <Stack.Screen name="checkOutScreen" component={CheckoutScreen} />
       <Stack.Screen name="IndivisualCategory" component={IndivisualCategory} />
     </Stack.Navigator>
   );

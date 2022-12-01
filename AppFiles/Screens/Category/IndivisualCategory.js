@@ -83,6 +83,7 @@ const IndivisualCategory = ({navigation}) => {
       thumbnail: itemData.item.thumbnail,
       howMany: 1,
       rating: Math.round(itemData.item.rating),
+      total: 1 * itemData.item.price,
     };
     const handleCartButton = itemDetails => {
       const {localId} = JSON.parse(Authctx.userInfo);

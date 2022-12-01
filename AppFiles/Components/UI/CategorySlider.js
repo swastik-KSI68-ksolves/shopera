@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
   },
   iconBox: {
     borderWidth: 4,
-    borderColor: GlobalStyles.colors.color5,
+    borderColor: GlobalStyles.colors.color6,
     width: 60,
     height: 60,
     backgroundColor: GlobalStyles.colors.color4,
