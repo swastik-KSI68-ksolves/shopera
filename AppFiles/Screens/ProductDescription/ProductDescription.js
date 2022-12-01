@@ -69,8 +69,8 @@ const ProductDescription = ({navigation}) => {
     thumbnail: Thumbnail,
     howMany: 1,
     rating: Rating,
+    total: 1 * Price,
   };
-
 
   const loadCartItems = async () => {
     const {localId} = JSON.parse(Authctx.userInfo);

@@ -20,8 +20,20 @@ export default Preview = ({
   local,
 }) => {
   const {width, fontScale} = useWindowDimensions();
+  const ReturnProductDesc = () => {
+    return item.desc ? (
+      <Text
+        style={[
+          styles.desc,
+          {fontSize: item.desc.length < 50 ? fontScale * 10 : fontScale * 9},
+        ]}>
+        {item.desc.slice(0, 60)}...
+      </Text>
+    ) : null;
+  };
   return (
-    <Pressable style={[styles.videoContainer]} onPress={() => onPress(item)}>
+    // onPress={() => onPress(item)}
+    <Pressable style={[styles.videoContainer]}>
       <View style={[styles.imageContainer, styles.shadow]}>
         <Image
           style={[
@@ -32,13 +44,7 @@ export default Preview = ({
           source={{uri: item[imageKey]}}
         />
       </View>
-      <Text
-        style={[
-          styles.desc,
-          {fontSize: item.desc.length < 50 ? fontScale * 10 : fontScale * 9},
-        ]}>
-        {item.desc.slice(0, 60)}...
-      </Text>
+      <ReturnProductDesc />
     </Pressable>
   );
 };

@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import {
   View,
   StyleSheet,
@@ -11,20 +11,17 @@ import {
   RefreshControl,
 } from 'react-native';
 import {GlobalStyles} from '../../Constants/GlobalStyles';
-import {
-  Card,
-  CategorySlider,
-  UserAvatar,
-} from '../../Exporter';
-import Icon from 'react-native-vector-icons/Ionicons';
+import {Card, CategorySlider, UserAvatar} from '../../Exporter';
 import {AuthContext} from '../../Store/AuthContext';
 import firestore from '@react-native-firebase/firestore';
-import {AddItemToCart, HandleCartButtonClick} from '../../Utils/CartManagement';
+import {HandleCartButtonClick} from '../../Utils/CartManagement';
 import {HandleHeartButtonClick} from '../../Utils/WishListManagement';
 import {FlatListSlider} from 'react-native-flatlist-slider';
 import Preview from '../../Components/ImageSlider/Preview';
-
+import {useDispatch, useSelector} from 'react-redux';
+import {addToCart} from '../../Store/Redux/Fuctionality/Cart/CartSlice';
 const Home = ({navigation}) => {
+  const dispatch = useDispatch();
   const Authctx = useContext(AuthContext);
   const {fontScale, width, height} = useWindowDimensions();
   const [productsData, setProductsData] = useState();
@@ -33,26 +30,57 @@ const Home = ({navigation}) => {
   const [skip, setSkip] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const [shouldGetData, setShouldGetdata] = useState(true);
+  const [cartData, setCartData] = useState([]);
   const limit = 30;
   let firstTenProducts = [];
+  let localId;
+  let runGetData = true;
 
+  console.log('Run');
   useEffect(() => {
     getProductsData();
+    console.log('called useefffect');
   }, [skip]);
 
-  if (productsData) {
-    firstTenProducts = productsData.slice(0, 10);
-  }
+  // if (productsData) {
+  //   firstTenProducts = productsData.slice(0, 10);
+  // }
 
-  const images = firstTenProducts.map(object => {
-    return {image: object.images[0], desc: object.description};
-  });
+  const getCartProductData = async localId => {
+    await firestore()
+      .collection('Cart_items')
+      .doc(localId)
+      .get()
+      .then(response => {
+        const products = response.data()?.products;
+        if (!!products) {
+          setCartData(products);
+          console.log('done');
+          runGetData = false;
+        }
+      })
+      .catch(() => {
+        runGetData = true;
+        console.log('Error occured during add to cart');
+      });
+  };
+  useEffect(() => {
+    const userInfo = JSON.parse(Authctx.userInfo);
+    localId = userInfo && userInfo.localId;
+    console.log('user info', userInfo);
+    // console.log('localid = ', localId);
+    // localId && getCartProductData(localId);
+  }, []);
+
+  // const images = firstTenProducts.map(object => {
+  //   return {image: object.images[0], desc: object.description, id: object.id};
+  // });
 
   const wait = timeout => {
     return new Promise(resolve => setTimeout(resolve, timeout));
   };
 
-  const onRefresh = React.useCallback(() => {
+  const onRefresh = useCallback(() => {
     setRefreshing(true);
     wait(1000).then(() => setRefreshing(false));
     getProductsData();
@@ -116,6 +144,7 @@ const Home = ({navigation}) => {
       thumbnail: itemData.item.thumbnail,
       howMany: 1,
       rating: Math.round(itemData.item.rating),
+      total: 1 * itemData.item.price,
     };
 
     const handleCartButton = itemDetails => {
@@ -156,21 +185,22 @@ const Home = ({navigation}) => {
   };
 
   const RenderImageSlider = () => {
-    return images ? (
-      <FlatListSlider
-        component={<Preview />}
-        indicatorActiveColor={GlobalStyles.colors.color5}
-        loop={true}
-        autoscroll={true}
-        data={images}
-        width={width}
-        timer={5000}
-        animation={true}
-        imageKey={'image'}
-        indicatorActiveWidth={20}
-        // contentContainerStyle={{paddingHorizontal: 16}}
-      />
-    ) : null;
+    // return images ? (
+    //   <FlatListSlider
+    //     component={<Preview />}
+    //     indicatorActiveColor={GlobalStyles.colors.color5}
+    //     loop={true}
+    //     autoscroll={true}
+    //     data={images}
+    //     width={width}
+    //     timer={5000}
+    //     animation={true}
+    //     imageKey={'image'}
+    //     indicatorActiveWidth={20}
+    //     // contentContainerStyle={{paddingHorizontal: 16}}
+    //   />
+    // ) : null;
+    return <View></View>;
   };
 
   return (

@@ -53,6 +53,36 @@ const Wishlist = ({navigation}) => {
     return;
   };
 
+  const moveToCartHandler = async id => {
+    const {localId} = JSON.parse(Authctx.userInfo);
+    try {
+      const response = await firestore()
+        .collection('Wish_list_items')
+        .doc(localId)
+        .get();
+      const wishes = response.data().wishes;
+      const filteredData = wishes.filter(item => {
+        return item.id === id;
+      });
+      const res = firestore().collection('Wish_list_items').doc(localId);
+      const resCart = firestore().collection('Cart_items').doc(localId);
+
+      res.update({
+        wishes: firebase.firestore.FieldValue.arrayRemove(...filteredData),
+      });
+
+      resCart.set(
+        {
+          products: firebase.firestore.FieldValue.arrayUnion(...filteredData),
+        },
+        {merge: true},
+      );
+    } catch (err) {
+      console.log(err);
+    }
+    return;
+  };
+
   const renderCartProducts = itemData => {
     const itemDetailsForRemove = {
       id: itemData.item.id,
@@ -77,6 +107,7 @@ const Wishlist = ({navigation}) => {
         image={itemData.item.thumbnail}
         howMany={itemData.item.howMany}
         onRemoveHandler={onRemoveHandler.bind(this, itemData.item.id)}
+        onPressMoveToCart={moveToCartHandler.bind(this, itemData.item.id)}
       />
     );
   };

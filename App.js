@@ -1,4 +1,4 @@
-import {StatusBar, Text} from 'react-native';
+import {Pressable, StatusBar, Text} from 'react-native';
 import {GlobalStyles} from './AppFiles/Constants/GlobalStyles';
 import Card from './AppFiles/Components/UI/Card';
 import {
@@ -176,7 +176,7 @@ function AuthenticatedStack() {
           // tabBarItemStyle: {display: 'none'},
         }}
       /> */}
-      <Stack.Screen name="Home" component={Home} />
+      {/* <Stack.Screen name="Home" component={Home} /> */}
       <Stack.Screen name="ProductDescription" component={ProductDescription} />
       <Stack.Screen
         name="userProfile"
@@ -185,7 +185,8 @@ function AuthenticatedStack() {
           headerTitle: 'User profile',
         }}
       />
-      <Stack.Screen name="checkOutScreen" component={CheckoutScreen} />
+      <Stack.Screen name="checkOutScreen" component={CheckoutScreen} 
+      />
       <Stack.Screen name="IndivisualCategory" component={IndivisualCategory} />
     </Stack.Navigator>
   );

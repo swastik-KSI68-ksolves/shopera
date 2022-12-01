@@ -10,9 +10,10 @@ import {
 import {GlobalStyles} from '../../Constants/GlobalStyles';
 import {IconButton} from './IconButton';
 import Ratings from './Ratings';
-import {WishListAddButton} from '../../Exporter/index';
+import {PrimaryButton, WishListAddButton} from '../../Exporter/index';
 import {useContext, useState} from 'react';
 import {AuthContext} from '../../Store/AuthContext';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const Card = ({
   id,
@@ -29,6 +30,9 @@ const Card = ({
   onRemoveHandler,
   onAddPress,
   wishListCard,
+  onPressPlus,
+  onPressMinus,
+  onPressMoveToCart,
 }) => {
   const {width, height, fontScale} = useWindowDimensions();
   const [numberofItems, setNumberofItems] = useState(1);
@@ -100,7 +104,7 @@ const Card = ({
       flexDirection: 'row',
       alignItems: 'flex-end',
       justifyContent: 'space-between',
-      paddingLeft: fontScale * 15,
+      paddingLeft: fontScale * 20,
     },
     pressed: {
       opacity: 0.75,
@@ -124,12 +128,12 @@ const Card = ({
     },
     numberofItemsChanger: {
       flexDirection: 'row',
-      justifyContent: 'space-around',
+      justifyContent: 'space-between',
       alignItems: 'center',
     },
     numberofItems: {
       color: 'black',
-      fontSize: fontScale * 20,
+      fontSize: fontScale * 18,
       paddingHorizontal: 15,
       paddingVertical: 10,
       // justifyContent:"space-evenly"
@@ -148,8 +152,17 @@ const Card = ({
               style={{
                 backgroundColor: GlobalStyles.colors.PrimaryTextColor,
               }}
-              // onPress={() => setNumberofItems(numberofItems + 1)}  increase howMany
+              onPress={onPressPlus}
             />
+            {/* <Pressable
+              style={({pressed}) => pressed && producStyle.pressed}
+              onPress={onPressPlus}>
+              <Icon
+                name={'add'}
+                color={GlobalStyles.colors.color9}
+                size={fontScale * 25}
+              />
+            </Pressable> */}
             <Text style={producStyle.numberofItems}>{howMany}</Text>
             <IconButton
               color="white"
@@ -158,18 +171,25 @@ const Card = ({
               style={{
                 backgroundColor: GlobalStyles.colors.PrimaryTextColor,
               }}
-              // onPress={() =>
-              //   // numberofItems > 1 && setNumberofItems(numberofItems - 1) reduce howMany
-              // }
+              onPress={onPressMinus}
             />
+            {/* <Pressable
+              style={({pressed}) => pressed && producStyle.pressed}
+              onPress={onPressMinus}>
+              <Icon
+                name={'remove-outline'}
+                color={GlobalStyles.colors.color9}
+                size={fontScale * 25}
+              />
+            </Pressable> */}
             <View style={producStyle.ratingAndButton}>
               <IconButton
                 onPress={() => onRemoveHandler(id)}
                 color={GlobalStyles.colors.color4}
-                name="close-outline"
-                size={23}
+                name="trash-outline"
+                size={fontScale * 23}
                 style={{
-                  backgroundColor: GlobalStyles.colors.color8,
+                  backgroundColor: GlobalStyles.colors.color6,
                 }}
               />
             </View>
@@ -177,37 +197,53 @@ const Card = ({
         );
       }
       return (
-        <IconButton
-          onPress={() => onRemoveHandler(id)}
-          color="white"
-          name="close-outline"
-          size={23}
+        <View
           style={{
-            backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
-          }}
-        />
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-evenly',
+          }}>
+          <PrimaryButton
+            children="   Move to cart   "
+            color={GlobalStyles.colors.PrimaryTextColor}
+            style={{
+              backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
+            }}
+            fsize={fontScale * 12}
+            onPress={onPressMoveToCart}
+          />
+          <IconButton
+            onPress={() => onRemoveHandler(id)}
+            color="white"
+            name="trash-outline"
+            size={23}
+            style={{
+              backgroundColor: GlobalStyles.colors.color6,
+              marginLeft: fontScale * 12,
+            }}
+          />
+        </View>
       );
     };
     return (
-      <Pressable
-        style={({pressed}) => pressed && producStyle.pressed}
-        onPress={onPress}>
-        <View style={producStyle.cardContainer}>
-          <View style={producStyle.imageContainerHrizontal}>
-            <Image style={producStyle.imageHorizontal} source={{uri: image}} />
-          </View>
-          <View style={producStyle.detailsContainerHorizontal}>
-            <Text style={producStyle.productNameHorizontal}>{productName}</Text>
-            <Text style={producStyle.productDesc}>
-              {productDesc.slice(0, 30)}... desc
-            </Text>
-            <Text style={producStyle.productPriceHorizontal}>
-              ${productPrice}
-            </Text>
-            <ShowPlusMinus />
-          </View>
+      // <Pressable
+      // style={({pressed}) => pressed && producStyle.pressed}
+      // onPress={onPress}>
+      <View style={producStyle.cardContainer}>
+        <View style={producStyle.imageContainerHrizontal}>
+          <Image style={producStyle.imageHorizontal} source={{uri: image}} />
         </View>
-      </Pressable>
+        <View style={producStyle.detailsContainerHorizontal}>
+          <Text style={producStyle.productNameHorizontal}>{productName}</Text>
+          <Text style={producStyle.productDesc}>
+            {productDesc.slice(0, 30)}... desc
+          </Text>
+          <Text style={producStyle.productPriceHorizontal}>
+            ₹{productPrice}
+          </Text>
+          <ShowPlusMinus />
+        </View>
+      </View>
     );
   }
   return (
@@ -231,7 +267,7 @@ const Card = ({
               isAlreadyAdded={isAlreadyAdded}
             /> */}
           </View>
-          <Text style={producStyle.productPrice}>${productPrice}</Text>
+          <Text style={producStyle.productPrice}>₹{productPrice}</Text>
           <View style={producStyle.ratingAndButton}>
             <Ratings
               Touchable={false}

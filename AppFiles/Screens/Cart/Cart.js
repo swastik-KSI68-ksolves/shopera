@@ -26,11 +26,83 @@ const Cart = ({navigation}) => {
   let total;
   if (productData.length > 0) {
     total = productData.reduce((sum, product) => {
-      return sum + product.price;
+      return sum + product.total;
     }, 0);
   } else {
     total = 0;
   }
+
+  const onPlusHandler = async id => {
+    const {localId} = JSON.parse(Authctx.userInfo);
+    try {
+      const response = await firestore()
+        .collection('Cart_items')
+        .doc(localId)
+        .get();
+      const products = response.data().products;
+      const filteredData = products.filter(item => {
+        return item.id === id;
+      });
+      const res = firestore().collection('Cart_items').doc(localId);
+      res.update({
+        products: firebase.firestore.FieldValue.arrayRemove(...filteredData),
+      });
+      filteredData[0].howMany += 1; //incerasing howMany count
+      filteredData[0].total = filteredData[0].howMany * filteredData[0].price; //increasing total
+      res.set(
+        {
+          products: firebase.firestore.FieldValue.arrayUnion(...filteredData),
+        },
+        {merge: true},
+      );
+      console.log(filteredData);
+    } catch (err) {
+      console.log(err);
+    }
+    return;
+  };
+
+  const onMinusHandler = async (id, howMany) => {
+    const {localId} = JSON.parse(Authctx.userInfo);
+    if (howMany > 1) {
+      try {
+        const response = await firestore()
+          .collection('Cart_items')
+          .doc(localId)
+          .get();
+        const products = response.data().products;
+        const filteredData = products.filter(item => {
+          return item.id === id;
+        });
+
+        const otherData = products.filter(item => {
+          return item.id !== id;
+        });
+
+        console.log('other = ', otherData);
+
+        const res = firestore().collection('Cart_items').doc(localId);
+        res.update({
+          products: firebase.firestore.FieldValue.arrayRemove(...filteredData),
+        });
+
+        filteredData[0].howMany -= 1; //decreasing howMany count
+        filteredData[0].total = filteredData[0].howMany * filteredData[0].price; //decreasing total
+
+        res.set(
+          {
+            products: firebase.firestore.FieldValue.arrayUnion(...filteredData),
+          },
+          {merge: true},
+        );
+        console.log(filteredData);
+      } catch (err) {
+        console.log(err);
+      }
+      return;
+    }
+    return;
+  };
 
   const onRemoveHandler = async id => {
     const {localId} = JSON.parse(Authctx.userInfo);
@@ -42,12 +114,26 @@ const Cart = ({navigation}) => {
         .get();
       const products = response.data().products;
       const filteredData = products.filter(item => {
-        return item.id === id;
+        return item.id !== id;
       });
-      const res = firestore().collection('Cart_items').doc(localId)
+      console.log('type of', typeof filteredData);
+      console.log('f = ', filteredData);
+      const res = firestore().collection('Cart_items').doc(localId);
+      // will delete all records
       res.update({
-        products: firebase.firestore.FieldValue.arrayRemove(...filteredData),
+        products: firebase.firestore.FieldValue.delete(),
       });
+
+      // wil set all records
+      res.set(
+        {
+          products: firebase.firestore.FieldValue.arrayUnion(...filteredData),
+        },
+        {merge: true},
+      );
+      // res.update({
+      //   products: firebase.firestore.FieldValue.arrayRemove(...filteredData),
+      // });
     } catch (err) {
       console.log(err);
     }
@@ -76,6 +162,12 @@ const Cart = ({navigation}) => {
         productPrice={itemData.item.price}
         image={itemData.item.thumbnail}
         howMany={itemData.item.howMany}
+        onPressPlus={onPlusHandler.bind(this, itemData.item.id)}
+        onPressMinus={onMinusHandler.bind(
+          this,
+          itemData.item.id,
+          itemData.item.howMany,
+        )}
         onRemoveHandler={onRemoveHandler.bind(this, itemData.item.id)}
       />
     );
@@ -156,7 +248,7 @@ const Cart = ({navigation}) => {
       </View>
       <View style={styles.rateDetails}>
         <H5 style={styles.H6}>Total</H5>
-        <H5 style={styles.H3}>${total}</H5>
+        <H5 style={styles.H3}>₹{total}</H5>
       </View>
       <RenderCartData />
     </View>
