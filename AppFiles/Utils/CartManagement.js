@@ -1,7 +1,7 @@
 import firestore, {firebase} from '@react-native-firebase/firestore';
 import {ToastAndroid} from 'react-native';
 
-export const AddItemToCart = (itemDetails, localId) => {
+export const AddItemToCart = (itemDetails, localId, handleReduxCart) => {
   if (localId) {
     firestore()
       .collection('Cart_items')
@@ -13,6 +13,7 @@ export const AddItemToCart = (itemDetails, localId) => {
         {merge: true},
       )
       .then(() => {
+        handleReduxCart();
         ToastAndroid.show('Added to cart', ToastAndroid.SHORT);
       })
       .catch(err => {
@@ -21,7 +22,11 @@ export const AddItemToCart = (itemDetails, localId) => {
   }
 };
 
-export const HandleCartButtonClick = async (itemDetails, localId) => {
+export const HandleCartButtonClick = async (
+  itemDetails,
+  localId,
+  handleReduxCart,
+) => {
   let flag = 0;
   if (localId) {
     await firestore()
@@ -50,7 +55,7 @@ export const HandleCartButtonClick = async (itemDetails, localId) => {
           'Already in cart, Check your cart',
           ToastAndroid.SHORT,
         )
-      : AddItemToCart(itemDetails, localId);
+      : AddItemToCart(itemDetails, localId, handleReduxCart);
   }
 
   return;

@@ -23,10 +23,14 @@ const Cart = ({navigation}) => {
   const {fontScale} = useWindowDimensions();
   const [productData, setProductData] = useState([]);
 
-  let total;
+  let total, productCount;
   if (productData.length > 0) {
     total = productData.reduce((sum, product) => {
       return sum + product.total;
+    }, 0);
+
+    productCount = productData.reduce((sum, product) => {
+      return sum + product.howMany;
     }, 0);
   } else {
     total = 0;
@@ -55,7 +59,6 @@ const Cart = ({navigation}) => {
         },
         {merge: true},
       );
-      console.log(filteredData);
     } catch (err) {
       console.log(err);
     }
@@ -79,8 +82,6 @@ const Cart = ({navigation}) => {
           return item.id !== id;
         });
 
-        console.log('other = ', otherData);
-
         const res = firestore().collection('Cart_items').doc(localId);
         res.update({
           products: firebase.firestore.FieldValue.arrayRemove(...filteredData),
@@ -95,7 +96,6 @@ const Cart = ({navigation}) => {
           },
           {merge: true},
         );
-        console.log(filteredData);
       } catch (err) {
         console.log(err);
       }
@@ -116,8 +116,6 @@ const Cart = ({navigation}) => {
       const filteredData = products.filter(item => {
         return item.id !== id;
       });
-      console.log('type of', typeof filteredData);
-      console.log('f = ', filteredData);
       const res = firestore().collection('Cart_items').doc(localId);
       // will delete all records
       res.update({
@@ -174,6 +172,7 @@ const Cart = ({navigation}) => {
   };
 
   useEffect(() => {
+    console.log('runnig useeffect');
     const {localId} = JSON.parse(Authctx.userInfo);
     function onResult(QuerySnapshot) {
       setProductData([]);
@@ -240,15 +239,21 @@ const Cart = ({navigation}) => {
 
         <View style={styles.buttonContainer}>
           <PrimaryButton
-            onPress={() => navigation.navigate('checkOutScreen')}
-            style={styles.buttonSettleNow}>
-            SETTLE NOW
+            onPress={() =>
+              navigation.navigate('checkOutScreen', {
+                productData: productData,
+              })
+            }
+            style={styles.buttonSettleNow}
+            >
+            CHECKOUT- {productCount} ITEMS
           </PrimaryButton>
         </View>
       </View>
       <View style={styles.rateDetails}>
-        <H5 style={styles.H6}>Total</H5>
-        <H5 style={styles.H3}>₹{total}</H5>
+        <View>
+          <H5 style={styles.H5}>Total ₹{total}</H5>
+        </View>
       </View>
       <RenderCartData />
     </View>
@@ -277,7 +282,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {flex: 1, backgroundColor: 'red'},
   buttonContainer: {
-    flex: 0.5,
+    // flex: 0.4,
     justifyContent: 'space-evenly',
     // paddingHorizontal: 30,
   },
@@ -288,15 +293,17 @@ const styles = StyleSheet.create({
   },
   rateDetails: {
     padding: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     justifyContent: 'flex-end',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  H3: {
-    color: GlobalStyles.colors.color2,
+    // flexDirection: 'row',
+    alignItems: 'flex-end',
   },
   H6: {
+    color: GlobalStyles.colors.color3,
+    paddingHorizontal: 10,
+  },
+  H5: {
     color: GlobalStyles.colors.color2,
     paddingHorizontal: 10,
   },

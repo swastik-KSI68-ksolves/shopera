@@ -27,9 +27,18 @@ const CategoryScreen = ({navigation}) => {
   const Authctx = useContext(AuthContext);
   const [productsData, setProductsData] = useState();
   const [cat, setCat] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const RenderLoader = () => {
+    return isLoading ? (
+      <View style={styles.loader}>
+        <ActivityIndicator color={GlobalStyles.colors.color8} size="large" />
+      </View>
+    ) : null;
+  };
 
   const getProductsData = async () => {
-    setProductsData([]);
+    setIsLoading(true);
     console.log('inside  = ', cat);
     const url = `https://dummyjson.com/products/category/${cat}`;
     try {
@@ -40,6 +49,7 @@ const CategoryScreen = ({navigation}) => {
       let data = await response.json().then(res => res.products);
       setProductsData(data);
     } catch (err) {
+      setIsLoading(false);
       Alert.alert('Turn internet connection on ', 'or restart app', [
         {
           text: '',
@@ -49,6 +59,7 @@ const CategoryScreen = ({navigation}) => {
         {text: 'OK', onPress: () => getProductsData()},
       ]);
     }
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -136,6 +147,10 @@ const CategoryScreen = ({navigation}) => {
       </>
     );
   };
+  const RenderData = () => {
+    if (isLoading) return <RenderLoader />;
+    return <RenderCategoryItems />;
+  };
 
   return (
     <View style={styles.container}>
@@ -150,7 +165,7 @@ const CategoryScreen = ({navigation}) => {
       {/* <Text style={{color:"black"}}>Hello</Text> */}
 
       <View style={styles.catList}>
-        <RenderCategoryItems />
+        <RenderData />
       </View>
 
       <View style={styles.MoreOnShopera}></View>

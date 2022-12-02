@@ -5,7 +5,6 @@ import {GlobalStyles} from '../../Constants/GlobalStyles';
 import {Card} from '../../Exporter';
 import {AuthContext} from '../../Store/AuthContext';
 import {HandleCartButtonClick} from '../../Utils/CartManagement';
-import RenderProductCards from '../../Utils/RenderProductCards';
 
 const IndivisualCategory = ({navigation}) => {
   const Authctx = useContext(AuthContext);
@@ -18,7 +17,7 @@ const IndivisualCategory = ({navigation}) => {
   const RenderLoader = () => {
     return isLoading ? (
       <View style={styles.loader}>
-        <ActivityIndicator color={GlobalStyles.colors.color9} size="large" />
+        <ActivityIndicator color={GlobalStyles.colors.color8} size="large" />
       </View>
     ) : null;
   };

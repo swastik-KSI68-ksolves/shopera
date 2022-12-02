@@ -32,6 +32,8 @@ const UserProfile = ({navigation}) => {
   });
 
   const AuthCTX = useContext(AuthContext);
+  const userInfo = JSON.parse(AuthCTX.userInfo);
+  const word = userInfo.name.charAt(0);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -128,7 +130,7 @@ const UserProfile = ({navigation}) => {
           <UserAvatar
             fontScale={fontScale * 3}
             isImage={false}
-            word="S"
+            word={word}
             style={{backgroundColor: GlobalStyles.colors.color1}}
             onPress={() => {
               navigation.navigate('userProfile');

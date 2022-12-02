@@ -35,11 +35,15 @@ import Preview from '../../Components/ImageSlider/Preview';
 
 import {HandleHeartButtonClick} from '../../Utils/WishListManagement';
 import {HandleCartButtonClick} from '../../Utils/CartManagement';
+import {useDispatch, useSelector} from 'react-redux';
+import {addToCart} from '../../Store/Redux/Fuctionality/Cart/CartSlice';
 
 const ProductDescription = ({navigation}) => {
+  const {cartItems} = useSelector(store => store.cart);
+  const dispatch = useDispatch();
   const Authctx = useContext(AuthContext);
   const {width, height, fontScale} = useWindowDimensions();
-  const [numberofItems, setNumberofItems] = useState(0);
+  const [numberofItems, setNumberofItems] = useState(cartItems.length);
   const [isInWishLIst, setIsInWishLIst] = useState(false);
 
   const route = useRoute();
@@ -72,23 +76,6 @@ const ProductDescription = ({navigation}) => {
     total: 1 * Price,
   };
 
-  const loadCartItems = async () => {
-    const {localId} = JSON.parse(Authctx.userInfo);
-    console.log('localid 4= ', localId);
-
-    try {
-      const response = await firestore()
-        .collection('Cart_items')
-        .doc(localId)
-        .get();
-      const products = response.data().products;
-      console.log(products.length);
-      setNumberofItems(products.length);
-    } catch (err) {
-      console.log('error in load data', err);
-    }
-  };
-
   const CartCountContainer = () => {
     // loadCartItems();
     return (
@@ -109,8 +96,8 @@ const ProductDescription = ({navigation}) => {
     );
   };
 
-  useLayoutEffect(() => {
-    // loadCartItems();
+  useEffect(() => {
+    setNumberofItems(cartItems.length);
     navigation.setOptions({
       title: Title === '' ? 'Product Overview' : Title,
       headerTitleStyle: {
@@ -123,7 +110,7 @@ const ProductDescription = ({navigation}) => {
         paddingRight: 20,
       },
     });
-  }, []);
+  }, [cartItems]);
 
   useLayoutEffect(() => {
     handleHeartButtonColor();
@@ -154,9 +141,14 @@ const ProductDescription = ({navigation}) => {
     return;
   };
 
+  const handleReduxCart = () => {
+    dispatch(addToCart([itemDetails]));
+    setNumberofItems(cartItems.length);
+  };
+
   const handleCartButton = () => {
     const {localId} = JSON.parse(Authctx.userInfo);
-    HandleCartButtonClick(itemDetails, localId);
+    HandleCartButtonClick(itemDetails, localId, handleReduxCart);
   };
 
   const handleHeartButton = async itemDetails => {

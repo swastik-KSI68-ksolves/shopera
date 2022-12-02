@@ -22,7 +22,6 @@ import {useDispatch, useSelector} from 'react-redux';
 import {addToCart} from '../../Store/Redux/Fuctionality/Cart/CartSlice';
 const Home = ({navigation}) => {
   const dispatch = useDispatch();
-  const Authctx = useContext(AuthContext);
   const {fontScale, width, height} = useWindowDimensions();
   const [productsData, setProductsData] = useState();
   const [isInWishLIst, setIsInWishLIst] = useState(false);
@@ -33,18 +32,35 @@ const Home = ({navigation}) => {
   const [cartData, setCartData] = useState([]);
   const limit = 30;
   let firstTenProducts = [];
-  let localId;
-  let runGetData = true;
+  let word = 'G';
+  let userLocalId;
 
-  console.log('Run');
+  const Authctx = useContext(AuthContext);
+  const userInfo = JSON.parse(Authctx.userInfo);
+
+  if (userInfo) {
+    word = userInfo.name.charAt(0);
+    userLocalId = userInfo.localId;
+  }
+
+  if (productsData) {
+    firstTenProducts = productsData.slice(0, 10);
+  }
+
+  if (cartData.length > 0) {
+    dispatch(addToCart(cartData));
+  }
+
   useEffect(() => {
     getProductsData();
-    console.log('called useefffect');
   }, [skip]);
 
-  // if (productsData) {
-  //   firstTenProducts = productsData.slice(0, 10);
-  // }
+  useEffect(() => {
+    if (userLocalId) {
+      getCartProductData(userLocalId);
+    }
+    console.log('called useeff');
+  }, [userLocalId]);
 
   const getCartProductData = async localId => {
     await firestore()
@@ -56,25 +72,16 @@ const Home = ({navigation}) => {
         if (!!products) {
           setCartData(products);
           console.log('done');
-          runGetData = false;
         }
       })
       .catch(() => {
-        runGetData = true;
         console.log('Error occured during add to cart');
       });
   };
-  useEffect(() => {
-    const userInfo = JSON.parse(Authctx.userInfo);
-    localId = userInfo && userInfo.localId;
-    console.log('user info', userInfo);
-    // console.log('localid = ', localId);
-    // localId && getCartProductData(localId);
-  }, []);
 
-  // const images = firstTenProducts.map(object => {
-  //   return {image: object.images[0], desc: object.description, id: object.id};
-  // });
+  const images = firstTenProducts.map(object => {
+    return {image: object.images[0], desc: object.description, id: object.id};
+  });
 
   const wait = timeout => {
     return new Promise(resolve => setTimeout(resolve, timeout));
@@ -89,7 +96,7 @@ const Home = ({navigation}) => {
   const RenderLoader = () => {
     return isLoading ? (
       <View style={styles.loader}>
-        <ActivityIndicator color={GlobalStyles.colors.color9} size="large" />
+        <ActivityIndicator color={GlobalStyles.colors.color8} size="large" />
       </View>
     ) : null;
   };
@@ -152,11 +159,6 @@ const Home = ({navigation}) => {
       HandleCartButtonClick(itemDetails, localId);
     };
 
-    // const handleHeartButton = itemDetails => {
-    //   const {localId} = JSON.parse(Authctx.userInfo);
-    //   HandleHeartButtonClick(itemDetails, localId, setIsInWishLIst);
-    // };
-
     return (
       <Card
         onPress={() =>
@@ -178,28 +180,27 @@ const Home = ({navigation}) => {
         productPrice={itemData.item.price}
         image={itemData.item.thumbnail}
         isAlreadyAdded={isInWishLIst}
-        // manageWishListInDb={handleHeartButton.bind(this, itemDetails)}
         onAddPress={handleCartButton.bind(this, itemDetails)}
       />
     );
   };
 
   const RenderImageSlider = () => {
-    // return images ? (
-    //   <FlatListSlider
-    //     component={<Preview />}
-    //     indicatorActiveColor={GlobalStyles.colors.color5}
-    //     loop={true}
-    //     autoscroll={true}
-    //     data={images}
-    //     width={width}
-    //     timer={5000}
-    //     animation={true}
-    //     imageKey={'image'}
-    //     indicatorActiveWidth={20}
-    //     // contentContainerStyle={{paddingHorizontal: 16}}
-    //   />
-    // ) : null;
+    return images ? (
+      <FlatListSlider
+        component={<Preview />}
+        indicatorActiveColor={GlobalStyles.colors.color5}
+        loop={true}
+        autoscroll={true}
+        data={images}
+        width={width}
+        timer={5000}
+        animation={true}
+        imageKey={'image'}
+        indicatorActiveWidth={20}
+        // contentContainerStyle={{paddingHorizontal: 16}}
+      />
+    ) : null;
     return <View></View>;
   };
 
@@ -219,13 +220,12 @@ const Home = ({navigation}) => {
                   <UserAvatar
                     fontScale={fontScale}
                     isImage={false}
-                    word="S"
-                    style={{backgroundColor: GlobalStyles.colors.color8}}
+                    word={word}
+                    style={{backgroundColor: GlobalStyles.colors.color6}}
                     onPress={() => {
                       navigation.navigate('userProfile');
                     }}
                   />
-                  {/* <Icon name="person-circle" color="white" size={fontScale * 32} /> */}
                 </View>
               </View>
               <View style={styles.middleContainer}>
@@ -256,7 +256,17 @@ const Home = ({navigation}) => {
         ListFooterComponent={RenderLoader}
         onEndReachedThreshold={0}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            progressBackgroundColor="White"
+            colors={[
+              GlobalStyles.colors.color2,
+              GlobalStyles.colors.color6,
+              GlobalStyles.colors.color8,
+              GlobalStyles.colors.color9,
+            ]}
+          />
         }
       />
     </View>

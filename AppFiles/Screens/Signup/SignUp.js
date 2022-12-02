@@ -244,6 +244,7 @@ const SignUp = ({navigation}) => {
           placeholderTextColor={GlobalStyles.colors.color2}
           value={userData.email}
           autoCorrect={false}
+          keyboardType="email-address"
           autoCapitalize="none"
           onChangeText={value => {
             setUserData({...userData, email: value});
@@ -372,7 +373,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   buttonRegisterOn: {
-    backgroundColor: GlobalStyles.colors.PrimaryButtonColor2
+    backgroundColor: GlobalStyles.colors.PrimaryButtonColor2,
   },
   buttonRegisterOff: {
     backgroundColor: GlobalStyles.colors.color3,

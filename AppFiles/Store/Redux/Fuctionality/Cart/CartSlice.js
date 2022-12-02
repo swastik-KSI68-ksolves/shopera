@@ -12,8 +12,21 @@ const cartSlice = createSlice({
   initialState: initialState,
   reducers: {
     addToCart: (state, payload) => {
-      state.cartItems = [...state.cartItems, ...payload];
-      return;
+      console.log('payload = ', payload.payload);
+      if (state.cartItems.length < 1) {
+        state.cartItems = [...payload.payload];
+        return;
+      } else {
+        const filterdItems = payload.payload.filter(cartItems => {
+          return state.cartItems.some(previosCartItems => {
+            return previosCartItems.id !== cartItems.id;
+          });
+        });
+        const tempArray = state.cartItems;
+        state.cartItems = [];
+        state.cartItems = [...tempArray, ...filterdItems];
+        return;
+      }
     },
 
     removeItem: (state, action) => {

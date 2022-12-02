@@ -7,6 +7,7 @@ import {
   Text,
   FlatList,
   Alert,
+  Modal,
 } from 'react-native';
 import React, {useContext, useEffect, useState} from 'react';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -22,6 +23,7 @@ const Wishlist = ({navigation}) => {
   const Authctx = useContext(AuthContext);
   const {fontScale} = useWindowDimensions();
   const [productData, setProductData] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
 
   let total;
   if (productData.length > 0) {
@@ -164,14 +166,37 @@ const Wishlist = ({navigation}) => {
       headerTitleStyle: {color: GlobalStyles.colors.PrimaryButtonColor},
 
       headerRight: () => (
-        <Pressable>
-          <Icon name="search-outline" color="black" size={fontScale * 25} />
-        </Pressable>
+        <>
+          <Pressable onPress={() => setModalVisible(true)}>
+            <Icon name="search-outline" color="black" size={fontScale * 25} />
+          </Pressable>
+        </>
       ),
     });
   }, [navigation]);
   return (
     <View style={styles.container}>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}>
+        <View style={styles.modalView}>
+          <View></View>
+
+          <Pressable
+            style={[
+              styles.button,
+              styles.buttonClose,
+              {backgroundColor: GlobalStyles.colors.color9},
+            ]}
+            onPress={() => setModalVisible(!modalVisible)}>
+            <Text style={styles.textStyle}>search</Text>
+          </Pressable>
+        </View>
+      </Modal>
       <RenderCartData />
       {/* <View style={styles.buttonContainer}>
         <PrimaryButton
@@ -232,6 +257,42 @@ const styles = StyleSheet.create({
   },
   altText: {
     color: 'black',
+    textAlign: 'center',
+  },
+
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 15,
+    elevation: 2,
+  },
+  buttonOpen: {
+    backgroundColor: '#F194FF',
+  },
+  buttonClose: {
+    backgroundColor: '#2196F3',
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalText: {
+    marginBottom: 15,
     textAlign: 'center',
   },
 });
