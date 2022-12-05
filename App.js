@@ -12,6 +12,8 @@ import {
   CheckoutScreen,
   CategoryScreen,
   IndivisualCategory,
+  ChooseScreen,
+  MyOrders,
 } from './AppFiles/Exporter/index';
 import {useContext, useEffect, useState} from 'react';
 import {ProductDescription} from './AppFiles/Exporter/index';
@@ -184,6 +186,20 @@ function AuthenticatedStack() {
         component={UserProfile}
         options={{
           headerTitle: 'User profile',
+        }}
+      />
+      <Stack.Screen
+        name="chooseScreen"
+        component={ChooseScreen}
+        options={{
+          headerTitle: 'Your Profile',
+        }}
+      />
+      <Stack.Screen
+        name="myOrders"
+        component={MyOrders}
+        options={{
+          headerTitle: 'Your Orders',
         }}
       />
       <Stack.Screen name="checkOutScreen" component={CheckoutScreen} />

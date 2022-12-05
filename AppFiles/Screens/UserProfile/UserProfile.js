@@ -59,7 +59,18 @@ const UserProfile = ({navigation}) => {
         querySnapshot.forEach(documentSnapshot => {
           setUserDocId(documentSnapshot.id);
           const {email, name} = documentSnapshot.data();
-          setUserData({...userData, email: email, name: name});
+          const {address, pincode} = documentSnapshot.data();
+          if (address && pincode) {
+            setUserData({
+              ...userData,
+              email: email,
+              name: name,
+              address: address,
+              pincode: pincode,
+            });
+          } else {
+            setUserData({...userData, email: email, name: name});
+          }
         });
       });
   }, []);
@@ -76,7 +87,8 @@ const UserProfile = ({navigation}) => {
         address: userData.address,
       })
       .then(() => {
-        console.log('User updated!');
+        ToastAndroid.show('details updated', ToastAndroid.SHORT);
+        navigation.goBack();
       });
   };
 
@@ -137,7 +149,7 @@ const UserProfile = ({navigation}) => {
             }}
           />
           <Text style={[styles.name, {fontSize: fontScale * 20}]}>
-            Full Name
+            {userData.name}
           </Text>
         </View>
         <View style={styles.formgroup}>
@@ -202,7 +214,7 @@ const UserProfile = ({navigation}) => {
             numberOfLines={5}
             style={!addressErrorMessage ? styles.input : styles.inputError}
             placeholderTextColor={GlobalStyles.colors.color2}
-            placeholder="Enter address"
+            placeholder="Address - House No/Street/City "
             value={userData.address}
             autoCorrect={false}
             autoCapitalize="none"

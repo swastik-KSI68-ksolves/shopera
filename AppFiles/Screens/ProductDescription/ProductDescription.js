@@ -23,13 +23,9 @@ import {
   WishListAddButton,
 } from '../../Exporter/index';
 import {H1, H2, H3, H4, H5, H6} from '../../Components/Heading';
-import {handleWishToggle} from '../../Utils/Wishlist_Handler';
 import firestore, {firebase} from '@react-native-firebase/firestore';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {AuthContext} from '../../Store/AuthContext';
-import {ReloadCart} from '../../Utils/Reloader';
-import {CardAnimationContext} from '@react-navigation/stack';
-import {RotationGesture} from 'react-native-gesture-handler/lib/typescript/handlers/gestures/rotationGesture';
 import {FlatListSlider} from 'react-native-flatlist-slider';
 import Preview from '../../Components/ImageSlider/Preview';
 
@@ -39,11 +35,10 @@ import {useDispatch, useSelector} from 'react-redux';
 import {addToCart} from '../../Store/Redux/Fuctionality/Cart/CartSlice';
 
 const ProductDescription = ({navigation}) => {
-  const {cartItems} = useSelector(store => store.cart);
+  const {cartItems, howMany} = useSelector(store => store.cart);
   const dispatch = useDispatch();
   const Authctx = useContext(AuthContext);
   const {width, height, fontScale} = useWindowDimensions();
-  const [numberofItems, setNumberofItems] = useState(cartItems.length);
   const [isInWishLIst, setIsInWishLIst] = useState(false);
 
   const route = useRoute();
@@ -75,9 +70,7 @@ const ProductDescription = ({navigation}) => {
     rating: Rating,
     total: 1 * Price,
   };
-
   const CartCountContainer = () => {
-    // loadCartItems();
     return (
       <Pressable
         onPress={() => navigation.navigate('Cart')}
@@ -89,15 +82,14 @@ const ProductDescription = ({navigation}) => {
         <Icon name="cart-outline" color={'black'} size={fontScale * 35} />
         <View style={styles.cartIconContainer}>
           <Text style={{color: 'white', fontSize: fontScale * 12}}>
-            {numberofItems}
+            {howMany}
           </Text>
         </View>
       </Pressable>
     );
   };
 
-  useEffect(() => {
-    setNumberofItems(cartItems.length);
+  useLayoutEffect(() => {
     navigation.setOptions({
       title: Title === '' ? 'Product Overview' : Title,
       headerTitleStyle: {
@@ -110,7 +102,7 @@ const ProductDescription = ({navigation}) => {
         paddingRight: 20,
       },
     });
-  }, [cartItems]);
+  }, [cartItems, howMany]);
 
   useLayoutEffect(() => {
     handleHeartButtonColor();
@@ -143,7 +135,6 @@ const ProductDescription = ({navigation}) => {
 
   const handleReduxCart = () => {
     dispatch(addToCart([itemDetails]));
-    setNumberofItems(cartItems.length);
   };
 
   const handleCartButton = () => {
@@ -274,8 +265,8 @@ const ProductDescription = ({navigation}) => {
     cartIconContainer: {
       backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
       borderRadius: 200,
-      width: numberofItems < 99 ? fontScale * 25 : fontScale * 30,
-      height: numberofItems < 99 ? fontScale * 25 : fontScale * 30,
+      width: howMany < 99 ? fontScale * 25 : fontScale * 30,
+      height: howMany < 99 ? fontScale * 25 : fontScale * 30,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -332,7 +323,7 @@ const ProductDescription = ({navigation}) => {
               {/* <Text style={styles.rateText}>${Price}</Text> */}
 
               <View style={{paddingHorizontal: 10}}>
-                <H3 style={{color: 'black'}}>${Price}</H3>
+                <H3 style={{color: 'black'}}>₹{Price}</H3>
                 <View style={styles.ratingBrandCat}>
                   <Ratings
                     Touchable={false}

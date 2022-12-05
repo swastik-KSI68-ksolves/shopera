@@ -1,12 +1,15 @@
 import {useRoute} from '@react-navigation/native';
 import React, {useContext, useEffect, useLayoutEffect, useState} from 'react';
 import {FlatList, StyleSheet, View, ActivityIndicator} from 'react-native';
+import {useDispatch} from 'react-redux';
 import {GlobalStyles} from '../../Constants/GlobalStyles';
 import {Card} from '../../Exporter';
 import {AuthContext} from '../../Store/AuthContext';
+import {addToCart} from '../../Store/Redux/Fuctionality/Cart/CartSlice';
 import {HandleCartButtonClick} from '../../Utils/CartManagement';
 
 const IndivisualCategory = ({navigation}) => {
+  const dispatch = useDispatch();
   const Authctx = useContext(AuthContext);
   const route = useRoute();
   const category = route.params.category;
@@ -85,8 +88,11 @@ const IndivisualCategory = ({navigation}) => {
       total: 1 * itemData.item.price,
     };
     const handleCartButton = itemDetails => {
+      const handleReduxCart = () => {
+        dispatch(addToCart([itemDetails]));
+      };
       const {localId} = JSON.parse(Authctx.userInfo);
-      HandleCartButtonClick(itemDetails, localId);
+      HandleCartButtonClick(itemDetails, localId, handleReduxCart);
     };
 
     // const handleHeartButton = itemDetails => {

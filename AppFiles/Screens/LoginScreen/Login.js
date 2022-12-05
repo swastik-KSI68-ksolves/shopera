@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
     color: 'red',
   },
   buttonLoginOn: {
-    backgroundColor: GlobalStyles.colors.PrimaryButtonColor2,
+    backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
   },
   buttonLoginOff: {
     backgroundColor: GlobalStyles.colors.color3,

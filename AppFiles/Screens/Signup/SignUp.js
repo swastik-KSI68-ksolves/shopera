@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   buttonRegisterOn: {
-    backgroundColor: GlobalStyles.colors.PrimaryButtonColor2,
+    backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
   },
   buttonRegisterOff: {
     backgroundColor: GlobalStyles.colors.color3,

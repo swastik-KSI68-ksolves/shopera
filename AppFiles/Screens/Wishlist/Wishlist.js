@@ -18,8 +18,12 @@ import firestore, {firebase} from '@react-native-firebase/firestore';
 import {ReloadCart} from '../../Utils/Reloader';
 import {AuthContext} from '../../Store/AuthContext';
 import {CheckoutScreen} from '../../Exporter/index';
+import {useDispatch, useSelector} from 'react-redux';
+import {addToCart} from '../../Store/Redux/Fuctionality/Cart/CartSlice';
 
 const Wishlist = ({navigation}) => {
+  const dispatch = useDispatch();
+  const {cartItems} = useSelector(store => store.cart);
   const Authctx = useContext(AuthContext);
   const {fontScale} = useWindowDimensions();
   const [productData, setProductData] = useState([]);
@@ -34,6 +38,7 @@ const Wishlist = ({navigation}) => {
     total = 0;
   }
 
+  console.log('wish list data =', productData);
   const onRemoveHandler = async id => {
     const {localId} = JSON.parse(Authctx.userInfo);
     try {
@@ -55,7 +60,7 @@ const Wishlist = ({navigation}) => {
     return;
   };
 
-  const moveToCartHandler = async id => {
+  const moveToCartHandler = async itemDetails => {
     const {localId} = JSON.parse(Authctx.userInfo);
     try {
       const response = await firestore()
@@ -64,21 +69,32 @@ const Wishlist = ({navigation}) => {
         .get();
       const wishes = response.data().wishes;
       const filteredData = wishes.filter(item => {
-        return item.id === id;
-      });
-      const res = firestore().collection('Wish_list_items').doc(localId);
-      const resCart = firestore().collection('Cart_items').doc(localId);
-
-      res.update({
-        wishes: firebase.firestore.FieldValue.arrayRemove(...filteredData),
+        return item.id === itemDetails.id;
       });
 
-      resCart.set(
-        {
-          products: firebase.firestore.FieldValue.arrayUnion(...filteredData),
-        },
-        {merge: true},
-      );
+      firestore()
+        .collection('Wish_list_items')
+        .doc(localId)
+        .update({
+          wishes: firebase.firestore.FieldValue.arrayRemove(...filteredData),
+        });
+
+      firestore()
+        .collection('Cart_items')
+        .doc(localId)
+        .set(
+          {
+            products: firebase.firestore.FieldValue.arrayUnion(...filteredData),
+          },
+          {merge: true},
+        )
+        .then(() => {
+          const result = cartItems.find(item => item.id === itemDetails.id);
+          if (!result) dispatch(addToCart([itemDetails]));
+        })
+        .catch(err => {
+          console.log('err during move to cart happen');
+        });
     } catch (err) {
       console.log(err);
     }
@@ -94,9 +110,10 @@ const Wishlist = ({navigation}) => {
       description: itemData.item.description,
       brand: itemData.item.brand,
       category: itemData.item.category,
-      rating: itemData.item.rating,
       thumbnail: itemData.item.thumbnail,
       howMany: itemData.item.howMany,
+      rating: itemData.item.rating,
+      total: 1 * itemData.item.price,
     };
     return (
       <Card
@@ -109,7 +126,7 @@ const Wishlist = ({navigation}) => {
         image={itemData.item.thumbnail}
         howMany={itemData.item.howMany}
         onRemoveHandler={onRemoveHandler.bind(this, itemData.item.id)}
-        onPressMoveToCart={moveToCartHandler.bind(this, itemData.item.id)}
+        onPressMoveToCart={moveToCartHandler.bind(this, itemDetailsForRemove)}
       />
     );
   };
@@ -165,13 +182,13 @@ const Wishlist = ({navigation}) => {
       headerTitleAlign: 'center',
       headerTitleStyle: {color: GlobalStyles.colors.PrimaryButtonColor},
 
-      headerRight: () => (
-        <>
-          <Pressable onPress={() => setModalVisible(true)}>
-            <Icon name="search-outline" color="black" size={fontScale * 25} />
-          </Pressable>
-        </>
-      ),
+      // headerRight: () => (
+      //   <>
+      //     <Pressable onPress={() => setModalVisible(true)}>
+      //       <Icon name="search-outline" color="black" size={fontScale * 25} />
+      //     </Pressable>
+      //   </>
+      // ),
     });
   }, [navigation]);
   return (

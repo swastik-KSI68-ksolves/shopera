@@ -17,24 +17,33 @@ import firestore, {firebase} from '@react-native-firebase/firestore';
 import {ReloadCart} from '../../Utils/Reloader';
 import {AuthContext} from '../../Store/AuthContext';
 import {CheckoutScreen} from '../../Exporter/index';
+import {useLayoutEffect} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  removeItem,
+  increase,
+  decrease,
+  calculateTotal,
+} from '../../Store/Redux/Fuctionality/Cart/CartSlice';
 
 const Cart = ({navigation}) => {
+  const dispatch = useDispatch();
+  const {cartItems, howMany, total} = useSelector(store => store.cart);
   const Authctx = useContext(AuthContext);
   const {fontScale} = useWindowDimensions();
   const [productData, setProductData] = useState([]);
 
-  let total, productCount;
-  if (productData.length > 0) {
-    total = productData.reduce((sum, product) => {
-      return sum + product.total;
-    }, 0);
+  // if (productData.length > 0) {
+  //   total = productData.reduce((sum, product) => {
+  //     return sum + product.total;
+  //   }, 0);
 
-    productCount = productData.reduce((sum, product) => {
-      return sum + product.howMany;
-    }, 0);
-  } else {
-    total = 0;
-  }
+  //   productCount = productData.reduce((sum, product) => {
+  //     return sum + product.howMany;
+  //   }, 0);
+  // } else {
+  //   total = 0;
+  // }
 
   const onPlusHandler = async id => {
     const {localId} = JSON.parse(Authctx.userInfo);
@@ -47,18 +56,34 @@ const Cart = ({navigation}) => {
       const filteredData = products.filter(item => {
         return item.id === id;
       });
-      const res = firestore().collection('Cart_items').doc(localId);
-      res.update({
-        products: firebase.firestore.FieldValue.arrayRemove(...filteredData),
-      });
+      firestore()
+        .collection('Cart_items')
+        .doc(localId)
+        .update({
+          products: firebase.firestore.FieldValue.arrayRemove(...filteredData),
+        })
+        .then(() => {})
+        .catch(err => {
+          console.log('Error during increase count item for cart');
+        });
       filteredData[0].howMany += 1; //incerasing howMany count
       filteredData[0].total = filteredData[0].howMany * filteredData[0].price; //increasing total
-      res.set(
-        {
-          products: firebase.firestore.FieldValue.arrayUnion(...filteredData),
-        },
-        {merge: true},
-      );
+
+      firestore()
+        .collection('Cart_items')
+        .doc(localId)
+        .set(
+          {
+            products: firebase.firestore.FieldValue.arrayUnion(...filteredData),
+          },
+          {merge: true},
+        )
+        .then(() => {
+          dispatch(increase(id));
+        })
+        .catch(err => {
+          console.log('Error during increase count item for cart');
+        });
     } catch (err) {
       console.log(err);
     }
@@ -82,20 +107,39 @@ const Cart = ({navigation}) => {
           return item.id !== id;
         });
 
-        const res = firestore().collection('Cart_items').doc(localId);
-        res.update({
-          products: firebase.firestore.FieldValue.arrayRemove(...filteredData),
-        });
+        firestore()
+          .collection('Cart_items')
+          .doc(localId)
+          .update({
+            products: firebase.firestore.FieldValue.arrayRemove(
+              ...filteredData,
+            ),
+          })
+          .then(() => {})
+          .catch(err => {
+            console.log('Error during increase count item for cart');
+          });
 
         filteredData[0].howMany -= 1; //decreasing howMany count
         filteredData[0].total = filteredData[0].howMany * filteredData[0].price; //decreasing total
 
-        res.set(
-          {
-            products: firebase.firestore.FieldValue.arrayUnion(...filteredData),
-          },
-          {merge: true},
-        );
+        firestore()
+          .collection('Cart_items')
+          .doc(localId)
+          .set(
+            {
+              products: firebase.firestore.FieldValue.arrayUnion(
+                ...filteredData,
+              ),
+            },
+            {merge: true},
+          )
+          .then(() => {
+            dispatch(decrease(id));
+          })
+          .catch(err => {
+            console.log('Error during increase count item for cart');
+          });
       } catch (err) {
         console.log(err);
       }
@@ -114,24 +158,21 @@ const Cart = ({navigation}) => {
         .get();
       const products = response.data().products;
       const filteredData = products.filter(item => {
-        return item.id !== id;
-      });
-      const res = firestore().collection('Cart_items').doc(localId);
-      // will delete all records
-      res.update({
-        products: firebase.firestore.FieldValue.delete(),
+        return item.id === id;
       });
 
-      // wil set all records
-      res.set(
-        {
-          products: firebase.firestore.FieldValue.arrayUnion(...filteredData),
-        },
-        {merge: true},
-      );
-      // res.update({
-      //   products: firebase.firestore.FieldValue.arrayRemove(...filteredData),
-      // });
+      firestore()
+        .collection('Cart_items')
+        .doc(localId)
+        .update({
+          products: firebase.firestore.FieldValue.arrayRemove(...filteredData),
+        })
+        .then(() => {
+          dispatch(removeItem(id));
+        })
+        .catch(err => {
+          console.log('Error during delete item from cart');
+        });
     } catch (err) {
       console.log(err);
     }
@@ -171,31 +212,53 @@ const Cart = ({navigation}) => {
     );
   };
 
+  // useEffect(() => {
+  //   console.log('runnig useeffect');
+  //   const {localId} = JSON.parse(Authctx.userInfo);
+  //   function onResult(QuerySnapshot) {
+  //     setProductData([]);
+  //     try {
+  //       const products = QuerySnapshot.data().products;
+  //       products.forEach(documentSnapshot => {
+  //         setProductData(oldArray => [...oldArray, documentSnapshot]);
+  //       });
+  //     } catch (err) {
+  //       console.log(err);
+  //     }
+  //   }
+
+  //   function onError(error) {
+  //     console.error(error);
+  //     Alert.alert('something went wrong');
+  //   }
+
+  //   firestore()
+  //     .collection('Cart_items')
+  //     .doc(localId)
+  //     .onSnapshot(onResult, onError);
+  // }, []);
+
   useEffect(() => {
-    console.log('runnig useeffect');
-    const {localId} = JSON.parse(Authctx.userInfo);
-    function onResult(QuerySnapshot) {
-      setProductData([]);
-      try {
-        const products = QuerySnapshot.data().products;
-        products.forEach(documentSnapshot => {
-          setProductData(oldArray => [...oldArray, documentSnapshot]);
-        });
-      } catch (err) {
-        console.log(err);
-      }
+    setProductData([]);
+    try {
+      // setProductData(oldArray => [...oldArray, ...cartItems]);
+      setProductData(cartItems);
+      dispatch(calculateTotal());
+    } catch (err) {
+      console.log(err);
     }
+  }, [cartItems]);
 
-    function onError(error) {
-      console.error(error);
-      Alert.alert('something went wrong');
-    }
-
-    firestore()
-      .collection('Cart_items')
-      .doc(localId)
-      .onSnapshot(onResult, onError);
-  }, []);
+  useLayoutEffect(() => {
+    dispatch(calculateTotal());
+    navigation.setOptions({
+      tabBarBadge: howMany,
+      tabBarBadgeStyle: {
+        backgroundColor: GlobalStyles.colors.color9,
+        fontSize: 15,
+      },
+    });
+  }, [cartItems, howMany]);
 
   const RenderCartData = () => {
     if (productData.length > 0) {
@@ -242,11 +305,12 @@ const Cart = ({navigation}) => {
             onPress={() =>
               navigation.navigate('checkOutScreen', {
                 productData: productData,
+                total: total,
+                howMany: howMany,
               })
             }
-            style={styles.buttonSettleNow}
-            >
-            CHECKOUT- {productCount} ITEMS
+            style={styles.buttonSettleNow}>
+            CHECKOUT- {howMany} ITEMS
           </PrimaryButton>
         </View>
       </View>

@@ -2,7 +2,7 @@ import {createSlice} from '@reduxjs/toolkit';
 
 const initialState = {
   cartItems: [],
-  amount: 0,
+  howMany: 0,
   total: 0,
   isLoading: true,
 };
@@ -12,16 +12,15 @@ const cartSlice = createSlice({
   initialState: initialState,
   reducers: {
     addToCart: (state, payload) => {
-      console.log('payload = ', payload.payload);
       if (state.cartItems.length < 1) {
         state.cartItems = [...payload.payload];
         return;
       } else {
-        const filterdItems = payload.payload.filter(cartItems => {
-          return state.cartItems.some(previosCartItems => {
-            return previosCartItems.id !== cartItems.id;
-          });
-        });
+        var filterdItems = payload.payload.filter(
+          item => !state.cartItems.includes(item),
+        );
+
+        console.log('filterdItems = ', filterdItems);
         const tempArray = state.cartItems;
         state.cartItems = [];
         state.cartItems = [...tempArray, ...filterdItems];
@@ -32,18 +31,28 @@ const cartSlice = createSlice({
     removeItem: (state, action) => {
       const itemId = action.payload;
       state.cartItems = state.cartItems.filter(item => {
-        item.id !== itemId;
+        return item.id !== itemId;
       });
     },
 
     increase: (state, {payload}) => {
-      const cartItems = state.cartItems.find(item => item.id === payload.id);
-      cartItems.amount = cartItems.amount + 1;
+      state.cartItems.forEach(item => {
+        if (item.id === payload) {
+          item.howMany += 1;
+          return;
+        }
+      });
     },
 
     decrease: (state, {payload}) => {
-      const cartItems = state.cartItems.find(item => item.id === payload.id);
-      cartItems.amount = cartItems.amount - 1;
+      state.cartItems.forEach(item => {
+        if (item.id === payload) {
+          if (item.howMany > 1) {
+            item.howMany -= 1;
+            return;
+          }
+        }
+      });
     },
 
     clearCart: state => {
@@ -51,18 +60,24 @@ const cartSlice = createSlice({
     },
 
     calculateTotal: state => {
-      let amount = 0;
+      let howMany = 0;
       let total = 0;
       state.cartItems.forEach(item => {
-        amount += item.amount;
-        total += item.amount - item.price;
+        howMany += item.howMany;
+        total += item.howMany * item.price;
       });
-      state.amount = amount;
+      state.howMany = howMany;
       state.total = total;
     },
   },
 });
 
-export const {addToCart, clearCart, removeItem, calculateTotal} =
-  cartSlice.actions;
+export const {
+  addToCart,
+  clearCart,
+  removeItem,
+  increase,
+  decrease,
+  calculateTotal,
+} = cartSlice.actions;
 export default cartSlice.reducer;

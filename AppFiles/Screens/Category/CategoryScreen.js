@@ -22,7 +22,10 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import {AuthContext} from '../../Store/AuthContext';
 import {HandleCartButtonClick} from '../../Utils/CartManagement';
 import {useRoute} from '@react-navigation/native';
+import {addToCart} from '../../Store/Redux/Fuctionality/Cart/CartSlice';
+import {useDispatch} from 'react-redux';
 const CategoryScreen = ({navigation}) => {
+  const dispatch = useDispatch();
   const {fontScale} = useWindowDimensions();
   const Authctx = useContext(AuthContext);
   const [productsData, setProductsData] = useState();
@@ -82,8 +85,11 @@ const CategoryScreen = ({navigation}) => {
       rating: Math.round(itemData.item.rating),
     };
     const handleCartButton = itemDetails => {
+      const handleReduxCart = () => {
+        dispatch(addToCart([itemDetails]));
+      };
       const {localId} = JSON.parse(Authctx.userInfo);
-      HandleCartButtonClick(itemDetails, localId);
+      HandleCartButtonClick(itemDetails, localId, handleReduxCart);
     };
     return (
       <Card
@@ -122,11 +128,11 @@ const CategoryScreen = ({navigation}) => {
         paddingLeft: 25,
       },
 
-      headerRight: () => (
-        <Pressable>
-          <Icon name="search-outline" color="black" size={fontScale * 25} />
-        </Pressable>
-      ),
+      // headerRight: () => (
+      //   <Pressable>
+      //     <Icon name="search-outline" color="black" size={fontScale * 25} />
+      //   </Pressable>
+      // ),
     });
   }, [navigation, cat]);
 

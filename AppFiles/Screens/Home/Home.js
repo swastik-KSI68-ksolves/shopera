@@ -155,8 +155,11 @@ const Home = ({navigation}) => {
     };
 
     const handleCartButton = itemDetails => {
+      const handleReduxCart = () => {
+        dispatch(addToCart([itemDetails]));
+      };
       const {localId} = JSON.parse(Authctx.userInfo);
-      HandleCartButtonClick(itemDetails, localId);
+      HandleCartButtonClick(itemDetails, localId, handleReduxCart);
     };
 
     return (
@@ -223,7 +226,7 @@ const Home = ({navigation}) => {
                     word={word}
                     style={{backgroundColor: GlobalStyles.colors.color6}}
                     onPress={() => {
-                      navigation.navigate('userProfile');
+                      navigation.navigate('chooseScreen');
                     }}
                   />
                 </View>
