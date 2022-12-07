@@ -32,7 +32,10 @@ import Preview from '../../Components/ImageSlider/Preview';
 import {HandleHeartButtonClick} from '../../Utils/WishListManagement';
 import {HandleCartButtonClick} from '../../Utils/CartManagement';
 import {useDispatch, useSelector} from 'react-redux';
-import {addToCart} from '../../Store/Redux/Fuctionality/Cart/CartSlice';
+import {
+  addToCart,
+  calculateTotal,
+} from '../../Store/Redux/Fuctionality/Cart/CartSlice';
 
 const ProductDescription = ({navigation}) => {
   const {cartItems, howMany} = useSelector(store => store.cart);
@@ -90,6 +93,7 @@ const ProductDescription = ({navigation}) => {
   };
 
   useLayoutEffect(() => {
+    dispatch(calculateTotal());
     navigation.setOptions({
       title: Title === '' ? 'Product Overview' : Title,
       headerTitleStyle: {
@@ -102,7 +106,7 @@ const ProductDescription = ({navigation}) => {
         paddingRight: 20,
       },
     });
-  }, [cartItems, howMany]);
+  }, [cartItems, howMany, addToCart]);
 
   useLayoutEffect(() => {
     handleHeartButtonColor();

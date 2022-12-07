@@ -273,7 +273,16 @@ const Cart = ({navigation}) => {
       );
     } else {
       return (
-        <Text style={styles.altText}>You don't have any item in your cart</Text>
+        <View style={{justifyContent: 'center', alignItems: 'center', flex: 1}}>
+          <Text style={styles.altText}>
+            You don't have any item in your cart
+          </Text>
+          <PrimaryButton
+            onPress={() => navigation.navigate('Home')}
+            style={styles.buttonSettleNow}>
+            Explore Items
+          </PrimaryButton>
+        </View>
       );
     }
   };
@@ -300,25 +309,29 @@ const Cart = ({navigation}) => {
           </Pressable>
         </View>
 
-        <View style={styles.buttonContainer}>
-          <PrimaryButton
-            onPress={() =>
-              navigation.navigate('checkOutScreen', {
-                productData: productData,
-                total: total,
-                howMany: howMany,
-              })
-            }
-            style={styles.buttonSettleNow}>
-            CHECKOUT- {howMany} ITEMS
-          </PrimaryButton>
-        </View>
+        {howMany > 0 ? (
+          <View style={styles.buttonContainer}>
+            <PrimaryButton
+              onPress={() =>
+                navigation.navigate('checkOutScreen', {
+                  productData: productData,
+                  total: total,
+                  howMany: howMany,
+                })
+              }
+              style={styles.buttonSettleNow}>
+              CHECKOUT- {howMany} ITEMS
+            </PrimaryButton>
+          </View>
+        ) : null}
       </View>
-      <View style={styles.rateDetails}>
-        <View>
-          <H5 style={styles.H5}>Total ₹{total}</H5>
+      {howMany > 0 ? (
+        <View style={styles.rateDetails}>
+          <View>
+            <H5 style={styles.H5}>Total ₹{total}</H5>
+          </View>
         </View>
-      </View>
+      ) : null}
       <RenderCartData />
     </View>
   );
@@ -380,5 +393,6 @@ const styles = StyleSheet.create({
   altText: {
     color: 'black',
     textAlign: 'center',
+    marginBottom: 15,
   },
 });

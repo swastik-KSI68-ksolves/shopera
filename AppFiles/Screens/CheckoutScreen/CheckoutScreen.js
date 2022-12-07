@@ -4,6 +4,7 @@ import {
   FlatList,
   Image,
   Keyboard,
+  Modal,
   Platform,
   Pressable,
   StyleSheet,
@@ -29,6 +30,7 @@ const CheckoutScreen = ({navigation}) => {
   const cartData = route.params.productData;
   const gotTotal = route.params.total;
   const howMany = route.params.howMany;
+  const productTotal = gotTotal;
   const address = 'House No - 05, Jumerati ward 27 ,Hoshangabad';
   const [selectAddress, setSelectedAddress] = useState('');
   const [couponCode, setCouponCode] = useState('');
@@ -38,35 +40,36 @@ const CheckoutScreen = ({navigation}) => {
   const [total, setTotal] = useState(gotTotal + howMany * 40);
   const [shouldApplyCoupon, setShouldApplyCoupon] = useState(true);
   const [questionVisible, setQuestionVisible] = useState('flex');
-  const productTotal = gotTotal;
+  const [modalVisible, setModalVisible] = useState(false);
+  const [pincodeErrorMessage, setPincodeErrorMessage] = useState(null);
+  const [addressErrorMessage, setAddressErrorMessage] = useState(null);
+  const [sucessOrFailureIcon, setSucessOrFailureIcon] = useState('');
+  const [shouldUpdateKeyboard, setShouldUpdateKeyboard] = useState(true);
   const [userData, setUserData] = useState({
     name: '',
     pincode: '',
     address: '',
     email: '',
   });
+  var keyboardWillShowSub, keyboardWillHideSub;
 
   useEffect(() => {
-    // componentWillMount
-    const keyboardWillShowSub = Keyboard.addListener(
-      'keyboardDidShow',
-      event => {
+    if (shouldUpdateKeyboard) {
+      // componentWillMount
+      keyboardWillShowSub = Keyboard.addListener('keyboardDidShow', event => {
         setQuestionVisible('none');
-      },
-    );
-    const keyboardWillHideSub = Keyboard.addListener(
-      'keyboardDidHide',
-      event => {
+      });
+      keyboardWillHideSub = Keyboard.addListener('keyboardDidHide', event => {
         setQuestionVisible('flex');
-      },
-    );
+      });
+    }
 
     return () => {
       //   componentWillUnmount
       keyboardWillShowSub.remove();
       keyboardWillHideSub.remove();
     };
-  }, []);
+  }, [shouldUpdateKeyboard]);
 
   useEffect(() => {
     navigation.setOptions({
@@ -80,7 +83,48 @@ const CheckoutScreen = ({navigation}) => {
     });
   }, [navigation]);
 
-  // useEffect(() => {}, [findCouponCode, calculateDiscount]);
+  const updateUserData = userData => {
+    const {email, localId} = JSON.parse(AuthCTX.userInfo);
+    AuthCTX.setUserInfo({email: email, name: userData.name, localId: localId});
+    firestore()
+      .collection('User_details')
+      .doc(localId)
+      .update({
+        pincode: userData.pincode,
+        address: userData.address,
+      })
+      .then(() => {
+        ToastAndroid.show('address updated', ToastAndroid.SHORT);
+        setModalVisible(!modalVisible);
+        keyboardWillShowSub = Keyboard.addListener('keyboardDidShow', event => {
+          setQuestionVisible('none');
+        });
+        setShouldUpdateKeyboard(false);
+      });
+  };
+
+  const addAddressData = () => {
+    if (userData.pincode == '' || userData.address == '') {
+      if (userData.pincode == '') setPincodeErrorMessage('picode required');
+      if (userData.address == '') setAddressErrorMessage('address required');
+
+      if (userData.pincode != '') setPincodeErrorMessage('');
+      if (userData.address != '') setAddressErrorMessage('');
+      return;
+    }
+
+    if (userData.pincode.length != 6) {
+      setPincodeErrorMessage('Pincode must be 6 character long');
+      return;
+    }
+
+    const pincode = userData.pincode;
+    const address = userData.address;
+    if (pincodeErrorMessage == '' && addressErrorMessage == '') {
+      updateUserData(userData);
+      return;
+    }
+  };
 
   useEffect(() => {
     const {email} = JSON.parse(AuthCTX.userInfo);
@@ -123,6 +167,7 @@ const CheckoutScreen = ({navigation}) => {
       }
       setShouldApplyCoupon(false);
     } else {
+      setSucessOrFailureIcon('cross1');
       ToastAndroid.show('Coupon Expired', ToastAndroid.SHORT);
       return;
     }
@@ -136,8 +181,10 @@ const CheckoutScreen = ({navigation}) => {
       .get()
       .then(querySnapshot => {
         if (querySnapshot.docs.length < 1) {
+          setSucessOrFailureIcon('cross1');
           setCouponCodeErrorMessage('Invalid Coupon');
         } else {
+          setSucessOrFailureIcon('right1');
           calculateDiscount(querySnapshot.docs[0].data());
         }
       })
@@ -161,7 +208,7 @@ const CheckoutScreen = ({navigation}) => {
         contact: '9191919191',
         name: userData.name,
       },
-      theme: GlobalStyles.colors.primaryButtonColor,
+      theme: GlobalStyles.colors.PrimaryButtonColor,
     };
     RazorpayCheckout.open(options)
       .then(data => {
@@ -343,8 +390,81 @@ const CheckoutScreen = ({navigation}) => {
       </View>
     );
   };
+  const RenderAddressForm = () => {
+    return (
+      <View style={{width: '100%', paddingHorizontal: 10}}>
+        <View style={sytles.formgroup}>
+          <Text style={sytles.label}>Enter pincode</Text>
+          <TextInput
+            onFocus={Keyboard.removeAllListeners('keyboardDidShow')}
+            style={!pincodeErrorMessage ? sytles.input2 : sytles.inputError2}
+            placeholderTextColor={GlobalStyles.colors.color2}
+            placeholder="Pincode"
+            value={userData.pincode}
+            autoCorrect={false}
+            autoCapitalize="none"
+            onChangeText={value => {
+              setUserData({...userData, pincode: value});
+              setPincodeErrorMessage('');
+            }}
+            onPressIn={() => {
+              setPincodeErrorMessage('');
+            }}
+          />
+          {/* {!!pincodeErrorMessage ? (
+            <Text style={sytles.errorMessage}>{pincodeErrorMessage}</Text>
+          ) : null} */}
+        </View>
+        <View style={sytles.formgroup}>
+          <Text style={sytles.label}>Enter Address </Text>
+          <TextInput
+            multiline={true}
+            numberOfLines={5}
+            style={!addressErrorMessage ? sytles.input2 : sytles.inputError2}
+            placeholderTextColor={GlobalStyles.colors.color2}
+            placeholder="Address - House No/Street/City "
+            value={userData.address}
+            autoCorrect={false}
+            autoCapitalize="none"
+            onChangeText={value => {
+              setUserData({...userData, address: value});
+              setAddressErrorMessage('');
+            }}
+            onPressIn={() => {
+              setAddressErrorMessage('');
+            }}
+          />
+          {/* {!!addressErrorMessage ? (
+            <Text style={styles.errorMessage}>{addressErrorMessage}</Text>
+          ) : null} */}
+        </View>
+      </View>
+    );
+  };
   return (
     <View style={sytles.container}>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(!modalVisible);
+        }}>
+        <View style={sytles.modalView}>
+          <RenderAddressForm />
+          <Pressable
+            style={[
+              sytles.button,
+              sytles.buttonClose,
+              {backgroundColor: GlobalStyles.colors.color6},
+            ]}
+            onPress={() => {
+              addAddressData;
+            }}>
+            <Text style={sytles.textStyle}>Submit</Text>
+          </Pressable>
+        </View>
+      </Modal>
       <View style={sytlesInside.addressList}>
         <View style={sytlesInside.locationIconContainer}>
           <Icon
@@ -358,14 +478,25 @@ const CheckoutScreen = ({navigation}) => {
           </Text>
         </View>
         <View style={sytlesInside.addressAndButtonContainer}>
-          <Text style={sytles.addressText}>
-            {userData.name}, {userData.address}, {userData.pincode}
-          </Text>
+          {userData.address ? (
+            <Text style={sytles.addressText}>
+              {userData.name}, {userData.address}, {userData.pincode}
+            </Text>
+          ) : (
+            <Text style={sytles.addressText}>Address not found !</Text>
+          )}
           <Pressable
             android_ripple={{color: GlobalStyles.colors.color9}}
             style={sytles.selectAddress}
-            onPress={() => setSelectedAddress(address)}>
-            <Text style={sytles.selectAddressText}>Select address</Text>
+            onPress={() => {
+              setModalVisible(true);
+              setShouldUpdateKeyboard(false);
+            }}>
+            {userData.address ? (
+              <Text style={sytles.selectAddressText}>Edit address</Text>
+            ) : (
+              <Text style={sytles.selectAddressText}>Add address</Text>
+            )}
           </Pressable>
         </View>
       </View>
@@ -409,9 +540,25 @@ const CheckoutScreen = ({navigation}) => {
           </Text>
           <View style={sytlesInside.buttonAndTextFieldContainer}>
             <TextInput
+              editable={sucessOrFailureIcon === 'right1' ? false : true}
+              removeClippedSubviews={true}
+              inlineImagePadding={15}
+              inlineImageLeft={sucessOrFailureIcon}
               maxLength={12}
               // style={!couponCodeErrorMessage ? sytles.input : sytles.inputError}
-              style={couponCodeErrorMessage ? sytles.inputError : sytles.input}
+              style={
+                couponCodeErrorMessage
+                  ? sytles.inputError
+                  : sucessOrFailureIcon == 'right1'
+                  ? [
+                      sytles.input,
+                      {
+                        borderColor: GlobalStyles.colors.color8,
+                        borderWidth: 1,
+                      },
+                    ]
+                  : sytles.input
+              }
               placeholder={
                 !couponCodeErrorMessage
                   ? 'Enter Coupon Code'
@@ -429,9 +576,15 @@ const CheckoutScreen = ({navigation}) => {
               onChangeText={value => {
                 setCouponCode(value);
                 setCouponCodeErrorMessage('');
+                if (sucessOrFailureIcon !== 'right1') {
+                  setSucessOrFailureIcon('');
+                }
               }}
               onPressIn={() => {
                 setCouponCodeErrorMessage('');
+                if (sucessOrFailureIcon !== 'right1') {
+                  setSucessOrFailureIcon('');
+                }
               }} // remove error message on click
             />
             {/* {!!couponCodeErrorMessage ? (
@@ -588,5 +741,67 @@ const sytles = StyleSheet.create({
     color: GlobalStyles.colors.colorRedShade2,
     paddingHorizontal: 10,
     // paddingVertical: 3,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 15,
+    elevation: 2,
+  },
+  buttonOpen: {
+    backgroundColor: '#F194FF',
+  },
+  buttonClose: {
+    backgroundColor: '#2196F3',
+  },
+  textStyle: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  formgroup: {
+    display: 'flex',
+    flexDirection: 'column',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    width: '100%',
+    margin: 5,
+  },
+  label: {
+    color: 'rgba(0,0,0,0.7)',
+    marginLeft: 10,
+    paddingBottom: 5,
+  },
+
+  input2: {
+    color: GlobalStyles.colors.color1,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    borderRadius: 20,
+    padding: 10,
+    paddingHorizontal: 15,
+    marginHorizontal: 5,
+    marginVertical: 2,
+  },
+  inputError2: {
+    color: GlobalStyles.colors.color1,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    borderRadius: 20,
+    padding: 10,
+    borderColor: GlobalStyles.colors.PrimaryButtonColor,
+    borderWidth: 1,
   },
 });
