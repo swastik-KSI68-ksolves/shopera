@@ -53,23 +53,23 @@ const CheckoutScreen = ({navigation}) => {
   });
   var keyboardWillShowSub, keyboardWillHideSub;
 
-  useEffect(() => {
-    if (shouldUpdateKeyboard) {
-      // componentWillMount
-      keyboardWillShowSub = Keyboard.addListener('keyboardDidShow', event => {
-        setQuestionVisible('none');
-      });
-      keyboardWillHideSub = Keyboard.addListener('keyboardDidHide', event => {
-        setQuestionVisible('flex');
-      });
-    }
+  // useEffect(() => {
+  //   if (shouldUpdateKeyboard) {
+  //     // componentWillMount
+  //     keyboardWillShowSub = Keyboard.addListener('keyboardDidShow', event => {
+  //       setQuestionVisible('none');
+  //     });
+  //     keyboardWillHideSub = Keyboard.addListener('keyboardDidHide', event => {
+  //       setQuestionVisible('flex');
+  //     });
+  //   }
 
-    return () => {
-      //   componentWillUnmount
-      keyboardWillShowSub.remove();
-      keyboardWillHideSub.remove();
-    };
-  }, [shouldUpdateKeyboard]);
+  //   return () => {
+  //     //   componentWillUnmount
+  //     keyboardWillShowSub.remove();
+  //     keyboardWillHideSub.remove();
+  //   };
+  // }, [shouldUpdateKeyboard]);
 
   useEffect(() => {
     navigation.setOptions({
@@ -195,6 +195,7 @@ const CheckoutScreen = ({navigation}) => {
   };
 
   const proceedToPayment = () => {
+    console.debug(userData.email);
     var options = {
       description: 'Credits towards consultation',
       image:
@@ -213,7 +214,19 @@ const CheckoutScreen = ({navigation}) => {
     RazorpayCheckout.open(options)
       .then(data => {
         // handle success
-        alert(`Success: ${data.razorpay_payment_id}`);
+        console.log(
+          'details order = ',
+          data.razorpay_order_id,
+          data.razorpay_payment,
+          data.razorpay_signature,
+          data.status_code,
+        );
+        navigation.navigate('myOrders', {
+          orders: cartData,
+          orderId: data.razorpay_order_id,
+          total: total,
+        });
+        alert(`Order Placed`);
       })
       .catch(error => {
         // handle failure
@@ -357,46 +370,14 @@ const CheckoutScreen = ({navigation}) => {
     },
   });
 
-  const renderCartData = itemData => {
-    return (
-      <View style={sytlesInside.itemList}>
-        <View style={sytles.imgContainer}>
-          <Image
-            style={[sytles.img]}
-            source={{uri: String(itemData.item.Images[0])}}
-          />
-        </View>
-        <View style={sytles.textDetails}>
-          <Text style={[sytles.title, {fontSize: fontScale * 15}]}>
-            {itemData.item.title}
-          </Text>
-          {/* <Text
-            style={[
-              {fontWeight: 'bold', color: 'black', padding: 2},
-              {fontSize: fontScale * 14},
-            ]}> */}
-
-          <Text style={sytles.rate}>Price: ₹{itemData.item.price}</Text>
-          {/* </Text> */}
-          {/* <Text
-            style={[
-              {fontWeight: 'bold', color: 'black', padding: 2},
-              {fontSize: fontScale * 14},
-            ]}> */}
-
-          <Text style={sytles.quantity}>Quantity: {itemData.item.howMany}</Text>
-          {/* </Text> */}
-        </View>
-      </View>
-    );
-  };
   const RenderAddressForm = () => {
     return (
       <View style={{width: '100%', paddingHorizontal: 10}}>
         <View style={sytles.formgroup}>
           <Text style={sytles.label}>Enter pincode</Text>
           <TextInput
-            onFocus={Keyboard.removeAllListeners('keyboardDidShow')}
+            // autoFocus={true}
+            // onFocus={Keyboard.removeAllListeners('keyboardDidShow')}
             style={!pincodeErrorMessage ? sytles.input2 : sytles.inputError2}
             placeholderTextColor={GlobalStyles.colors.color2}
             placeholder="Pincode"
@@ -529,15 +510,27 @@ const CheckoutScreen = ({navigation}) => {
               Coupon Code
             </Text>
           </View>
-          <Text
-            style={{
-              color: GlobalStyles.colors.color1,
-              paddingHorizontal: 15,
-              display: questionVisible,
-              // paddingVertical: 20,
-            }}>
-            Do you have any coupon code ?
-          </Text>
+          {sucessOrFailureIcon === 'right1' ? (
+            <Text
+              style={{
+                color: GlobalStyles.colors.color1,
+                paddingHorizontal: 15,
+                display: questionVisible,
+                // paddingVertical: 20,
+              }}>
+              Hurray! you got discount
+            </Text>
+          ) : (
+            <Text
+              style={{
+                color: GlobalStyles.colors.color1,
+                paddingHorizontal: 15,
+                display: questionVisible,
+                // paddingVertical: 20,
+              }}>
+              Do you have any valid coupon code ?
+            </Text>
+          )}
           <View style={sytlesInside.buttonAndTextFieldContainer}>
             <TextInput
               editable={sucessOrFailureIcon === 'right1' ? false : true}
