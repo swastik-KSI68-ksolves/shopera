@@ -14,6 +14,7 @@ import {
   IndivisualCategory,
   ChooseScreen,
   MyOrders,
+  OnboardingScreen,
 } from './AppFiles/Exporter/index';
 import {useContext, useEffect, useState} from 'react';
 import {ProductDescription} from './AppFiles/Exporter/index';
@@ -30,6 +31,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import {Provider, useDispatch, useSelector} from 'react-redux';
 import {myStore} from './AppFiles/Store/Redux/Store';
 import firestore, {firebase} from '@react-native-firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import LoadingOverlay from './AppFiles/Components/UI/LoadingOverlay';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -150,12 +153,15 @@ function BottomTabNavigator() {
 //   );
 // };
 
-function AuthStack() {
+function AuthStack({firstLaunch}) {
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
       }}>
+      {firstLaunch ? (
+        <Stack.Screen name="OnboardingScreen" component={OnboardingScreen} />
+      ) : null}
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Signup" component={SignUp} />
     </Stack.Navigator>
@@ -210,12 +216,40 @@ function AuthenticatedStack() {
 
 function Navigation() {
   const Authctx = useContext(AuthContext);
-  return (
-    <NavigationContainer>
-      {!Authctx.isAuthenticated && <AuthStack />}
-      {Authctx.isAuthenticated && <AuthenticatedStack />}
-    </NavigationContainer>
-  );
+  const [isFirstLaunch, setIsFirstLauch] = useState(null);
+  const [isAuthenticating, setIsAuthenticating] = useState(true);
+
+  useEffect(() => {
+    AsyncStorage.getItem('alreadyLaunched').then(value => {
+      if (value === null) {
+        AsyncStorage.setItem('alreadyLaunched', 'true');
+        setIsFirstLauch(true);
+      } else {
+        setIsFirstLauch(false);
+      }
+    });
+  }, []);
+
+  if (isAuthenticating) {
+    setTimeout(() => {
+      setIsAuthenticating(false);
+    }, 1000);
+  }
+
+  if (isFirstLaunch === null) {
+    return null;
+  } else if (isFirstLaunch === true) {
+    if (isAuthenticating) {
+      return <LoadingOverlay message="" />;
+    }
+    if (!Authctx.isAuthenticated) return <AuthStack firstLaunch={true} />;
+  } else {
+    if (isAuthenticating) {
+      return <LoadingOverlay message="" />;
+    }
+    if (!Authctx.isAuthenticated) return <AuthStack firstLaunch={false} />;
+    if (Authctx.isAuthenticated) return <AuthenticatedStack />;
+  }
 }
 const App = () => {
   // const {cartItems} = useSelector(store => store.cart);
@@ -237,7 +271,9 @@ const App = () => {
       />
       <Provider store={myStore}>
         <AuthContextProvider>
-          <Navigation />
+          <NavigationContainer>
+            <Navigation />
+          </NavigationContainer>
         </AuthContextProvider>
       </Provider>
     </>

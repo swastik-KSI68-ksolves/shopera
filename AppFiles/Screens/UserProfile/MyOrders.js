@@ -1,5 +1,7 @@
 import {useRoute} from '@react-navigation/native';
 import React from 'react';
+import {useContext} from 'react';
+import {useState} from 'react';
 import {useEffect} from 'react';
 import {
   FlatList,
@@ -7,19 +9,52 @@ import {
   Platform,
   StyleSheet,
   Text,
+  ToastAndroid,
   useWindowDimensions,
   View,
 } from 'react-native';
 import {GlobalStyles} from '../../Constants/GlobalStyles';
+import firestore, {firebase} from '@react-native-firebase/firestore';
+import {AuthContext} from '../../Store/AuthContext';
 
 const MyOrders = ({navigation}) => {
   const {fontScale, height, width} = useWindowDimensions();
-  const route = useRoute();
-  const orders = route.params.orders;
-  const orderId = route.params.orderId;
-  const total = route.params.total;
+  const [productData, setProductData] = useState([]);
+  const Authctx = useContext(AuthContext);
+  let total = 0;
+  if (productData.length > 0) {
+    total = productData.reduce((sum, product) => {
+      return sum + product.total;
+    }, 0);
+  } else {
+    total = 0;
+  }
 
-  console.log('orderId', orderId);
+  useEffect(() => {
+    const {localId} = JSON.parse(Authctx.userInfo);
+    function onResult(QuerySnapshot) {
+      setProductData([]);
+      try {
+        const products = QuerySnapshot.data();
+        console.log(products);
+        products.forEach(documentSnapshot => {
+          setProductData(oldArray => [...oldArray, documentSnapshot]);
+        });
+      } catch (err) {
+        ToastAndroid.show('Something Went Wrong', ToastAndroid.SHORT);
+      }
+    }
+
+    function onError(error) {
+      console.log("err");
+      Alert.alert('something went wrong');
+    }
+
+    firestore()
+      .collection('Customer_Orders')
+      .doc(localId)
+      .onSnapshot(onResult, onError);
+  }, []);
 
   const styles = StyleSheet.create({
     container: {
@@ -136,7 +171,7 @@ const MyOrders = ({navigation}) => {
       <FlatList
         contentContainerStyle={{alignItems: 'center'}}
         style={{flex: 1, backgroundColor: GlobalStyles.colors.color4}}
-        data={orders}
+        data={productData}
         renderItem={renderCartData}
         keyExtractor={item => item.id}
       />

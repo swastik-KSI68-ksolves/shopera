@@ -29,21 +29,12 @@ import {
 const Cart = ({navigation}) => {
   const dispatch = useDispatch();
   const {cartItems, howMany, total} = useSelector(store => store.cart);
+  console.log('len = ', cartItems.length);
+
+  console.log('howMany=', howMany);
   const Authctx = useContext(AuthContext);
   const {fontScale} = useWindowDimensions();
   const [productData, setProductData] = useState([]);
-
-  // if (productData.length > 0) {
-  //   total = productData.reduce((sum, product) => {
-  //     return sum + product.total;
-  //   }, 0);
-
-  //   productCount = productData.reduce((sum, product) => {
-  //     return sum + product.howMany;
-  //   }, 0);
-  // } else {
-  //   total = 0;
-  // }
 
   const onPlusHandler = async id => {
     const {localId} = JSON.parse(Authctx.userInfo);
@@ -212,44 +203,18 @@ const Cart = ({navigation}) => {
     );
   };
 
-  // useEffect(() => {
-  //   console.log('runnig useeffect');
-  //   const {localId} = JSON.parse(Authctx.userInfo);
-  //   function onResult(QuerySnapshot) {
-  //     setProductData([]);
-  //     try {
-  //       const products = QuerySnapshot.data().products;
-  //       products.forEach(documentSnapshot => {
-  //         setProductData(oldArray => [...oldArray, documentSnapshot]);
-  //       });
-  //     } catch (err) {
-  //       console.log(err);
-  //     }
-  //   }
-
-  //   function onError(error) {
-  //     console.error(error);
-  //     Alert.alert('something went wrong');
-  //   }
-
-  //   firestore()
-  //     .collection('Cart_items')
-  //     .doc(localId)
-  //     .onSnapshot(onResult, onError);
-  // }, []);
-
   useEffect(() => {
     setProductData([]);
     try {
-      // setProductData(oldArray => [...oldArray, ...cartItems]);
+      setProductData([]);
       setProductData(cartItems);
       dispatch(calculateTotal());
     } catch (err) {
       console.log(err);
     }
-  }, [cartItems]);
+  }, [cartItems, howMany]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     dispatch(calculateTotal());
     navigation.setOptions({
       tabBarBadge: howMany,

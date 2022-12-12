@@ -38,7 +38,6 @@ const Wishlist = ({navigation}) => {
     total = 0;
   }
 
-  console.log('wish list data =', productData);
   const onRemoveHandler = async id => {
     const {localId} = JSON.parse(Authctx.userInfo);
     try {
@@ -55,7 +54,7 @@ const Wishlist = ({navigation}) => {
         wishes: firebase.firestore.FieldValue.arrayRemove(...filteredData),
       });
     } catch (err) {
-      console.log(err);
+      ToastAndroid.show('Something Went Wrong', ToastAndroid.SHORT);
     }
     return;
   };
@@ -93,10 +92,10 @@ const Wishlist = ({navigation}) => {
           if (!result) dispatch(addToCart([itemDetails]));
         })
         .catch(err => {
-          console.log('err during move to cart happen');
+          ToastAndroid.show('Something Went Wrong', ToastAndroid.SHORT);
         });
     } catch (err) {
-      console.log(err);
+      ToastAndroid.show('Something Went Wrong', ToastAndroid.SHORT);
     }
     return;
   };
@@ -141,12 +140,11 @@ const Wishlist = ({navigation}) => {
           setProductData(oldArray => [...oldArray, documentSnapshot]);
         });
       } catch (err) {
-        console.log(err);
+        ToastAndroid.show('Something Went Wrong', ToastAndroid.SHORT);
       }
     }
 
     function onError(error) {
-      console.error(error);
       Alert.alert('something went wrong');
     }
 

@@ -38,7 +38,7 @@ import {
 } from '../../Store/Redux/Fuctionality/Cart/CartSlice';
 
 const ProductDescription = ({navigation}) => {
-  const {cartItems, howMany} = useSelector(store => store.cart);
+  const {cartItems, howMany, total} = useSelector(store => store.cart);
   const dispatch = useDispatch();
   const Authctx = useContext(AuthContext);
   const {width, height, fontScale} = useWindowDimensions();
@@ -73,6 +73,10 @@ const ProductDescription = ({navigation}) => {
     rating: Rating,
     total: 1 * Price,
   };
+  const product = cartItems.filter(item => {
+    return item.id === itemDetails.id;
+  });
+
   const CartCountContainer = () => {
     return (
       <Pressable
@@ -345,6 +349,13 @@ const ProductDescription = ({navigation}) => {
                     backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
                   }}
                   fsize={fontScale * 14}
+                  onPress={() =>
+                    navigation.navigate('checkOutScreen', {
+                      productData: product,
+                      total: itemDetails.price,
+                      howMany: 1,
+                    })
+                  }
                 />
                 <PrimaryButton
                   onPress={handleCartButton}

@@ -17,6 +17,7 @@ import {PrimaryButton, UserAvatar} from '../../Exporter';
 import firestore from '@react-native-firebase/firestore';
 import {AuthContext} from '../../Store/AuthContext';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {useRoute} from '@react-navigation/native';
 
 const UserProfile = ({navigation}) => {
   const {fontScale} = useWindowDimensions();
@@ -31,25 +32,33 @@ const UserProfile = ({navigation}) => {
     address: '',
   });
 
+  console.log(userData);
+
   const AuthCTX = useContext(AuthContext);
   const userInfo = JSON.parse(AuthCTX.userInfo);
   const word = userInfo.name.charAt(0);
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <Pressable
-          style={({pressed}) =>
-            pressed ? {paddingRight: 15, opacity: 0.75} : {paddingRight: 15}
-          }
-          onPress={() => AuthCTX.Logout()}>
-          <Icon name="log-out-outline" color="black" size={fontScale * 30} />
-        </Pressable>
-      ),
-    });
-  }, [navigation]);
+  const route = useRoute();
+  const isCheckout = route.params?.isCheckout;
+  console.log(isCheckout);
 
   useLayoutEffect(() => {
+    if (isCheckout == undefined) {
+      navigation.setOptions({
+        headerRight: () => (
+          <Pressable
+            style={({pressed}) =>
+              pressed ? {paddingRight: 15, opacity: 0.75} : {paddingRight: 15}
+            }
+            onPress={() => AuthCTX.Logout()}>
+            <Icon name="log-out-outline" color="black" size={fontScale * 30} />
+          </Pressable>
+        ),
+      });
+    }
+  }, [navigation]);
+
+  useEffect(() => {
     const {email} = JSON.parse(AuthCTX.userInfo);
     firestore()
       .collection('User_details')
@@ -75,10 +84,11 @@ const UserProfile = ({navigation}) => {
       });
   }, []);
 
-  const updateUserData = userData => {
+  const updateUserData = async userData => {
+    console.log('user data in update', userData);
     const {email, localId} = JSON.parse(AuthCTX.userInfo);
     AuthCTX.setUserInfo({email: email, name: userData.name, localId: localId});
-    firestore()
+    await firestore()
       .collection('User_details')
       .doc(userDocId)
       .update({
@@ -87,9 +97,13 @@ const UserProfile = ({navigation}) => {
         address: userData.address,
       })
       .then(() => {
+        if (isCheckout) {
+          navigation.goBack();
+        }
         ToastAndroid.show('details updated', ToastAndroid.SHORT);
-        navigation.goBack();
       });
+
+    return;
   };
 
   // name validation function
@@ -119,20 +133,14 @@ const UserProfile = ({navigation}) => {
       setPincodeErrorMessage('Pincode must be 6 character long');
       return;
     }
-
-    const pincode = userData.pincode;
-    const address = userData.address;
     if (
       pincodeErrorMessage == '' &&
       addressErrorMessage == '' &&
       nameErrorMessage == ''
     ) {
       updateUserData(userData);
-      // setisAuthenticating(true);
-      // setUserData({...userData, pincode: ''});
-      // setUserData({...userData, address: ''});
-      return;
     }
+    return;
   };
 
   return (
@@ -183,7 +191,9 @@ const UserProfile = ({navigation}) => {
             value={userData.email}
             autoCorrect={false}
             autoCapitalize="none"
-            onChangeText={value => {}}
+            onTouchStart={() =>
+              ToastAndroid.show('Coupon Expired', ToastAndroid.SHORT)
+            }
           />
         </View>
         <View style={styles.formgroup}>
@@ -196,6 +206,7 @@ const UserProfile = ({navigation}) => {
             autoCorrect={false}
             autoCapitalize="none"
             onChangeText={value => {
+              console.log('pin = ', value);
               setUserData({...userData, pincode: value});
               setPincodeErrorMessage('');
             }}
@@ -219,6 +230,7 @@ const UserProfile = ({navigation}) => {
             autoCorrect={false}
             autoCapitalize="none"
             onChangeText={value => {
+              console.log('address = ', value);
               setUserData({...userData, address: value});
               setAddressErrorMessage('');
             }}

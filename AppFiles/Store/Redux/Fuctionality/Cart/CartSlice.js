@@ -12,21 +12,38 @@ const cartSlice = createSlice({
   initialState: initialState,
   reducers: {
     addToCart: (state, payload) => {
+      console.log('called add to cart func');
       if (state.cartItems.length < 1) {
+        state.cartItems = [];
         state.cartItems = [...payload.payload];
         return;
-      } else {
-        var filterdItems = payload.payload.filter(
-          item => !state.cartItems.includes(item),
-        );
-
-        console.log('filterdItems = ', filterdItems);
-        const tempArray = state.cartItems;
-        state.cartItems = [];
-        state.cartItems = [...tempArray, ...filterdItems];
+      } else if (state.cartItems.length > 1) {
+        var filterdItems = payload.payload.filter(obj => {
+          return !state.cartItems.some(obj2 => {
+            return obj.id == obj2.id;
+          });
+        });
+        // const tempArray = state.cartItems;
+        // state.cartItems = [];
+        state.cartItems = [...state.cartItems, ...filterdItems];
         return;
       }
+      return;
     },
+
+    // addToCart: (state, payload) => {
+    //   console.log('called add to cart func');
+    //   if (state.cartItems.length < 1) {
+    //     state.cartItems = [...payload.payload];
+    //     return;
+    //   } else {
+    //     const filterdItems = payload.payload.filter(
+    //       item => !state.cartItems.includes(item),
+    //     );
+    //     state.cartItems = [...state.cartItems, ...filterdItems];
+    //     return;
+    //   }
+    // },
 
     removeItem: (state, action) => {
       const itemId = action.payload;

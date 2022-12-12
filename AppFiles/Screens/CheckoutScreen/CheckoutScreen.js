@@ -22,29 +22,23 @@ import {useContext} from 'react';
 import {AuthContext} from '../../Store/AuthContext';
 import firestore from '@react-native-firebase/firestore';
 import RazorpayCheckout from 'react-native-razorpay';
+import {HandleOrderAdd} from '../../Utils/OrderManagement';
 
 const CheckoutScreen = ({navigation}) => {
-  const {fontScale, width, height} = useWindowDimensions();
+  const {fontScale, height} = useWindowDimensions();
   const AuthCTX = useContext(AuthContext);
   const route = useRoute();
   const cartData = route.params.productData;
   const gotTotal = route.params.total;
   const howMany = route.params.howMany;
   const productTotal = gotTotal;
-  const address = 'House No - 05, Jumerati ward 27 ,Hoshangabad';
-  const [selectAddress, setSelectedAddress] = useState('');
   const [couponCode, setCouponCode] = useState('');
   const [couponCodeErrorMessage, setCouponCodeErrorMessage] = useState('');
-  const [couponDetails, setCouponDetails] = useState('');
   const [discountGiven, setDiscountGiven] = useState('₹0');
   const [total, setTotal] = useState(gotTotal + howMany * 40);
   const [shouldApplyCoupon, setShouldApplyCoupon] = useState(true);
   const [questionVisible, setQuestionVisible] = useState('flex');
-  const [modalVisible, setModalVisible] = useState(false);
-  const [pincodeErrorMessage, setPincodeErrorMessage] = useState(null);
-  const [addressErrorMessage, setAddressErrorMessage] = useState(null);
   const [sucessOrFailureIcon, setSucessOrFailureIcon] = useState('');
-  const [shouldUpdateKeyboard, setShouldUpdateKeyboard] = useState(true);
   const [userData, setUserData] = useState({
     name: '',
     pincode: '',
@@ -53,23 +47,21 @@ const CheckoutScreen = ({navigation}) => {
   });
   var keyboardWillShowSub, keyboardWillHideSub;
 
-  // useEffect(() => {
-  //   if (shouldUpdateKeyboard) {
-  //     // componentWillMount
-  //     keyboardWillShowSub = Keyboard.addListener('keyboardDidShow', event => {
-  //       setQuestionVisible('none');
-  //     });
-  //     keyboardWillHideSub = Keyboard.addListener('keyboardDidHide', event => {
-  //       setQuestionVisible('flex');
-  //     });
-  //   }
+  useEffect(() => {
+    // componentWillMount
+    keyboardWillShowSub = Keyboard.addListener('keyboardDidShow', event => {
+      setQuestionVisible('none');
+    });
+    keyboardWillHideSub = Keyboard.addListener('keyboardDidHide', event => {
+      setQuestionVisible('flex');
+    });
 
-  //   return () => {
-  //     //   componentWillUnmount
-  //     keyboardWillShowSub.remove();
-  //     keyboardWillHideSub.remove();
-  //   };
-  // }, [shouldUpdateKeyboard]);
+    return () => {
+      //   componentWillUnmount
+      keyboardWillShowSub.remove();
+      keyboardWillHideSub.remove();
+    };
+  }, []);
 
   useEffect(() => {
     navigation.setOptions({
@@ -82,49 +74,6 @@ const CheckoutScreen = ({navigation}) => {
       },
     });
   }, [navigation]);
-
-  const updateUserData = userData => {
-    const {email, localId} = JSON.parse(AuthCTX.userInfo);
-    AuthCTX.setUserInfo({email: email, name: userData.name, localId: localId});
-    firestore()
-      .collection('User_details')
-      .doc(localId)
-      .update({
-        pincode: userData.pincode,
-        address: userData.address,
-      })
-      .then(() => {
-        ToastAndroid.show('address updated', ToastAndroid.SHORT);
-        setModalVisible(!modalVisible);
-        keyboardWillShowSub = Keyboard.addListener('keyboardDidShow', event => {
-          setQuestionVisible('none');
-        });
-        setShouldUpdateKeyboard(false);
-      });
-  };
-
-  const addAddressData = () => {
-    if (userData.pincode == '' || userData.address == '') {
-      if (userData.pincode == '') setPincodeErrorMessage('picode required');
-      if (userData.address == '') setAddressErrorMessage('address required');
-
-      if (userData.pincode != '') setPincodeErrorMessage('');
-      if (userData.address != '') setAddressErrorMessage('');
-      return;
-    }
-
-    if (userData.pincode.length != 6) {
-      setPincodeErrorMessage('Pincode must be 6 character long');
-      return;
-    }
-
-    const pincode = userData.pincode;
-    const address = userData.address;
-    if (pincodeErrorMessage == '' && addressErrorMessage == '') {
-      updateUserData(userData);
-      return;
-    }
-  };
 
   useEffect(() => {
     const {email} = JSON.parse(AuthCTX.userInfo);
@@ -144,12 +93,10 @@ const CheckoutScreen = ({navigation}) => {
               pincode: pincode,
               email: email,
             });
-          } else {
-            // setUserData({...userData, email: email, name: name});
           }
         });
       });
-  }, []);
+  }, [AuthContext, AuthCTX.userInfo]);
 
   const calculateDiscount = itemData => {
     const Today = new Date();
@@ -189,13 +136,15 @@ const CheckoutScreen = ({navigation}) => {
         }
       })
       .catch(err => {
-        console.log('no coupon found');
-        ToastAndroid.show('Something Went Wrong', ToastAndroid.SHORT);
+        ToastAndroid.show('No Coupon Found', ToastAndroid.SHORT);
       });
   };
 
   const proceedToPayment = () => {
-    console.debug(userData.email);
+    if (!userData.address) {
+      ToastAndroid.show('Add Address To Continue', ToastAndroid.SHORT);
+      return;
+    }
     var options = {
       description: 'Credits towards consultation',
       image:
@@ -214,16 +163,10 @@ const CheckoutScreen = ({navigation}) => {
     RazorpayCheckout.open(options)
       .then(data => {
         // handle success
-        console.log(
-          'details order = ',
-          data.razorpay_order_id,
-          data.razorpay_payment,
-          data.razorpay_signature,
-          data.status_code,
-        );
+        const {localId} = JSON.parse(AuthCTX.userInfo);
+        HandleOrderAdd(cartData, localId, total);
         navigation.navigate('myOrders', {
           orders: cartData,
-          orderId: data.razorpay_order_id,
           total: total,
         });
         alert(`Order Placed`);
@@ -369,83 +312,8 @@ const CheckoutScreen = ({navigation}) => {
       fontWeight: '500',
     },
   });
-
-  const RenderAddressForm = () => {
-    return (
-      <View style={{width: '100%', paddingHorizontal: 10}}>
-        <View style={sytles.formgroup}>
-          <Text style={sytles.label}>Enter pincode</Text>
-          <TextInput
-            // autoFocus={true}
-            // onFocus={Keyboard.removeAllListeners('keyboardDidShow')}
-            style={!pincodeErrorMessage ? sytles.input2 : sytles.inputError2}
-            placeholderTextColor={GlobalStyles.colors.color2}
-            placeholder="Pincode"
-            value={userData.pincode}
-            autoCorrect={false}
-            autoCapitalize="none"
-            onChangeText={value => {
-              setUserData({...userData, pincode: value});
-              setPincodeErrorMessage('');
-            }}
-            onPressIn={() => {
-              setPincodeErrorMessage('');
-            }}
-          />
-          {/* {!!pincodeErrorMessage ? (
-            <Text style={sytles.errorMessage}>{pincodeErrorMessage}</Text>
-          ) : null} */}
-        </View>
-        <View style={sytles.formgroup}>
-          <Text style={sytles.label}>Enter Address </Text>
-          <TextInput
-            multiline={true}
-            numberOfLines={5}
-            style={!addressErrorMessage ? sytles.input2 : sytles.inputError2}
-            placeholderTextColor={GlobalStyles.colors.color2}
-            placeholder="Address - House No/Street/City "
-            value={userData.address}
-            autoCorrect={false}
-            autoCapitalize="none"
-            onChangeText={value => {
-              setUserData({...userData, address: value});
-              setAddressErrorMessage('');
-            }}
-            onPressIn={() => {
-              setAddressErrorMessage('');
-            }}
-          />
-          {/* {!!addressErrorMessage ? (
-            <Text style={styles.errorMessage}>{addressErrorMessage}</Text>
-          ) : null} */}
-        </View>
-      </View>
-    );
-  };
   return (
     <View style={sytles.container}>
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}>
-        <View style={sytles.modalView}>
-          <RenderAddressForm />
-          <Pressable
-            style={[
-              sytles.button,
-              sytles.buttonClose,
-              {backgroundColor: GlobalStyles.colors.color6},
-            ]}
-            onPress={() => {
-              addAddressData;
-            }}>
-            <Text style={sytles.textStyle}>Submit</Text>
-          </Pressable>
-        </View>
-      </Modal>
       <View style={sytlesInside.addressList}>
         <View style={sytlesInside.locationIconContainer}>
           <Icon
@@ -461,7 +329,7 @@ const CheckoutScreen = ({navigation}) => {
         <View style={sytlesInside.addressAndButtonContainer}>
           {userData.address ? (
             <Text style={sytles.addressText}>
-              {userData.name}, {userData.address}, {userData.pincode}
+              {userData.name} {userData.address} {userData.pincode}
             </Text>
           ) : (
             <Text style={sytles.addressText}>Address not found !</Text>
@@ -469,10 +337,11 @@ const CheckoutScreen = ({navigation}) => {
           <Pressable
             android_ripple={{color: GlobalStyles.colors.color9}}
             style={sytles.selectAddress}
-            onPress={() => {
-              setModalVisible(true);
-              setShouldUpdateKeyboard(false);
-            }}>
+            onPress={() =>
+              navigation.navigate('userProfile', {
+                isCheckout: true,
+              })
+            }>
             {userData.address ? (
               <Text style={sytles.selectAddressText}>Edit address</Text>
             ) : (
@@ -580,10 +449,6 @@ const CheckoutScreen = ({navigation}) => {
                 }
               }} // remove error message on click
             />
-            {/* {!!couponCodeErrorMessage ? (
-              <Text style={sytles.errorMessage}>{couponCodeErrorMessage}</Text>
-            ) : null} */}
-
             <Pressable
               android_ripple={{color: GlobalStyles.colors.color9}}
               style={[
@@ -734,67 +599,5 @@ const sytles = StyleSheet.create({
     color: GlobalStyles.colors.colorRedShade2,
     paddingHorizontal: 10,
     // paddingVertical: 3,
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  button: {
-    borderRadius: 20,
-    padding: 15,
-    elevation: 2,
-  },
-  buttonOpen: {
-    backgroundColor: '#F194FF',
-  },
-  buttonClose: {
-    backgroundColor: '#2196F3',
-  },
-  textStyle: {
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  formgroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    width: '100%',
-    margin: 5,
-  },
-  label: {
-    color: 'rgba(0,0,0,0.7)',
-    marginLeft: 10,
-    paddingBottom: 5,
-  },
-
-  input2: {
-    color: GlobalStyles.colors.color1,
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    borderRadius: 20,
-    padding: 10,
-    paddingHorizontal: 15,
-    marginHorizontal: 5,
-    marginVertical: 2,
-  },
-  inputError2: {
-    color: GlobalStyles.colors.color1,
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    borderRadius: 20,
-    padding: 10,
-    borderColor: GlobalStyles.colors.PrimaryButtonColor,
-    borderWidth: 1,
   },
 });

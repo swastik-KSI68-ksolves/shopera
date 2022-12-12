@@ -19,7 +19,11 @@ import {HandleHeartButtonClick} from '../../Utils/WishListManagement';
 import {FlatListSlider} from 'react-native-flatlist-slider';
 import Preview from '../../Components/ImageSlider/Preview';
 import {useDispatch, useSelector} from 'react-redux';
-import {addToCart} from '../../Store/Redux/Fuctionality/Cart/CartSlice';
+import {
+  addToCart,
+  calculateTotal,
+  clearCart,
+} from '../../Store/Redux/Fuctionality/Cart/CartSlice';
 const Home = ({navigation}) => {
   const dispatch = useDispatch();
   const {fontScale, width, height} = useWindowDimensions();
@@ -59,7 +63,6 @@ const Home = ({navigation}) => {
     if (userLocalId) {
       getCartProductData(userLocalId);
     }
-    console.log('called useeff');
   }, [userLocalId]);
 
   const getCartProductData = async localId => {
@@ -70,12 +73,12 @@ const Home = ({navigation}) => {
       .then(response => {
         const products = response.data()?.products;
         if (!!products) {
+          setCartData([]);
           setCartData(products);
-          console.log('done');
         }
       })
       .catch(() => {
-        console.log('Error occured during add to cart');
+        ToastAndroid.show('Error while adding to cart', ToastAndroid.SHORT);
       });
   };
 

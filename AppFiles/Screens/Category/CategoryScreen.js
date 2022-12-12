@@ -42,7 +42,6 @@ const CategoryScreen = ({navigation}) => {
 
   const getProductsData = async () => {
     setIsLoading(true);
-    console.log('inside  = ', cat);
     const url = `https://dummyjson.com/products/category/${cat}`;
     try {
       let response = await fetch(url, {
@@ -69,7 +68,6 @@ const CategoryScreen = ({navigation}) => {
     getProductsData();
   }, [cat]);
 
-  console.log('PD = ', productsData);
 
   const renderProductsCard = itemData => {
     const itemDetails = {
