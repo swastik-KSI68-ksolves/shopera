@@ -24,6 +24,7 @@ import {AuthContext} from '../../Store/AuthContext';
 import firestore from '@react-native-firebase/firestore';
 import RazorpayCheckout from 'react-native-razorpay';
 import {HandleOrderAdd} from '../../Utils/OrderManagement';
+import {DisplayNotification} from '../../Utils/PushNotifications/LocalNotifications';
 
 const CheckoutScreen = ({navigation}) => {
   const {fontScale, height} = useWindowDimensions();
@@ -185,10 +186,13 @@ const CheckoutScreen = ({navigation}) => {
     RazorpayCheckout.open(options)
       .then(data => {
         // handle success
+        const today = Date.now();
+        const orderId = `L${cartData.length}R${total}D${today}`;
         const {localId} = JSON.parse(AuthCTX.userInfo);
         HandleOrderAdd(cartData, localId, total);
         navigation.navigate('myOrders');
         alert(`Order Placed`);
+        DisplayNotification(orderId);
       })
       .catch(error => {
         // handle failure

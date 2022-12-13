@@ -34,6 +34,7 @@ import firestore, {firebase} from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import messaging from '@react-native-firebase/messaging';
 import LoadingOverlay from './AppFiles/Components/UI/LoadingOverlay';
+import { requestUserPermission } from './AppFiles/Utils/PushNotifications/PushNotification';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -261,16 +262,22 @@ const App = () => {
   // }, [cartItems]);
 
   useEffect(() => {
+    requestUserPermission()
+  }, [])
+  
+
+
+  useEffect(() => {
     SplashScreen.hide();
   }, []);
 
-  // useEffect(() => {
-  //   const unsubscribe = messaging().onMessage(async remoteMessage => {
-  //     Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
-  //   });
+  useEffect(() => {
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage.notification.title));
+    });
 
-  //   return unsubscribe;
-  // }, []);
+    return unsubscribe;
+  }, []);
 
   return (
     <>
