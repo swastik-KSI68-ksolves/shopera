@@ -32,10 +32,11 @@ const MyOrders = ({navigation}) => {
 
   useEffect(() => {
     const {localId} = JSON.parse(Authctx.userInfo);
+    console.log(localId);
     function onResult(QuerySnapshot) {
       setProductData([]);
       try {
-        const products = QuerySnapshot.data();
+        const products = QuerySnapshot.data().products;
         console.log(products);
         products.forEach(documentSnapshot => {
           setProductData(oldArray => [...oldArray, documentSnapshot]);
@@ -46,7 +47,7 @@ const MyOrders = ({navigation}) => {
     }
 
     function onError(error) {
-      console.log("err");
+      console.log('err');
       Alert.alert('something went wrong');
     }
 

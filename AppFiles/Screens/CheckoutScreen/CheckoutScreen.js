@@ -13,6 +13,7 @@ import {
   ToastAndroid,
   useWindowDimensions,
   View,
+  ActivityIndicator,
 } from 'react-native';
 import {GlobalStyles} from '../../Constants/GlobalStyles';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -39,14 +40,16 @@ const CheckoutScreen = ({navigation}) => {
   const [shouldApplyCoupon, setShouldApplyCoupon] = useState(true);
   const [questionVisible, setQuestionVisible] = useState('flex');
   const [sucessOrFailureIcon, setSucessOrFailureIcon] = useState('');
+  const [showAddressActivity, setShowAddressActivity] = useState(true);
+
+  var keyboardWillShowSub, keyboardWillHideSub;
   const [userData, setUserData] = useState({
     name: '',
     pincode: '',
     address: '',
     email: '',
   });
-  var keyboardWillShowSub, keyboardWillHideSub;
-
+  let address = AuthCTX.address;
   useEffect(() => {
     // componentWillMount
     keyboardWillShowSub = Keyboard.addListener('keyboardDidShow', event => {
@@ -93,9 +96,12 @@ const CheckoutScreen = ({navigation}) => {
               pincode: pincode,
               email: email,
             });
+            AuthCTX.setAddress(`${name}, ${pincode}, ${address}`);
+            setShowAddressActivity(false);
           }
         });
       });
+    setShowAddressActivity(false);
   }, [AuthContext, AuthCTX.userInfo]);
 
   const calculateDiscount = itemData => {
@@ -103,14 +109,30 @@ const CheckoutScreen = ({navigation}) => {
     const CouponDate = new Date(itemData.ValidTill);
     if (CouponDate > Today) {
       if (itemData.Type === 'Flat') {
-        // const tempTotal = total - itemData.Discount;
-        setTotal(total - itemData.Discount);
-        setDiscountGiven(`-₹${itemData.Discount}`);
+        const tempTotal = total - itemData.Discount;
+        console.log('1 = total = ', tempTotal, total);
+        if (total > itemData.Discount) {
+          setTotal(tempTotal);
+          setDiscountGiven(`-₹${itemData.Discount}`);
+        } else {
+          ToastAndroid.show(
+            'Add more items to apply this coupon',
+            ToastAndroid.SHORT,
+          );
+        }
       }
       if (itemData.Type === 'percent') {
-        // const tempTotal = total - (total * itemData.Discount) / 100;
-        setTotal(total - (total * itemData.Discount) / 100);
-        setDiscountGiven(`-${itemData.Discount}%`);
+        const tempTotal = total - (total * itemData.Discount) / 100;
+        console.log('2 = total = ', tempTotal, total);
+        if (total > itemData.Discount) {
+          setTotal(tempTotal);
+          setDiscountGiven(`-${itemData.Discount}%`);
+        } else {
+          ToastAndroid.show(
+            'Add more items to apply this coupon',
+            ToastAndroid.SHORT,
+          );
+        }
       }
       setShouldApplyCoupon(false);
     } else {
@@ -141,7 +163,7 @@ const CheckoutScreen = ({navigation}) => {
   };
 
   const proceedToPayment = () => {
-    if (!userData.address) {
+    if (!address) {
       ToastAndroid.show('Add Address To Continue', ToastAndroid.SHORT);
       return;
     }
@@ -165,10 +187,7 @@ const CheckoutScreen = ({navigation}) => {
         // handle success
         const {localId} = JSON.parse(AuthCTX.userInfo);
         HandleOrderAdd(cartData, localId, total);
-        navigation.navigate('myOrders', {
-          orders: cartData,
-          total: total,
-        });
+        navigation.navigate('myOrders');
         alert(`Order Placed`);
       })
       .catch(error => {
@@ -327,9 +346,15 @@ const CheckoutScreen = ({navigation}) => {
           </Text>
         </View>
         <View style={sytlesInside.addressAndButtonContainer}>
-          {userData.address ? (
+          {showAddressActivity ? (
+            <ActivityIndicator
+              color={GlobalStyles.colors.color8}
+              size="small"
+            />
+          ) : address ? (
             <Text style={sytles.addressText}>
-              {userData.name} {userData.address} {userData.pincode}
+              {address}
+              {/* {userData.name} {userData.address} {userData.pincode} */}
             </Text>
           ) : (
             <Text style={sytles.addressText}>Address not found !</Text>

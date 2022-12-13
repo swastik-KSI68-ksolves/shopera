@@ -100,6 +100,9 @@ const UserProfile = ({navigation}) => {
         if (isCheckout) {
           navigation.goBack();
         }
+        AuthCTX.setAddress(
+          `${userData.name}, ${userData.pincode}, ${userData.address}`,
+        );
         ToastAndroid.show('details updated', ToastAndroid.SHORT);
       });
 

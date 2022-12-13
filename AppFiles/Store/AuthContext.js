@@ -7,12 +7,14 @@ export const AuthContext = createContext({
   userInfo: null,
   isAuthenticated: false,
   appLoaded: false,
-  cartItem: null,
+  // cartItem: null,
+  address: null,
   Authenticate: token => {},
   setUserInfo: info => {},
   Logout: () => {},
   SetAppLoaded: () => {},
-  loadCartItems: () => {},
+  // loadCartItems: () => {},
+  setAddress: () => {},
 });
 
 export const AuthContextProvider = ({children}) => {
@@ -20,6 +22,7 @@ export const AuthContextProvider = ({children}) => {
   const [userInfomation, setUserInfomation] = useState(null);
   const [appLoadedOrNot, SetAppLoadedOrNot] = useState(false);
   const [cartItems, setCartItems] = useState([]);
+  const [userAddress, setUserAddress] = useState(null);
 
   useEffect(() => {
     const getData = async () => {
@@ -66,6 +69,10 @@ export const AuthContextProvider = ({children}) => {
       });
   };
 
+  const setAddress = address => {
+    setUserAddress(address);
+  };
+
   // const UpdateUserInfo = () => {
   //   AsyncStorage.removeItem('userInfomation');
   // };
@@ -75,12 +82,14 @@ export const AuthContextProvider = ({children}) => {
     userInfo: userInfomation,
     isAuthenticated: !!authToken,
     appLoaded: appLoadedOrNot,
-    cartItem: cartItems,
+    // cartItem: cartItems,
+    address: userAddress,
     Authenticate: Authenticate,
     setUserInfo: setUserInfo,
     Logout: LogOut,
     SetAppLoaded: SetAppLoadedOrNot,
-    loadCartItems: loadCartItems,
+    // loadCartItems: loadCartItems,
+    setAddress: setAddress,
     // updateUserInfo: UpdateUserInfo,
   };
   return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>;

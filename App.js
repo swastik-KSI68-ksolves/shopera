@@ -1,4 +1,4 @@
-import {Pressable, StatusBar, Text} from 'react-native';
+import {Alert, Pressable, StatusBar, Text} from 'react-native';
 import {GlobalStyles} from './AppFiles/Constants/GlobalStyles';
 import Card from './AppFiles/Components/UI/Card';
 import {
@@ -32,6 +32,7 @@ import {Provider, useDispatch, useSelector} from 'react-redux';
 import {myStore} from './AppFiles/Store/Redux/Store';
 import firestore, {firebase} from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import messaging from '@react-native-firebase/messaging';
 import LoadingOverlay from './AppFiles/Components/UI/LoadingOverlay';
 
 const Drawer = createDrawerNavigator();
@@ -262,6 +263,14 @@ const App = () => {
   useEffect(() => {
     SplashScreen.hide();
   }, []);
+
+  // useEffect(() => {
+  //   const unsubscribe = messaging().onMessage(async remoteMessage => {
+  //     Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+  //   });
+
+  //   return unsubscribe;
+  // }, []);
 
   return (
     <>

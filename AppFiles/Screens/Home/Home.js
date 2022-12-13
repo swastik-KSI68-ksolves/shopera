@@ -37,7 +37,7 @@ const Home = ({navigation}) => {
   const limit = 30;
   let firstTenProducts = [];
   let word = 'G';
-  let userLocalId;
+  let userLocalId, images;
 
   const Authctx = useContext(AuthContext);
   const userInfo = JSON.parse(Authctx.userInfo);
@@ -48,8 +48,16 @@ const Home = ({navigation}) => {
   }
 
   if (productsData) {
-    firstTenProducts = productsData.slice(0, 10);
+    firstTenProducts = productsData.slice(5,15);
   }
+
+  if (firstTenProducts) {
+    images = firstTenProducts.map(object => {
+      return {image: object.images[0], desc: object.description, id: object.id};
+    });
+  }
+
+  console.log('images', images);
 
   if (cartData.length > 0) {
     dispatch(addToCart(cartData));
@@ -82,9 +90,12 @@ const Home = ({navigation}) => {
       });
   };
 
-  const images = firstTenProducts.map(object => {
-    return {image: object.images[0], desc: object.description, id: object.id};
-  });
+  if (firstTenProducts) {
+    images = [];
+    images = firstTenProducts.map(object => {
+      return {image: object.images[0], desc: object.description, id: object.id};
+    });
+  }
 
   const wait = timeout => {
     return new Promise(resolve => setTimeout(resolve, timeout));
@@ -194,8 +205,10 @@ const Home = ({navigation}) => {
   const RenderImageSlider = () => {
     return images ? (
       <FlatListSlider
+        removeClippedSubviews={true}
         component={<Preview />}
-        indicatorActiveColor={GlobalStyles.colors.color5}
+        indicatorActiveColor={GlobalStyles.colors.PrimaryButtonColor}
+        indicatorInActiveColor={GlobalStyles.colors.color3}
         loop={true}
         autoscroll={true}
         data={images}

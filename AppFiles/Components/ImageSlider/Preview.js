@@ -38,7 +38,7 @@ export default Preview = ({
         <Image
           style={[
             styles.videoPreview,
-            {width: width, resizeMode: 'contain'},
+            {width: width, resizeMode: 'center'},
             active ? {} : {height: 120},
           ]}
           source={{uri: item[imageKey]}}

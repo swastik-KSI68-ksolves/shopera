@@ -6,13 +6,16 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
+import {useDispatch} from 'react-redux';
 import {GlobalStyles} from '../../Constants/GlobalStyles';
 import {OptionPicker, UserAvatar} from '../../Exporter';
 import {AuthContext} from '../../Store/AuthContext';
+import {clearCart} from '../../Store/Redux/Fuctionality/Cart/CartSlice';
 
 // import firestore from '@react-native-firebase/firestore';
 
 const ChooseScreen = ({navigation}) => {
+  const dispatch = useDispatch();
   const AuthCTX = useContext(AuthContext);
   const userInfo = JSON.parse(AuthCTX.userInfo);
   const word = userInfo.name.charAt(0);
@@ -67,6 +70,7 @@ const ChooseScreen = ({navigation}) => {
         text={'Log Out'}
         onPress={() => {
           AuthCTX.Logout();
+          dispatch(clearCart());
         }}
       />
     </View>
