@@ -251,6 +251,8 @@ android {
 }
 
 dependencies {
+    
+    implementation project(':react-native-push-notification') //changed
     implementation project(':react-native-splash-screen') //changed
     implementation platform('com.google.firebase:firebase-bom:31.0.2') //changed
     implementation fileTree(dir: "libs", include: ["*.jar"])

@@ -191,7 +191,6 @@ const CheckoutScreen = ({navigation}) => {
         const {localId} = JSON.parse(AuthCTX.userInfo);
         HandleOrderAdd(cartData, localId, total);
         navigation.navigate('myOrders');
-        alert(`Order Placed`);
         DisplayNotification(orderId);
       })
       .catch(error => {

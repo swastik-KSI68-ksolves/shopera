@@ -11,6 +11,8 @@ import {
   Easing,
   Image,
   Alert,
+  Pressable,
+  ToastAndroid,
 } from 'react-native';
 import {head1, head2, button1} from '../../Constants/Common';
 import PrimaryButton from '../../Components/UI/PrimaryButton';
@@ -20,7 +22,8 @@ import {FlatList} from 'react-native-gesture-handler';
 import LoadingOverlay from '../../Components/UI/LoadingOverlay';
 import {AuthContext} from '../../Store/AuthContext';
 import {userLogin} from '../../Utils/auth';
-import firestore from '@react-native-firebase/firestore';
+import firestore, {firebase} from '@react-native-firebase/firestore';
+import auth from '@react-native-firebase/auth';
 
 const Login = ({navigation}) => {
   const Authctx = useContext(AuthContext);
@@ -151,6 +154,20 @@ const Login = ({navigation}) => {
     return <LoadingOverlay message="Logging in.." />;
   }
 
+  const forgotPasswordHandler = () => {
+    if (!emailErrorMessage && userData.email) {
+      auth()
+        .sendPasswordResetEmail(userData.email)
+        .then(Alert.alert('password reset email sent', 'to your registerd email id'))
+        .catch(err => {
+          console.log(err);
+          ToastAndroid.show('Some thing went wrong', ToastAndroid.SHORT);
+        });
+    } else {
+      ToastAndroid.show('Please enter email', ToastAndroid.SHORT);
+    }
+  };
+
   return (
     <KeyboardAvoidingView style={styles.container} behavior="height">
       <Animated.View
@@ -211,9 +228,9 @@ const Login = ({navigation}) => {
           <Text style={styles.errorMessage}>{passwordErrorMessage}</Text>
         ) : null}
       </View>
-      <View style={styles.fp}>
+      <Pressable style={styles.fp} onPress={forgotPasswordHandler}>
         <Text style={styles.link}>forgot password?</Text>
-      </View>
+      </Pressable>
       <PrimaryButton
         style={styles.buttonLoginOn}
         onPress={() => {
@@ -303,6 +320,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     marginHorizontal: 10,
     marginVertical: 5,
+    paddingVertical: 5,
   },
   link2: {
     // color: "rgba(0,0,0,0.7)",

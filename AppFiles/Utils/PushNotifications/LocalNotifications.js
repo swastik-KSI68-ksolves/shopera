@@ -1,23 +1,42 @@
-import notifee from '@notifee/react-native';
+import PushNotification, {Importance} from 'react-native-push-notification';
+import { GlobalStyles } from '../../Constants/GlobalStyles';
 
-export async function DisplayNotification(orderId) {
-  // Create a channel (required for Android)
-  const channelId = await notifee.createChannel({
-    id: 'default',
-    name: 'Default Channel',
-  });
+PushNotification.configure({
+  onNotification: notification => {
+    console.log('Local Notification', notification);
+  },
+  popInitialNotification: true,
+  requestPermissions: true,
+});
 
-  // Display a notification
-  await notifee.displayNotification({
-    title: 'Order Placed',
-    body: `Order placed successfully your orderId -${orderId}`,
-    android: {
-      channelId,
-      smallIcon: 'name-of-a-small-icon', // optional, defaults to 'ic_launcher'.
-      // pressAction is needed if you want the notification to open the app when pressed
-      pressAction: {
-        id: 'default',
-      },
-    },
+PushNotification.createChannel(
+  {
+    channelId: 'channel-id',
+    channelName: 'my-name',
+    channelDescription: 'A channel for notification',
+    playSound: true,
+    soundName: 'default',
+    importance: Importance.HIGH,
+    vibrate: true,
+    vibration: 1000,
+  },
+  created => console.log(`createChannel returned '${created}'`),
+);
+
+export const DisplayNotification = orderId => {
+  PushNotification.localNotification({
+    channelId: 'channel-id',
+    channelName: 'my-channel',
+    autoCancel: true,
+    bigText: 'Order Placed Succesfully',
+    title: 'Order Placed Succesfully',
+    message: `your order id is - ${orderId}`,
+    playSound: true,
+    soundName: 'default',
+    importance: 'high',
+    vibrate: true,
+    vibration: 1000,
+    largeIcon: "ic_launcher", 
+    color:GlobalStyles.colors.PrimaryButtonColor
   });
-}
+};
