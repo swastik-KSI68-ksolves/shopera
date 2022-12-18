@@ -102,7 +102,9 @@ const CheckoutScreen = ({navigation}) => {
           }
         });
       });
-    setShowAddressActivity(false);
+      setTimeout(() => {
+        setShowAddressActivity(false);
+      }, 2000);
   }, [AuthContext, AuthCTX.userInfo]);
 
   const calculateDiscount = itemData => {
@@ -111,7 +113,6 @@ const CheckoutScreen = ({navigation}) => {
     if (CouponDate > Today) {
       if (itemData.Type === 'Flat') {
         const tempTotal = total - itemData.Discount;
-        console.log('1 = total = ', tempTotal, total);
         if (total > itemData.Discount) {
           setTotal(tempTotal);
           setDiscountGiven(`-₹${itemData.Discount}`);
@@ -124,7 +125,6 @@ const CheckoutScreen = ({navigation}) => {
       }
       if (itemData.Type === 'percent') {
         const tempTotal = total - (total * itemData.Discount) / 100;
-        console.log('2 = total = ', tempTotal, total);
         if (total > itemData.Discount) {
           setTotal(tempTotal);
           setDiscountGiven(`-${itemData.Discount}%`);
@@ -195,7 +195,9 @@ const CheckoutScreen = ({navigation}) => {
       })
       .catch(error => {
         // handle failure
-        alert(`Error: ${error.code} | ${error.description}`);
+        // alert(`Error: ${error.code} | ${error.description}`);
+        alert('payment failed');
+        DisplayNotification('err');
       });
   };
 

@@ -12,6 +12,7 @@ import IndivisualCategory from '../Screens/Category/IndivisualCategory';
 import ChooseScreen from '../Screens/UserProfile/ChooseScreen';
 import MyOrders from '../Screens/UserProfile/MyOrders';
 import OnboardingScreen from '../Screens/Onboarding/OnboardingScreen';
+import SearchScreen from '../Screens/SearchScreen/SearchScreen';
 
 // import all components
 import Card from '../Components/UI/Card';
@@ -23,6 +24,7 @@ import CartItemDetails from '../Components/UI/CartItemDetails';
 import CustomDrawerContent from '../Components/CustomDrawerContent';
 import WishListAddButton from '../Components/UI/WishListAddButton';
 import OptionPicker from '../Components/UI/OptionPicker';
+import RatingWithColors from '../Components/UI/RatingWithColors';
 
 // export all screens
 export {
@@ -39,6 +41,7 @@ export {
   ChooseScreen,
   MyOrders,
   OnboardingScreen,
+  SearchScreen,
 };
 
 // export all components
@@ -52,4 +55,5 @@ export {
   CustomDrawerContent,
   WishListAddButton,
   OptionPicker,
+  RatingWithColors
 };

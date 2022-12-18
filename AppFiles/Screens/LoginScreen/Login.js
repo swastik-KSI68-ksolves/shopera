@@ -13,6 +13,7 @@ import {
   Alert,
   Pressable,
   ToastAndroid,
+  useWindowDimensions,
 } from 'react-native';
 import {head1, head2, button1} from '../../Constants/Common';
 import PrimaryButton from '../../Components/UI/PrimaryButton';
@@ -24,8 +25,10 @@ import {AuthContext} from '../../Store/AuthContext';
 import {userLogin} from '../../Utils/auth';
 import firestore, {firebase} from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const Login = ({navigation}) => {
+  const {fontScale} = useWindowDimensions();
   const Authctx = useContext(AuthContext);
   const [isAuthenticating, setisAuthenticating] = useState(false);
   const imageContainer = useRef(new Animated.Value(1.2)).current;
@@ -33,6 +36,7 @@ const Login = ({navigation}) => {
   // for validation
   const [passwordErrorMessage, setPasswordErrorMessage] = useState(null);
   const [emailErrorMessage, setEmailErrorMessage] = useState(null);
+  const [iconName, setIconName] = useState('eye-outline');
 
   const [userData, setuserData] = useState({
     email: '',
@@ -158,7 +162,12 @@ const Login = ({navigation}) => {
     if (!emailErrorMessage && userData.email) {
       auth()
         .sendPasswordResetEmail(userData.email)
-        .then(Alert.alert('password reset email sent', 'to your registerd email id'))
+        .then(
+          Alert.alert(
+            'password reset email sent',
+            'to your registerd email id',
+          ),
+        )
         .catch(err => {
           console.log(err);
           ToastAndroid.show('Some thing went wrong', ToastAndroid.SHORT);
@@ -209,21 +218,42 @@ const Login = ({navigation}) => {
       </View>
       <View style={styles.formgroup}>
         <Text style={styles.label}>password</Text>
-        <TextInput
-          style={!passwordErrorMessage ? styles.input : styles.inputError}
-          placeholder="Enter your password"
-          placeholderTextColor={GlobalStyles.colors.color2}
-          secureTextEntry={true}
-          autoCorrect={false}
-          autoCapitalize="none"
-          onChangeText={value => {
-            setuserData({...userData, password: value});
-            setPasswordErrorMessage('');
-          }}
-          onPressIn={() => {
-            setPasswordErrorMessage('');
-          }} // remove error message on click
-        />
+        <View>
+          {/* fff */}
+          <TextInput
+            style={!passwordErrorMessage ? styles.input : styles.inputError}
+            placeholder="Enter your password"
+            placeholderTextColor={GlobalStyles.colors.color2}
+            secureTextEntry={iconName == 'eye-outline' ? true : false}
+            autoCorrect={false}
+            autoCapitalize="none"
+            onChangeText={value => {
+              setuserData({...userData, password: value});
+              setPasswordErrorMessage('');
+            }}
+            onPressIn={() => {
+              setPasswordErrorMessage('');
+            }} // remove error message on click
+          />
+          <Pressable
+            onPress={() =>
+              iconName == 'eye-outline'
+                ? setIconName('eye-off-outline')
+                : setIconName('eye-outline')
+            }
+            style={{
+              width: '100%',
+              alignItems: 'flex-end',
+              paddingHorizontal: 15,
+              top: fontScale * -33,
+            }}>
+            <Icon
+              name={iconName}
+              color={GlobalStyles.colors.color1}
+              size={fontScale * 22}
+            />
+          </Pressable>
+        </View>
         {!!passwordErrorMessage ? (
           <Text style={styles.errorMessage}>{passwordErrorMessage}</Text>
         ) : null}

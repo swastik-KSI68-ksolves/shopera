@@ -32,12 +32,10 @@ const MyOrders = ({navigation}) => {
 
   useEffect(() => {
     const {localId} = JSON.parse(Authctx.userInfo);
-    console.log(localId);
     function onResult(QuerySnapshot) {
       setProductData([]);
       try {
         const products = QuerySnapshot.data().products;
-        console.log(products);
         products.forEach(documentSnapshot => {
           setProductData(oldArray => [...oldArray, documentSnapshot]);
         });
@@ -167,7 +165,7 @@ const MyOrders = ({navigation}) => {
     <View style={styles.container}>
       <View style={styles.orderDetails}>
         {/* <Text style={styles.rate}>Order Id - {orderId}</Text> */}
-        <Text style={styles.PaidMoney}>Money Paid - {total}</Text>
+        {/* <Text style={styles.PaidMoney}>Money Paid - {total}</Text> */}
       </View>
       <FlatList
         contentContainerStyle={{alignItems: 'center'}}

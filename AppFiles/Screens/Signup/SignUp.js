@@ -127,7 +127,7 @@ const SignUp = ({navigation}) => {
         name: name,
       });
       users.then(sd => {
-        console.log('saved in db');
+        console.log('user saved in db');
       });
       Authctx.Authenticate(response.idToken);
       Authctx.setUserInfo({

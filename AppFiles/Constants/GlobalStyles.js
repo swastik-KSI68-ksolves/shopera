@@ -23,5 +23,9 @@ export const GlobalStyles = {
     color7: '#FAD6A5',
     color8: '#B5CDA3',
     color9: '#52734D',
+
+    ratingColor1: '#FFDF00',
+    ratingColor2: 'orange',
+    ratingColor3: '#FF4A4A',
   },
 };

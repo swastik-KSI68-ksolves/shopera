@@ -9,7 +9,9 @@ import {
   ActivityIndicator,
   ToastAndroid,
   RefreshControl,
+  TextInput,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
 import {GlobalStyles} from '../../Constants/GlobalStyles';
 import {Card, CategorySlider, UserAvatar} from '../../Exporter';
 import {AuthContext} from '../../Store/AuthContext';
@@ -34,6 +36,7 @@ const Home = ({navigation}) => {
   const [refreshing, setRefreshing] = useState(false);
   const [shouldGetData, setShouldGetdata] = useState(true);
   const [cartData, setCartData] = useState([]);
+  const [allProducts, setAllProducts] = useState();
   const limit = 30;
   let firstTenProducts = [];
   let word = 'G';
@@ -48,7 +51,8 @@ const Home = ({navigation}) => {
   }
 
   if (productsData) {
-    firstTenProducts = productsData.slice(5,15);
+    firstTenProducts = productsData.slice(5, 15);
+    console.log('copy of data = ', allProducts);
   }
 
   if (firstTenProducts) {
@@ -56,8 +60,6 @@ const Home = ({navigation}) => {
       return {image: object.images[0], desc: object.description, id: object.id};
     });
   }
-
-  console.log('images', images);
 
   if (cartData.length > 0) {
     dispatch(addToCart(cartData));
@@ -129,6 +131,17 @@ const Home = ({navigation}) => {
         },
       );
 
+      fetch('https://dummyjson.com/products', {
+        method: 'GET',
+      })
+        .then(res => res.json())
+        .then(res => setAllProducts(res.products))
+        .catch(err =>
+          console.log(
+            'some error occured during fetching data for all products',
+          ),
+        );
+
       const data = await response.json().then(res => res.products);
 
       if (!data) {
@@ -164,7 +177,7 @@ const Home = ({navigation}) => {
       category: itemData.item.category,
       thumbnail: itemData.item.thumbnail,
       howMany: 1,
-      rating: Math.round(itemData.item.rating),
+      rating: itemData.item.rating,
       total: 1 * itemData.item.price,
     };
 
@@ -188,11 +201,10 @@ const Home = ({navigation}) => {
             brand: itemData.item.brand,
             category: itemData.item.category,
             thumbnail: itemData.item.thumbnail,
-            rating: Math.round(itemData.item.rating),
-            // TODO: isAlreadyAdded
+            rating: itemData.item.rating,
           })
         }
-        howManyStar={Math.round(itemData.item.rating)}
+        howManyStar={itemData.item.rating}
         productName={itemData.item.title}
         productPrice={itemData.item.price}
         image={itemData.item.thumbnail}
@@ -220,7 +232,6 @@ const Home = ({navigation}) => {
         // contentContainerStyle={{paddingHorizontal: 16}}
       />
     ) : null;
-    return <View></View>;
   };
 
   return (
@@ -230,10 +241,34 @@ const Home = ({navigation}) => {
           <>
             <View style={styles.aboveContainer}>
               <View style={styles.logoContainer}>
-                <View>
-                  <Text style={[styles.logo, {fontSize: fontScale * 16}]}>
-                    Shopera
-                  </Text>
+                <Text style={[styles.logo, {fontSize: fontScale * 15}]}>
+                  Shopera
+                </Text>
+                <View style={[styles.searchBar, {width: width / 2}]}>
+                  {/* <Icon
+                    name="search-outline"
+                    color={GlobalStyles.colors.color6}
+                    size={fontScale * 30}
+                  /> */}
+                  <TextInput
+                    inlineImagePadding={15}
+                    inlineImageLeft={'search'}
+                    style={styles.searchBarTextBox}
+                    placeholderTextColor={GlobalStyles.colors.color3}
+                    placeholder="Search Shopera.com"
+                    // value={userData.name}
+                    autoCorrect={false}
+                    autoCapitalize="none"
+                    // onChangeText={value => {
+                    //   setUserData({...userData, name: value});
+                    //   setNameErrorMessage('');
+                    // }}
+                    onFocus={() => {
+                      navigation.navigate('SearchScreen', {
+                        allProducts: allProducts,
+                      });
+                    }}
+                  />
                 </View>
                 <View>
                   <UserAvatar
@@ -248,9 +283,9 @@ const Home = ({navigation}) => {
                 </View>
               </View>
               <View style={styles.middleContainer}>
-                <Text style={[styles.best, {fontSize: fontScale * 23}]}>
+                {/* <Text style={[styles.best, {fontSize: fontScale * 20}]}>
                   Browse categories
-                </Text>
+                </Text> */}
                 <CategorySlider color={'black'} size={25} />
               </View>
             </View>
@@ -308,7 +343,7 @@ const styles = StyleSheet.create({
     backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
-    elevation: 10,
+    // elevation: 5,
   },
   logoContainer: {
     flex: 1,
@@ -326,6 +361,7 @@ const styles = StyleSheet.create({
   logo: {
     fontWeight: 'bold',
     color: 'white',
+    marginLeft: 5,
   },
   sliderText: {
     color: 'white',
@@ -340,9 +376,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     paddingHorizontal: 15,
     paddingVertical: 5,
+    marginLeft: 5,
+    marginTop: 5,
   },
   loader: {
     marginVertical: 15,
     alignItems: 'center',
+  },
+  searchBar: {
+    flexDirection: 'row',
+  },
+  searchBarTextBox: {
+    width: '100%',
+    color: GlobalStyles.colors.color1,
+    backgroundColor: 'white',
+    borderRadius: 15,
+    paddingVertical: 6,
+    paddingHorizontal: 15,
+    elevation: 6,
   },
 });

@@ -1,5 +1,17 @@
-import {Image, StyleSheet, useWindowDimensions} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {Image, StyleSheet, Text, useWindowDimensions} from 'react-native';
 import Onboarding from 'react-native-onboarding-swiper';
+
+const DoneButton = () => {
+  const navigation = useNavigation();
+  return (
+    <Text
+      onPress={() => navigation.replace('Login')}
+      style={{color: '#000', paddingHorizontal: 20, textAlign: 'center'}}>
+      Done
+    </Text>
+  );
+};
 
 const OnboardingScreen = ({navigation}) => {
   const {width, height, fontScale} = useWindowDimensions();
@@ -11,6 +23,7 @@ const OnboardingScreen = ({navigation}) => {
   });
   return (
     <Onboarding
+      DoneButtonComponent={DoneButton}
       onSkip={() => navigation.replace('Login')}
       onDone={() => navigation.replace('Login')}
       pages={[

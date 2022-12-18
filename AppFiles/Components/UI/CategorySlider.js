@@ -52,6 +52,7 @@ const CategorySlider = ({size, color, image, style, setCat}) => {
         renderItem={renderCategories}
         keyExtractor={item => item.key}
         horizontal
+        showsHorizontalScrollIndicator={false}
       />
     );
   };

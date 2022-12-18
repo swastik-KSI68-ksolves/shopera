@@ -19,6 +19,7 @@ import {IconButton} from '../../Components/UI/IconButton';
 import PrimaryButton from '../../Components/UI/PrimaryButton';
 import {
   CartItemDetails,
+  RatingWithColors,
   // CustomImageSlider,
   WishListAddButton,
 } from '../../Exporter/index';
@@ -88,7 +89,11 @@ const ProductDescription = ({navigation}) => {
         }>
         <Icon name="cart-outline" color={'black'} size={fontScale * 35} />
         <View style={styles.cartIconContainer}>
-          <Text style={{color: 'white', fontSize: fontScale * 12}}>
+          <Text
+            style={{
+              color: 'white',
+              fontSize: howMany < 99 ? fontScale * 11 : fontScale * 8,
+            }}>
             {howMany}
           </Text>
         </View>
@@ -170,7 +175,6 @@ const ProductDescription = ({navigation}) => {
       const filteredData = wishes.filter(item => {
         return item.id === itemDetails.id;
       });
-      console.log('filterdData = ', filteredData);
       const res = firestore().collection('Wish_list_items').doc(localId);
       filteredData.length > 0
         ? removeData(res, filteredData)
@@ -273,15 +277,18 @@ const ProductDescription = ({navigation}) => {
     cartIconContainer: {
       backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
       borderRadius: 200,
-      width: howMany < 99 ? fontScale * 25 : fontScale * 30,
-      height: howMany < 99 ? fontScale * 25 : fontScale * 30,
+      width: howMany < 99 ? fontScale * 20 : fontScale * 25,
+      height: howMany < 99 ? fontScale * 20 : fontScale * 25,
       alignItems: 'center',
       justifyContent: 'center',
+      left: fontScale * -11,
+      bottom: fontScale * 2,
+      paddingVertical: 1,
     },
     cartUpperContianer: {
       flexDirection: 'row',
       justifyContent: 'center',
-      alignItems: 'center',
+      // alignItems: 'center',
     },
   });
 
@@ -332,12 +339,17 @@ const ProductDescription = ({navigation}) => {
 
               <View style={{paddingHorizontal: 10}}>
                 <H3 style={{color: 'black'}}>₹{Price}</H3>
-                <View style={styles.ratingBrandCat}>
-                  <Ratings
+                <View
+                  style={[
+                    styles.ratingBrandCat,
+                    {paddingHorizontal: 0, paddingVertical: 10},
+                  ]}>
+                  <RatingWithColors rating={Rating} size={fontScale * 15} />
+                  {/* <Ratings
                     Touchable={false}
                     size={15}
                     howManyStarShow={Rating}
-                  />
+                  /> */}
                 </View>
               </View>
 

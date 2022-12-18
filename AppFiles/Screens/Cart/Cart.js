@@ -29,9 +29,6 @@ import {
 const Cart = ({navigation}) => {
   const dispatch = useDispatch();
   const {cartItems, howMany, total} = useSelector(store => store.cart);
-  console.log('len = ', cartItems.length);
-
-  console.log('howMany=', howMany);
   const Authctx = useContext(AuthContext);
   const {fontScale} = useWindowDimensions();
   const [productData, setProductData] = useState([]);
@@ -214,16 +211,16 @@ const Cart = ({navigation}) => {
     }
   }, [cartItems, howMany]);
 
-  useEffect(() => {
-    dispatch(calculateTotal());
-    navigation.setOptions({
-      tabBarBadge: howMany,
-      tabBarBadgeStyle: {
-        backgroundColor: GlobalStyles.colors.color9,
-        fontSize: 15,
-      },
-    });
-  }, [cartItems, howMany]);
+  // useEffect(() => {
+  //   dispatch(calculateTotal());
+  //   navigation.setOptions({
+  //     tabBarBadge: howMany,
+  //     tabBarBadgeStyle: {
+  //       backgroundColor: GlobalStyles.colors.color9,
+  //       fontSize: 15,
+  //     },
+  //   });
+  // }, [cartItems, howMany]);
 
   const RenderCartData = () => {
     if (productData.length > 0) {

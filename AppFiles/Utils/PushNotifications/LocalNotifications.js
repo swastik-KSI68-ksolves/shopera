@@ -1,5 +1,5 @@
 import PushNotification, {Importance} from 'react-native-push-notification';
-import { GlobalStyles } from '../../Constants/GlobalStyles';
+import {GlobalStyles} from '../../Constants/GlobalStyles';
 
 PushNotification.configure({
   onNotification: notification => {
@@ -28,15 +28,15 @@ export const DisplayNotification = orderId => {
     channelId: 'channel-id',
     channelName: 'my-channel',
     autoCancel: true,
-    bigText: 'Order Placed Succesfully',
-    title: 'Order Placed Succesfully',
-    message: `your order id is - ${orderId}`,
+    bigText: orderId == 'err' ? 'Order Failed' : 'Order Placed Succesfully',
+    title: orderId == 'err' ? 'Order Failed' : 'Order Placed Succesfully',
+    message: orderId == 'err' ? '' : `your order id is - ${orderId}`,
     playSound: true,
     soundName: 'default',
     importance: 'high',
     vibrate: true,
     vibration: 1000,
-    largeIcon: "ic_launcher", 
-    color:GlobalStyles.colors.PrimaryButtonColor
+    largeIcon: 'ic_launcher',
+    color: GlobalStyles.colors.PrimaryButtonColor,
   });
 };

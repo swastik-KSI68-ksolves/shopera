@@ -8,13 +8,13 @@ import {
   UserProfile,
   Cart,
   Wishlist,
-  CustomDrawerContent,
   CheckoutScreen,
   CategoryScreen,
   IndivisualCategory,
   ChooseScreen,
   MyOrders,
   OnboardingScreen,
+  SearchScreen,
 } from './AppFiles/Exporter/index';
 import {useContext, useEffect, useState} from 'react';
 import {ProductDescription} from './AppFiles/Exporter/index';
@@ -34,13 +34,23 @@ import firestore, {firebase} from '@react-native-firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import messaging from '@react-native-firebase/messaging';
 import LoadingOverlay from './AppFiles/Components/UI/LoadingOverlay';
-import { requestUserPermission } from './AppFiles/Utils/PushNotifications/PushNotification';
+import {requestUserPermission} from './AppFiles/Utils/PushNotifications/PushNotification';
+import {calculateTotal} from './AppFiles/Store/Redux/Fuctionality/Cart/CartSlice';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function BottomTabNavigator() {
+  const dispatch = useDispatch();
+  const {cartItems, howMany, total} = useSelector(store => store.cart);
+  const [howManyItems, setHowManyItems] = useState(0);
+  useEffect(() => {
+    // setTimeout(() => {
+    setHowManyItems(howMany);
+    // }, 1000);
+  }, [cartItems, howMany]);
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -87,6 +97,12 @@ function BottomTabNavigator() {
         name="Cart"
         component={Cart}
         options={{
+          tabBarBadge: howManyItems,
+          tabBarBadgeStyle: {
+            backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
+            fontSize: howManyItems < 99 ? 13 : 10,
+            color: 'white',
+          },
           headerShown: false,
           tabBarLabel: 'Cart',
           tabBarIcon: ({color, size}) => (
@@ -172,6 +188,11 @@ function AuthStack({firstLaunch}) {
 
 function AuthenticatedStack() {
   const Authctx = useContext(AuthContext);
+  // const {cartItems} = useSelector(store => store.cart);
+  // const dispatch = useDispatch();
+  // useEffect(() => {
+  //   dispatch(calculateTotal());
+  // }, [cartItems]);
   return (
     <Stack.Navigator>
       <Stack.Screen
@@ -212,6 +233,13 @@ function AuthenticatedStack() {
       />
       <Stack.Screen name="checkOutScreen" component={CheckoutScreen} />
       <Stack.Screen name="IndivisualCategory" component={IndivisualCategory} />
+      <Stack.Screen
+        name="SearchScreen"
+        component={SearchScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack.Navigator>
   );
 }
@@ -254,18 +282,9 @@ function Navigation() {
   }
 }
 const App = () => {
-  // const {cartItems} = useSelector(store => store.cart);
-  // const dispatch = useDispatch();
-
-  // useEffect(() => {
-  //   dispatch(calculateCartCount());
-  // }, [cartItems]);
-
   useEffect(() => {
-    requestUserPermission()
-  }, [])
-  
-
+    requestUserPermission();
+  }, []);
 
   useEffect(() => {
     SplashScreen.hide();
@@ -273,7 +292,10 @@ const App = () => {
 
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async remoteMessage => {
-      Alert.alert('new message arrived!', JSON.stringify(remoteMessage.notification.title));
+      Alert.alert(
+        'new message arrived!',
+        JSON.stringify(remoteMessage.notification.title),
+      );
     });
 
     return unsubscribe;

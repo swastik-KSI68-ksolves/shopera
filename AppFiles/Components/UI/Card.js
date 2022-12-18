@@ -10,7 +10,11 @@ import {
 import {GlobalStyles} from '../../Constants/GlobalStyles';
 import {IconButton} from './IconButton';
 import Ratings from './Ratings';
-import {PrimaryButton, WishListAddButton} from '../../Exporter/index';
+import {
+  PrimaryButton,
+  RatingWithColors,
+  WishListAddButton,
+} from '../../Exporter/index';
 import {useContext, useState} from 'react';
 import {AuthContext} from '../../Store/AuthContext';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -105,6 +109,12 @@ const Card = ({
       alignItems: 'flex-end',
       justifyContent: 'space-between',
       paddingLeft: fontScale * 20,
+    },
+    ratingAndButtonVerticalCard: {
+      flexDirection: 'row',
+      alignItems: 'flex-end',
+      justifyContent: 'space-between',
+      paddingHorizontal: fontScale * 5,
     },
     pressed: {
       opacity: 0.75,
@@ -229,7 +239,7 @@ const Card = ({
       // <Pressable
       // style={({pressed}) => pressed && producStyle.pressed}
       // onPress={onPress}>
-      <View style={producStyle.cardContainer}>
+      <View style={[producStyle.cardContainer]}>
         <View style={producStyle.imageContainerHrizontal}>
           <Image style={producStyle.imageHorizontal} source={{uri: image}} />
         </View>
@@ -250,7 +260,7 @@ const Card = ({
     <Pressable
       style={({pressed}) => pressed && producStyle.pressed}
       onPress={onPress}>
-      <View style={producStyle.cardContainer}>
+      <View style={[producStyle.cardContainer, {left: fontScale * 0}]}>
         <View style={producStyle.imageContainer}>
           <Image style={producStyle.image} source={{uri: image}} />
         </View>
@@ -259,21 +269,33 @@ const Card = ({
             style={{
               flexDirection: 'row',
               justifyContent: 'space-between',
-              paddingHorizontal: 2,
             }}>
-            <Text style={producStyle.productName}>{productName}</Text>
+            <Text
+              style={[
+                producStyle.productName,
+                {paddingHorizontal: fontScale * 5},
+              ]}>
+              {productName}
+            </Text>
             {/* <WishListAddButton
               manageWishListInDb={manageWishListInDb}
               isAlreadyAdded={isAlreadyAdded}
             /> */}
           </View>
-          <Text style={producStyle.productPrice}>₹{productPrice}</Text>
-          <View style={producStyle.ratingAndButton}>
-            <Ratings
+          <Text
+            style={[
+              producStyle.productPrice,
+              {paddingHorizontal: fontScale * 5},
+            ]}>
+            ₹{productPrice}
+          </Text>
+          <View style={producStyle.ratingAndButtonVerticalCard}>
+            <RatingWithColors rating={howManyStar} size={fontScale * 15} />
+            {/* <Ratings
               Touchable={false}
               size={fontScale * 15}
               howManyStarShow={howManyStar}
-            />
+            /> */}
             <View>
               <IconButton
                 onPress={onAddPress}

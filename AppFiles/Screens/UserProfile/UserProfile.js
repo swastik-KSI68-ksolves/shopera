@@ -32,7 +32,6 @@ const UserProfile = ({navigation}) => {
     address: '',
   });
 
-  console.log(userData);
 
   const AuthCTX = useContext(AuthContext);
   const userInfo = JSON.parse(AuthCTX.userInfo);
@@ -40,7 +39,6 @@ const UserProfile = ({navigation}) => {
 
   const route = useRoute();
   const isCheckout = route.params?.isCheckout;
-  console.log(isCheckout);
 
   useLayoutEffect(() => {
     if (isCheckout == undefined) {
@@ -85,7 +83,6 @@ const UserProfile = ({navigation}) => {
   }, []);
 
   const updateUserData = async userData => {
-    console.log('user data in update', userData);
     const {email, localId} = JSON.parse(AuthCTX.userInfo);
     AuthCTX.setUserInfo({email: email, name: userData.name, localId: localId});
     await firestore()
@@ -209,7 +206,6 @@ const UserProfile = ({navigation}) => {
             autoCorrect={false}
             autoCapitalize="none"
             onChangeText={value => {
-              console.log('pin = ', value);
               setUserData({...userData, pincode: value});
               setPincodeErrorMessage('');
             }}
@@ -233,7 +229,6 @@ const UserProfile = ({navigation}) => {
             autoCorrect={false}
             autoCapitalize="none"
             onChangeText={value => {
-              console.log('address = ', value);
               setUserData({...userData, address: value});
               setAddressErrorMessage('');
             }}

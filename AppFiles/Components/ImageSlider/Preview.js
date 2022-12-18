@@ -8,6 +8,7 @@ import {
   Platform,
   useWindowDimensions,
   Pressable,
+  ImageBackground,
 } from 'react-native';
 
 export default Preview = ({
@@ -34,6 +35,10 @@ export default Preview = ({
   return (
     // onPress={() => onPress(item)}
     <Pressable style={[styles.videoContainer]}>
+      {/* <ImageBackground
+        source={{uri: item[imageKey]}}
+        blurRadius={15}
+        resizeMode="cover"> */}
       <View style={[styles.imageContainer, styles.shadow]}>
         <Image
           style={[
@@ -44,6 +49,7 @@ export default Preview = ({
           source={{uri: item[imageKey]}}
         />
       </View>
+      {/* </ImageBackground> */}
       <ReturnProductDesc />
     </Pressable>
   );
