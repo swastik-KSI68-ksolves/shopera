@@ -52,7 +52,6 @@ const Home = ({navigation}) => {
 
   if (productsData) {
     firstTenProducts = productsData.slice(5, 15);
-    console.log('copy of data = ', allProducts);
   }
 
   if (firstTenProducts) {
@@ -76,6 +75,7 @@ const Home = ({navigation}) => {
   }, [userLocalId]);
 
   const getCartProductData = async localId => {
+    dispatch(clearCart());
     await firestore()
       .collection('Cart_items')
       .doc(localId)

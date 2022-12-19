@@ -25,14 +25,19 @@ import firestore from '@react-native-firebase/firestore';
 import RazorpayCheckout from 'react-native-razorpay';
 import {HandleOrderAdd} from '../../Utils/OrderManagement';
 import {DisplayNotification} from '../../Utils/PushNotifications/LocalNotifications';
+import {useDispatch} from 'react-redux';
+import {clearCart} from '../../Store/Redux/Fuctionality/Cart/CartSlice';
+import {DeleteCardItems} from '../../Utils/CartManagement';
 
 const CheckoutScreen = ({navigation}) => {
+  const dispatch = useDispatch();
   const {fontScale, height} = useWindowDimensions();
   const AuthCTX = useContext(AuthContext);
   const route = useRoute();
   const cartData = route.params.productData;
   const gotTotal = route.params.total;
   const howMany = route.params.howMany;
+  const fromCart = route.params.fromCart;
   const productTotal = gotTotal;
   const [couponCode, setCouponCode] = useState('');
   const [couponCodeErrorMessage, setCouponCodeErrorMessage] = useState('');
@@ -102,9 +107,9 @@ const CheckoutScreen = ({navigation}) => {
           }
         });
       });
-      setTimeout(() => {
-        setShowAddressActivity(false);
-      }, 2000);
+    setTimeout(() => {
+      setShowAddressActivity(false);
+    }, 2000);
   }, [AuthContext, AuthCTX.userInfo]);
 
   const calculateDiscount = itemData => {
@@ -189,9 +194,13 @@ const CheckoutScreen = ({navigation}) => {
         const today = Date.now();
         const orderId = `L${cartData.length}R${total}D${today}`;
         const {localId} = JSON.parse(AuthCTX.userInfo);
-        HandleOrderAdd(cartData, localId, total);
-        navigation.navigate('myOrders');
-        DisplayNotification(orderId);
+        HandleOrderAdd(cartData, localId, total, orderId);
+        if (fromCart) {
+          DeleteCardItems(localId);
+          dispatch(clearCart());
+        }
+
+        navigation.navigate('PaymentSuccess');
       })
       .catch(error => {
         // handle failure

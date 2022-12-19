@@ -13,6 +13,8 @@ import ChooseScreen from '../Screens/UserProfile/ChooseScreen';
 import MyOrders from '../Screens/UserProfile/MyOrders';
 import OnboardingScreen from '../Screens/Onboarding/OnboardingScreen';
 import SearchScreen from '../Screens/SearchScreen/SearchScreen';
+import PaymentSuccess from '../Screens/PaymentSucess/PaymentSuccess';
+import Notifications from '../Screens/Notifications/Notifications';
 
 // import all components
 import Card from '../Components/UI/Card';
@@ -42,6 +44,8 @@ export {
   MyOrders,
   OnboardingScreen,
   SearchScreen,
+  PaymentSuccess,
+  Notifications
 };
 
 // export all components
@@ -55,5 +59,5 @@ export {
   CustomDrawerContent,
   WishListAddButton,
   OptionPicker,
-  RatingWithColors
+  RatingWithColors,
 };

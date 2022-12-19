@@ -242,7 +242,8 @@ const Login = ({navigation}) => {
                 : setIconName('eye-outline')
             }
             style={{
-              width: '100%',
+              alignSelf:'flex-end',
+              width: '20%',
               alignItems: 'flex-end',
               paddingHorizontal: 15,
               top: fontScale * -33,

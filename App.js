@@ -1,4 +1,4 @@
-import {Alert, Pressable, StatusBar, Text} from 'react-native';
+import {Alert, Pressable, StatusBar, Text, ToastAndroid} from 'react-native';
 import {GlobalStyles} from './AppFiles/Constants/GlobalStyles';
 import Card from './AppFiles/Components/UI/Card';
 import {
@@ -15,6 +15,8 @@ import {
   MyOrders,
   OnboardingScreen,
   SearchScreen,
+  PaymentSuccess,
+  Notifications,
 } from './AppFiles/Exporter/index';
 import {useContext, useEffect, useState} from 'react';
 import {ProductDescription} from './AppFiles/Exporter/index';
@@ -36,6 +38,7 @@ import messaging from '@react-native-firebase/messaging';
 import LoadingOverlay from './AppFiles/Components/UI/LoadingOverlay';
 import {requestUserPermission} from './AppFiles/Utils/PushNotifications/PushNotification';
 import {calculateTotal} from './AppFiles/Store/Redux/Fuctionality/Cart/CartSlice';
+import {HandleNotificationAdd} from './AppFiles/Utils/NotificationManager';
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -43,12 +46,9 @@ const Tab = createBottomTabNavigator();
 
 function BottomTabNavigator() {
   const dispatch = useDispatch();
-  const {cartItems, howMany, total} = useSelector(store => store.cart);
-  const [howManyItems, setHowManyItems] = useState(0);
+  const {cartItems, howMany} = useSelector(store => store.cart);
   useEffect(() => {
-    // setTimeout(() => {
-    setHowManyItems(howMany);
-    // }, 1000);
+    dispatch(calculateTotal());
   }, [cartItems, howMany]);
 
   return (
@@ -83,13 +83,14 @@ function BottomTabNavigator() {
           ),
         }}
       />
+
       <Tab.Screen
         name="Wishlist"
         component={Wishlist}
         options={{
           tabBarLabel: 'Wishlist',
           tabBarIcon: ({color, size}) => (
-            <Icon name="heart" color={color} size={size * 1.1} />
+            <Icon name="heart-outline" color={color} size={size * 1.1} />
           ),
         }}
       />
@@ -97,16 +98,29 @@ function BottomTabNavigator() {
         name="Cart"
         component={Cart}
         options={{
-          tabBarBadge: howManyItems,
+          tabBarBadge: howMany > 0 ? howMany : null,
           tabBarBadgeStyle: {
             backgroundColor: GlobalStyles.colors.PrimaryButtonColor,
-            fontSize: howManyItems < 99 ? 13 : 10,
+            fontSize: howMany < 99 ? 13 : 10,
             color: 'white',
           },
           headerShown: false,
           tabBarLabel: 'Cart',
           tabBarIcon: ({color, size}) => (
             <Icon name="cart-outline" color={color} size={size * 1.1} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Notifications"
+        component={Notifications}
+        options={{
+          tabBarIcon: ({color, size}) => (
+            <Icon
+              name="notifications-outline"
+              color={color}
+              size={size * 1.1}
+            />
           ),
         }}
       />
@@ -234,6 +248,13 @@ function AuthenticatedStack() {
       <Stack.Screen name="checkOutScreen" component={CheckoutScreen} />
       <Stack.Screen name="IndivisualCategory" component={IndivisualCategory} />
       <Stack.Screen
+        name="PaymentSuccess"
+        component={PaymentSuccess}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
         name="SearchScreen"
         component={SearchScreen}
         options={{
@@ -282,6 +303,19 @@ function Navigation() {
   }
 }
 const App = () => {
+  const [localId, setLocalId] = useState(null);
+  const getLocalId = async () => {
+    const userInfo = await AsyncStorage.getItem('userInfomation');
+    if (userInfo !== null) {
+      const {localId} = JSON.parse(userInfo);
+      console.log(localId);
+      setLocalId(localId);
+    }
+  };
+  useEffect(() => {
+    getLocalId();
+  }, []);
+
   useEffect(() => {
     requestUserPermission();
   }, []);
@@ -292,10 +326,17 @@ const App = () => {
 
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async remoteMessage => {
-      Alert.alert(
-        'new message arrived!',
-        JSON.stringify(remoteMessage.notification.title),
+      getLocalId();
+      ToastAndroid.showWithGravity(
+        'You Have New Notification',
+        ToastAndroid.SHORT,
+        ToastAndroid.TOP,
       );
+      console.log(remoteMessage);
+      if (localId) {
+        console.log("done");
+        HandleNotificationAdd(remoteMessage, localId);
+      }
     });
 
     return unsubscribe;
@@ -305,7 +346,7 @@ const App = () => {
     <>
       <StatusBar
         barStyle="dark-content"
-        backgroundColor={GlobalStyles.colors.white}
+        backgroundColor={GlobalStyles.colors.PrimaryButtonColor}
       />
       <Provider store={myStore}>
         <AuthContextProvider>

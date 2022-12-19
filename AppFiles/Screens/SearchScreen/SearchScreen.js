@@ -97,7 +97,27 @@ const SearchScreen = ({navigation}) => {
 
   return (
     <View style={styles.container}>
-      <View style={{backgroundColor: GlobalStyles.colors.color4}}>
+      <View
+        style={{
+          backgroundColor: GlobalStyles.colors.color4,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-evenly',
+        }}>
+        <Pressable
+          onPress={() => navigation.goBack()}
+          style={{
+            alignItems: 'flex-start',
+            width: '10%',
+            marginRight: fontScale * 15,
+          }}>
+          <Icon
+            onPress={() => navigation.goBack()}
+            name="arrow-back-outline"
+            color={GlobalStyles.colors.color1}
+            size={fontScale * 25}
+          />
+        </Pressable>
         <View style={[styles.searchBar, {width: width / 1.5}]}>
           <TextInput
             autoFocus={true}
@@ -138,6 +158,7 @@ const styles = StyleSheet.create({
   searchBar: {
     alignSelf: 'center',
     paddingVertical: 15,
+    left: -20,
   },
   searchBarTextBox: {
     width: '100%',

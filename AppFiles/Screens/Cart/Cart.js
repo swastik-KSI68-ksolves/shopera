@@ -264,7 +264,7 @@ const Cart = ({navigation}) => {
               <Icon
                 name="arrow-back"
                 color="black"
-                size={fontScale * 32}
+                size={fontScale * 25}
                 onPress={() => navigation.goBack()}
               />
             </View>
@@ -279,6 +279,7 @@ const Cart = ({navigation}) => {
                   productData: productData,
                   total: total,
                   howMany: howMany,
+                  fromCart: true,
                 })
               }
               style={styles.buttonSettleNow}>

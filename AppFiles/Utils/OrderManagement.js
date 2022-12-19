@@ -1,9 +1,16 @@
 import firestore, {firebase} from '@react-native-firebase/firestore';
 import {ToastAndroid} from 'react-native';
+import {DisplayNotification} from './PushNotifications/LocalNotifications';
 
-export const AddItemToOrder = (itemDetails, localId, total, lengthOfArray) => {
-//   const Today = new Date();
-//   const orderId = `L${lengthOfArray}T${total}D${Today}`;
+export const AddItemToOrder = (
+  itemDetails,
+  localId,
+  total,
+  lengthOfArray,
+  orderId,
+) => {
+  //   const Today = new Date();
+  //   const orderId = `L${lengthOfArray}T${total}D${Today}`;
 
   if (localId) {
     firestore()
@@ -16,7 +23,7 @@ export const AddItemToOrder = (itemDetails, localId, total, lengthOfArray) => {
         {merge: true},
       )
       .then(() => {
-        ToastAndroid.show('Added to orders', ToastAndroid.SHORT);
+        DisplayNotification(orderId);
       })
       .catch(err => {
         ToastAndroid.show('something went wrong', ToastAndroid.SHORT);
@@ -24,7 +31,7 @@ export const AddItemToOrder = (itemDetails, localId, total, lengthOfArray) => {
   }
 };
 
-export const HandleOrderAdd = async (itemDetails, localId, total) => {
+export const HandleOrderAdd = async (itemDetails, localId, total, orderId) => {
   let flag = 0;
   const lengthOfArray = itemDetails.length;
   if (localId) {
@@ -54,7 +61,7 @@ export const HandleOrderAdd = async (itemDetails, localId, total) => {
         )
       : //   : AddItemToOrder(itemDetails, localId, total);
         itemDetails.map(item =>
-          AddItemToOrder(item, localId, total, lengthOfArray),
+          AddItemToOrder(item, localId, total, lengthOfArray, orderId),
         );
   }
 

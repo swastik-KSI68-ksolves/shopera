@@ -38,7 +38,6 @@ export const HandleCartButtonClick = async (
         !!products &&
           products.forEach(item => {
             if (item.id === itemDetails.id) {
-              console.log('match');
               flag = 1;
               return;
             }
@@ -49,7 +48,6 @@ export const HandleCartButtonClick = async (
         flag = 0;
       });
 
-    console.log('flag', flag);
     flag
       ? ToastAndroid.show(
           'Already in cart, Check your cart',
@@ -59,4 +57,21 @@ export const HandleCartButtonClick = async (
   }
 
   return;
+};
+
+export const DeleteCardItems = localId => {
+  if (localId) {
+    firestore()
+      .collection('Cart_items')
+      .doc(localId)
+      .update({
+        products: firebase.firestore.FieldValue.delete(),
+      })
+      .then(() => {
+        ToastAndroid.show('Empty cart', ToastAndroid.SHORT);
+      })
+      .catch(err => {
+        ToastAndroid.show('something went wrong', ToastAndroid.SHORT);
+      });
+  }
 };

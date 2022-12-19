@@ -1,10 +1,11 @@
 import {createSlice} from '@reduxjs/toolkit';
 
 const initialState = {
+  // notifications: [],
   cartItems: [],
   howMany: 0,
   total: 0,
-  isLoading: true,
+  // notificationsNumber:0,
 };
 
 const cartSlice = createSlice({
@@ -12,7 +13,6 @@ const cartSlice = createSlice({
   initialState: initialState,
   reducers: {
     addToCart: (state, payload) => {
-      console.log('called add to cart func');
       if (state.cartItems.length < 1) {
         state.cartItems = [];
         state.cartItems = [...payload.payload];
@@ -31,18 +31,23 @@ const cartSlice = createSlice({
       return;
     },
 
-    // addToCart: (state, payload) => {
-    //   console.log('called add to cart func');
-    //   if (state.cartItems.length < 1) {
-    //     state.cartItems = [...payload.payload];
+    // addNotification: (state, payload) => {
+    //   if (state.notifications.length < 1) {
+    //     state.notifications = [];
+    //     state.notifications = [...payload.payload];
     //     return;
-    //   } else {
-    //     const filterdItems = payload.payload.filter(
-    //       item => !state.cartItems.includes(item),
-    //     );
+    //   } else if (state.notifications.length > 1) {
+    //     var filterdItems = payload.payload.filter(obj => {
+    //       return !state.notifications.some(obj2 => {
+    //         return obj.id == obj2.id;
+    //       });
+    //     });
+    //     // const tempArray = state.cartItems;
+    //     // state.cartItems = [];
     //     state.cartItems = [...state.cartItems, ...filterdItems];
     //     return;
     //   }
+    //   return;
     // },
 
     removeItem: (state, action) => {

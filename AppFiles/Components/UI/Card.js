@@ -18,6 +18,7 @@ import {
 import {useContext, useState} from 'react';
 import {AuthContext} from '../../Store/AuthContext';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {memo} from 'react';
 
 const Card = ({
   id,
@@ -314,4 +315,4 @@ const Card = ({
   );
 };
 
-export default Card;
+export default memo(Card);

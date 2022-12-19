@@ -366,6 +366,7 @@ const ProductDescription = ({navigation}) => {
                       productData: product,
                       total: itemDetails.price,
                       howMany: 1,
+                      fromCart: false,
                     })
                   }
                 />

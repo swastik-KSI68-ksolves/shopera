@@ -2,7 +2,6 @@ import {Card} from '../Exporter';
 import {HandleCartButtonClick} from './CartManagement';
 
 const RenderProductsCard = (itemData, Authctx, navigation, whereNavigate) => {
-  console.log('called RenderProductsCard');
   const itemDetails = {
     id: itemData.item.id,
     Images: itemData.item.images,

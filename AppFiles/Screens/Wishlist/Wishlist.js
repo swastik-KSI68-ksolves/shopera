@@ -177,17 +177,11 @@ const Wishlist = ({navigation}) => {
 
   useEffect(() => {
     navigation.setOptions({
-      headerRightContainerStyle: {paddingHorizontal: 20},
+      headerTitleAlign:'center',
+      // headerRightContainerStyle: {paddingHorizontal: 20},
       headerTitleAlign: 'center',
       headerTitleStyle: {color: GlobalStyles.colors.PrimaryButtonColor},
-
-      // headerRight: () => (
-      //   <>
-      //     <Pressable onPress={() => setModalVisible(true)}>
-      //       <Icon name="search-outline" color="black" size={fontScale * 25} />
-      //     </Pressable>
-      //   </>
-      // ),
+      
     });
   }, [navigation]);
   return (

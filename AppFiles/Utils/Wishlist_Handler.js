@@ -20,7 +20,6 @@ export const handleWishToggle = (
     rating: rating,
   });
   wishes.then(sd => {
-    console.log('added item to wishlist');
   });
   wishes.catch(err => {
     console.log('not added to whish list some error occured');
