@@ -291,7 +291,7 @@ const Cart = ({navigation}) => {
       {howMany > 0 ? (
         <View style={styles.rateDetails}>
           <View>
-            <H5 style={styles.H5}>Total ₹{total}</H5>
+            <H5 style={styles.H5}>Total ₹{total * 82}</H5>
           </View>
         </View>
       ) : null}

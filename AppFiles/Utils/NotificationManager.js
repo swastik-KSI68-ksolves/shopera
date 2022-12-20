@@ -15,10 +15,10 @@ export const AddNotification = (notificationDetails, localId, id) => {
         {merge: true},
       )
       .then(() => {
-        ToastAndroid.show('Added to notification', ToastAndroid.SHORT);
+        // ToastAndroid.show('Added to notification', ToastAndroid.SHORT);
       })
       .catch(err => {
-        ToastAndroid.show('something went wrong', ToastAndroid.SHORT);
+        // ToastAndroid.show('something went wrong', ToastAndroid.SHORT);
       });
   }
 };
@@ -26,7 +26,8 @@ export const AddNotification = (notificationDetails, localId, id) => {
 export const HandleNotificationAdd = async (notificationDetails, localId) => {
   let flag = 0;
   let len = 0;
-  console.log("before");
+  console.log('before');
+  console.log('localid inside func', localId);
   if (localId) {
     console.log('after');
     await firestore()
@@ -35,27 +36,28 @@ export const HandleNotificationAdd = async (notificationDetails, localId) => {
       .get()
       .then(response => {
         const notifications = response.data()?.notifications;
-        !!notifications ? (len = notifications.length) : (len = 0);
+        !!notifications ? (len = notifications.length + 1) : (len = 0);
       })
       .catch(() => {
         console.log('Error occured during adding notification');
         flag = 0;
       });
 
-      console.log('done till here');
+    console.log('done till here');
     flag
       ? ToastAndroid.show('Already in notification', ToastAndroid.SHORT)
       : AddNotification(notificationDetails, localId, len);
+  } else {
+    console.log('local id is not avaliable');
   }
 
   return;
 };
 
-
 // !!notifications &&
-        //   notifications.forEach(item => {
-        //     if (item.id === itemDetails.id) {
-        //       flag = 1;
-        //       return;
-        //     }
-        //   });
+//   notifications.forEach(item => {
+//     if (item.id === itemDetails.id) {
+//       flag = 1;
+//       return;
+//     }
+//   });

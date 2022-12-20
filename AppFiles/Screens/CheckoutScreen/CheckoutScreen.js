@@ -28,6 +28,8 @@ import {DisplayNotification} from '../../Utils/PushNotifications/LocalNotificati
 import {useDispatch} from 'react-redux';
 import {clearCart} from '../../Store/Redux/Fuctionality/Cart/CartSlice';
 import {DeleteCardItems} from '../../Utils/CartManagement';
+import {EpochCalulator} from '../../Utils/DateToEpoch';
+import {HandleNotificationAdd} from '../../Utils/NotificationManager';
 
 const CheckoutScreen = ({navigation}) => {
   const dispatch = useDispatch();
@@ -191,9 +193,23 @@ const CheckoutScreen = ({navigation}) => {
     RazorpayCheckout.open(options)
       .then(data => {
         // handle success
-        const today = Date.now();
-        const orderId = `L${cartData.length}R${total}D${today}`;
         const {localId} = JSON.parse(AuthCTX.userInfo);
+        const orderId = `L${cartData.length}R${total}D${today}`;
+        const today = Date.now();
+        const Epoch = EpochCalulator(today);
+        const tempData = {
+          collapseKey: 'com.shopera',
+          notification: {
+            android: {
+              imageUrl:
+                'https://cdn-icons-png.flaticon.com/512/7518/7518748.png',
+            },
+            body: 'thanks for purchasing..',
+            title: 'order placed sucessfully',
+          },
+          sentTime: Epoch,
+        };
+        HandleNotificationAdd(tempData, localId);
         HandleOrderAdd(cartData, localId, total, orderId);
         if (fromCart) {
           DeleteCardItems(localId);
@@ -207,6 +223,22 @@ const CheckoutScreen = ({navigation}) => {
         // alert(`Error: ${error.code} | ${error.description}`);
         alert('payment failed');
         DisplayNotification('err');
+        const {localId} = JSON.parse(AuthCTX.userInfo);
+        const today = Date.now();
+        const Epoch = EpochCalulator(today);
+        const tempData = {
+          collapseKey: 'com.shopera',
+          notification: {
+            android: {
+              imageUrl:
+                'https://cdn-icons-png.flaticon.com/512/2190/2190577.png',
+            },
+            body: 'try again ..',
+            title: 'order failed',
+          },
+          sentTime: Epoch,
+        };
+        HandleNotificationAdd(tempData, localId);
       });
   };
 
@@ -515,18 +547,18 @@ const CheckoutScreen = ({navigation}) => {
               Total Payment
             </Text>
             <Text style={[sytlesInside.answer, {fontSize: fontScale * 15}]}>
-              ₹{total}
+              ₹{total * 82}
             </Text>
           </View>
           <View
             style={{borderBottomColor: '#ddd', borderBottomWidth: 1}}></View>
           <View style={sytlesInside.textDetailsContainer}>
             <Text style={sytlesInside.questions}>Total Buy</Text>
-            <Text style={sytlesInside.answer}>₹{productTotal}</Text>
+            <Text style={sytlesInside.answer}>₹{productTotal * 82}</Text>
           </View>
           <View style={sytlesInside.textDetailsContainer}>
             <Text style={sytlesInside.questions}>Delivery Charges</Text>
-            <Text style={sytlesInside.answer}>₹{40 * howMany}</Text>
+            <Text style={sytlesInside.answer}>₹{40 * howMany * 82}</Text>
             {/* <Text style={sytlesInside.note}>₹40 each item</Text> */}
           </View>
           <View style={sytlesInside.textDetailsContainer}>
@@ -546,7 +578,7 @@ const CheckoutScreen = ({navigation}) => {
                 sytles.totalPayText,
                 {color: GlobalStyles.colors.color2},
               ]}>
-              ₹ {total}
+              ₹ {total *82}
             </Text>
           </View>
           <Pressable

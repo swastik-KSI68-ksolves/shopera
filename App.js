@@ -303,42 +303,49 @@ function Navigation() {
   }
 }
 const App = () => {
-  const [localId, setLocalId] = useState(null);
   const getLocalId = async () => {
     const userInfo = await AsyncStorage.getItem('userInfomation');
     if (userInfo !== null) {
       const {localId} = JSON.parse(userInfo);
-      console.log(localId);
-      setLocalId(localId);
+      return localId;
+    } else {
+      console.log('user info is null');
+      return undefined;
     }
   };
-  useEffect(() => {
-    getLocalId();
-  }, []);
 
-  useEffect(() => {
-    requestUserPermission();
-  }, []);
+  const HandleNotification = async remoteMessage => {
+    console.log(remoteMessage);
+    const local_id = await getLocalId();
+    console.log('localId before calling func = ', local_id);
+    !!local_id
+      ? HandleNotificationAdd(remoteMessage, local_id)
+      : console.log('local id not defined');
+
+    ToastAndroid.showWithGravity(
+      'You Have New Notification',
+      ToastAndroid.LONG,
+      ToastAndroid.TOP,
+    );
+
+    return;
+  };
 
   useEffect(() => {
     SplashScreen.hide();
+    requestUserPermission();
   }, []);
+
+  // useEffect(() => {
+  // }, []);
+
+  // useEffect(() => {
+  // }, []);
 
   useEffect(() => {
     const unsubscribe = messaging().onMessage(async remoteMessage => {
-      getLocalId();
-      ToastAndroid.showWithGravity(
-        'You Have New Notification',
-        ToastAndroid.SHORT,
-        ToastAndroid.TOP,
-      );
-      console.log(remoteMessage);
-      if (localId) {
-        console.log("done");
-        HandleNotificationAdd(remoteMessage, localId);
-      }
+      await HandleNotification(remoteMessage);
     });
-
     return unsubscribe;
   }, []);
 

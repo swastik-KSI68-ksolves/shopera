@@ -11,6 +11,7 @@ export async function requestUserPermission() {
     console.log('Authorization status:', authStatus);
     getFcmToken();
   }
+  return;
 }
 
 const getFcmToken = async () => {
@@ -27,6 +28,7 @@ const getFcmToken = async () => {
       console.log(err);
     }
   }
+  return;
 };
 
 // export const NotificationServices=()=>{

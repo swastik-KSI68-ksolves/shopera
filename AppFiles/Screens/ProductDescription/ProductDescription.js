@@ -338,7 +338,7 @@ const ProductDescription = ({navigation}) => {
               {/* <Text style={styles.rateText}>${Price}</Text> */}
 
               <View style={{paddingHorizontal: 10}}>
-                <H3 style={{color: 'black'}}>₹{Price}</H3>
+                <H3 style={{color: 'black'}}>₹{Price * 82}</H3>
                 <View
                   style={[
                     styles.ratingBrandCat,

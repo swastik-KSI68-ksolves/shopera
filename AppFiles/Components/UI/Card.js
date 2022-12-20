@@ -48,8 +48,8 @@ const Card = ({
       paddingVertical: 5,
       fontSize:
         productName && productName.length >= 16
-          ? fontScale * 11
-          : fontScale * 15,
+          ? fontScale * 12
+          : fontScale * 12,
       color: GlobalStyles.colors.PrimaryTextColor,
     },
     productNameHorizontal: {
@@ -57,8 +57,8 @@ const Card = ({
       paddingVertical: 5,
       fontSize:
         productName && productName.length >= 16
-          ? fontScale * 15
-          : fontScale * 20,
+          ? fontScale * 17
+          : fontScale * 17,
       color: GlobalStyles.colors.PrimaryTextColor,
     },
     productPrice: {
@@ -245,12 +245,14 @@ const Card = ({
           <Image style={producStyle.imageHorizontal} source={{uri: image}} />
         </View>
         <View style={producStyle.detailsContainerHorizontal}>
-          <Text style={producStyle.productNameHorizontal}>{productName}</Text>
+          <Text style={producStyle.productNameHorizontal}>
+            {productName}
+          </Text>
           <Text style={producStyle.productDesc}>
-            {productDesc.slice(0, 30)}... desc
+            {productDesc.slice(0, 30)}...
           </Text>
           <Text style={producStyle.productPriceHorizontal}>
-            ₹{productPrice}
+            ₹{productPrice * 82}
           </Text>
           <ShowPlusMinus />
         </View>
@@ -288,7 +290,7 @@ const Card = ({
               producStyle.productPrice,
               {paddingHorizontal: fontScale * 5},
             ]}>
-            ₹{productPrice}
+            ₹{productPrice * 82}
           </Text>
           <View style={producStyle.ratingAndButtonVerticalCard}>
             <RatingWithColors rating={howManyStar} size={fontScale * 15} />
