@@ -226,6 +226,7 @@ const Cart = ({navigation}) => {
     if (productData.length > 0) {
       return (
         <FlatList
+          maxToRenderPerBatch={8}
           style={styles.cartItemCards}
           contentContainerStyle={styles.cardItemCardContainer}
           data={productData}

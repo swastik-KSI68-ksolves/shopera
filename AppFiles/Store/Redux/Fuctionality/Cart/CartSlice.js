@@ -5,6 +5,7 @@ const initialState = {
   cartItems: [],
   howMany: 0,
   total: 0,
+  // alreadyAddedFromHome: false,
   // notificationsNumber:0,
 };
 
@@ -17,18 +18,15 @@ const cartSlice = createSlice({
         state.cartItems = [];
         state.cartItems = [...payload.payload];
         return;
-      } else if (state.cartItems.length > 1) {
+      } else {
         var filterdItems = payload.payload.filter(obj => {
           return !state.cartItems.some(obj2 => {
             return obj.id == obj2.id;
           });
         });
-        // const tempArray = state.cartItems;
-        // state.cartItems = [];
         state.cartItems = [...state.cartItems, ...filterdItems];
         return;
       }
-      return;
     },
 
     // addNotification: (state, payload) => {
@@ -42,8 +40,6 @@ const cartSlice = createSlice({
     //         return obj.id == obj2.id;
     //       });
     //     });
-    //     // const tempArray = state.cartItems;
-    //     // state.cartItems = [];
     //     state.cartItems = [...state.cartItems, ...filterdItems];
     //     return;
     //   }
@@ -82,6 +78,7 @@ const cartSlice = createSlice({
     },
 
     calculateTotal: state => {
+      console.log('ct runned');
       let howMany = 0;
       let total = 0;
       state.cartItems.forEach(item => {
@@ -91,6 +88,10 @@ const cartSlice = createSlice({
       state.howMany = howMany;
       state.total = total;
     },
+
+    // setAlreadyAddedFromHome: state => {
+    //   state.alreadyAddedFromHome = true;
+    // },
   },
 });
 
@@ -101,5 +102,6 @@ export const {
   increase,
   decrease,
   calculateTotal,
+  // setAlreadyAddedFromHome,
 } = cartSlice.actions;
 export default cartSlice.reducer;

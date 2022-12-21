@@ -25,6 +25,7 @@ import {
   addToCart,
   calculateTotal,
   clearCart,
+  setAlreadyAddedFromHome,
 } from '../../Store/Redux/Fuctionality/Cart/CartSlice';
 const Home = ({navigation}) => {
   const dispatch = useDispatch();
@@ -37,6 +38,7 @@ const Home = ({navigation}) => {
   const [shouldGetData, setShouldGetdata] = useState(true);
   const [cartData, setCartData] = useState([]);
   const [allProducts, setAllProducts] = useState();
+  const [isFirstLauch, setIsFirstLauch] = useState(false);
   const limit = 30;
   let firstTenProducts = [];
   let word = 'G';
@@ -61,7 +63,12 @@ const Home = ({navigation}) => {
   }
 
   if (cartData.length > 0) {
-    dispatch(addToCart(cartData));
+    !isFirstLauch ? dispatch(addToCart(cartData)) : null;
+    !isFirstLauch
+      ? setTimeout(() => {
+          setIsFirstLauch(true);
+        }, 1500)
+      : null;
   }
 
   useEffect(() => {
@@ -184,6 +191,11 @@ const Home = ({navigation}) => {
     const handleCartButton = itemDetails => {
       const handleReduxCart = () => {
         dispatch(addToCart([itemDetails]));
+        // !isFirstLauch
+        //   ? setTimeout(() => {
+        //       setIsFirstLauch(true);
+        //     }, 1500)
+        //   : null;
       };
       const {localId} = JSON.parse(Authctx.userInfo);
       HandleCartButtonClick(itemDetails, localId, handleReduxCart);
